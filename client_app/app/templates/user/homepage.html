@@ -1,0 +1,262 @@
+{% extends "user/base.html" %}
+{% block content %}
+<div class="container mt-5 mb-5">
+    {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="card shadow bg-body-tertiary rounded">
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-airplane"
+                viewBox="0 0 16 16">
+                <path
+                    d="M6.428 1.151C6.708.591 7.213 0 8 0s1.292.592 1.572 1.151C9.861 1.73 10 2.431 10 3v3.691l5.17 2.585a1.5 1.5 0 0 1 .83 1.342V12a.5.5 0 0 1-.582.493l-5.507-.918-.375 2.253 1.318 1.318A.5.5 0 0 1 10.5 16h-5a.5.5 0 0 1-.354-.854l1.319-1.318-.376-2.253-5.507.918A.5.5 0 0 1 0 12v-1.382a1.5 1.5 0 0 1 .83-1.342L6 6.691V3c0-.568.14-1.271.428-1.849m.894.448C7.111 2.02 7 2.569 7 3v4a.5.5 0 0 1-.276.447l-5.448 2.724a.5.5 0 0 0-.276.447v.792l5.418-.903a.5.5 0 0 1 .575.41l.5 3a.5.5 0 0 1-.14.437L6.708 15h2.586l-.647-.646a.5.5 0 0 1-.14-.436l.5-3a.5.5 0 0 1 .576-.411L15 11.41v-.792a.5.5 0 0 0-.276-.447L9.276 7.447A.5.5 0 0 1 9 7V3c0-.432-.11-.979-.322-1.401C8.458 1.159 8.213 1 8 1s-.458.158-.678.599" />
+            </svg>
+            Vé máy bay
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('homepage.search_flights') }}" method="POST" id="searchForm">
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="d-flex align-items-center gap-3 justify-content-end">
+                            <div class="position-relative" style="min-width: 220px;">
+                                <a class="btn btn-outline-dark w-100" data-bs-toggle="collapse" href="#collapseExample"
+                                    role="button" aria-expanded="true" aria-controls="collapseExample"
+                                    id="passengerButton">
+                                    1 Người lớn, 0 Trẻ em, 0 Em bé
+                                </a>
+                                <div class="collapse position-absolute" id="collapseExample"
+                                    style="width: 100%; z-index: 1000; margin-top: 5px;">
+                                    <div class="card card-body">
+                                        <label class="form-label">Số hành khách</label>
+                                        <label for="nguoiLon">Người lớn</label>
+                                        <div data-mdb-input-init class="form-outline mb-2">
+                                            <input type="number" id="nguoiLon" name="nguoiLon"
+                                                class="form-control passenger-input"
+                                                value="{{ default_data.passenger_adults }}" min="1" required />
+                                        </div>
+                                        <label for="treEm">Trẻ em</label>
+                                        <div data-mdb-input-init class="form-outline mb-2">
+                                            <input type="number" id="treEm" name="treEm"
+                                                class="form-control passenger-input"
+                                                value="{{ default_data.passenger_children }}" min="0" required />
+                                        </div>
+                                        <label for="emBe">Em bé</label>
+                                        <div data-mdb-input-init class="form-outline">
+                                            <input type="number" id="emBe" name="emBe"
+                                                class="form-control passenger-input"
+                                                value="{{ default_data.passenger_infants }}" min="0" required />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="input-group" style="width: 200px;">
+                                <select class="form-select" aria-label="Default select example" name="seat_class">
+                                    {% for class in default_data.seat_class %}
+                                    <option value="{{ class.value }}">{{ class.label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="row">
+                            <!-- Origin -->
+                            <div class="col-md-5">
+                                <label class="form-label">Từ</label>
+                                <input type="hidden" name="origin" id="origin"> <!-- Thêm hidden input -->
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button"
+                                        id="originDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Chọn địa điểm
+                                    </button>
+                                    <ul class="dropdown-menu w-100" aria-labelledby="originDropdownButton"
+                                        id="origin-list">
+                                        <li class="px-3">
+                                            <input type="text" class="form-control" id="searchInputOrigin"
+                                                placeholder="Tìm kiếm...">
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        {% for sb in san_bay %}
+                                        <li>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectOrigin('{{sb.thanh_pho}} ({{sb.ma_san_bay}})', '{{sb.ma_san_bay}}')">
+                                                {{sb.thanh_pho}} ({{sb.ma_san_bay}})
+                                            </a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-2 d-flex justify-content-center align-items-center">
+                                <button class="btn btn-outline-dark" id="swap-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-arrow-left-right mb-1" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Destination -->
+                            <div class="col-md-5">
+                                <label class="form-label">Đến</label>
+                                <input type="hidden" name="destination" id="destination"> <!-- Thêm hidden input -->
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button"
+                                        id="destinationDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Chọn địa điểm
+                                    </button>
+                                    <ul class="dropdown-menu w-100" aria-labelledby="destinationDropdownButton"
+                                        id="destination-list">
+                                        <li class="px-3">
+                                            <input type="text" class="form-control" id="searchInputDestination"
+                                                placeholder="Tìm kiếm...">
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        {% for sb in san_bay %}
+                                        <li>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectDestination('{{sb.thanh_pho}} ({{sb.ma_san_bay}})', '{{sb.ma_san_bay}}')">
+                                                {{sb.thanh_pho}} ({{sb.ma_san_bay}})
+                                            </a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column for departure and return date -->
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="departure-date" class="form-label">Ngày đi</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                    <input type="date" id="departure-date" name="departure-date" class="form-control"
+                                        value="{{ default_data.departure_date }}">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6" id="return-date-section">
+                                <label for="return-date" class="form-label">Ngày về</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                    <input type="date" id="return-date" name="return-date" class="form-control"
+                                        value="{{ default_data.return_date }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Khứ hồi Checkbox -->
+                <div class="d-flex justify-content-end align-items-end mt-3">
+                    <div class="form-check">
+                        <input type="checkbox" name="return-trip" class="form-check-input" id="return-trip" {% if
+                            default_data.is_round_trip %}checked{% endif %}>
+                        <label class="form-check-label" for="return-trip">Khứ hồi</label>
+                    </div>
+                </div>
+                <div class="mt-3 d-grid">
+                    <button class="btn btn-outline-primary" type="submit">Tìm kiếm chuyến bay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.passenger-input').forEach(input => {
+        input.addEventListener('change', function () {
+            const nguoiLon = document.getElementById('nguoiLon').value;
+            const treEm = document.getElementById('treEm').value;
+            const emBe = document.getElementById('emBe').value;
+
+            document.getElementById('passengerButton').textContent =
+                `${nguoiLon} Người lớn, ${treEm} Trẻ em, ${emBe} Em bé`;
+        });
+    });
+    function toggleReturnDate() {
+        const returnDateInput = document.getElementById('return-date');
+        const returnTripCheckbox = document.getElementById('return-trip');
+        returnDateInput.disabled = !returnTripCheckbox.checked;
+    }
+
+    document.getElementById('return-trip').addEventListener('change', toggleReturnDate);
+
+    toggleReturnDate();
+
+    function filterDropdown(inputId, dropdownId) {
+        const input = document.getElementById(inputId);
+        const filter = input.value.toLowerCase();
+        const dropdownItems = document.querySelectorAll(`#${dropdownId} .dropdown-item`);
+
+        dropdownItems.forEach(function (item) {
+            const text = item.textContent || item.innerText;
+            if (text.toLowerCase().indexOf(filter) > -1) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+
+    document.getElementById('searchInputOrigin').addEventListener('keyup', function () {
+        filterDropdown('searchInputOrigin', 'origin-list');
+    });
+
+    document.getElementById('searchInputDestination').addEventListener('keyup', function () {
+        filterDropdown('searchInputDestination', 'destination-list');
+    });
+
+    function selectOrigin(displayText, airportCode) {
+        document.getElementById('originDropdownButton').textContent = displayText;
+        document.getElementById('origin').value = airportCode;
+    }
+
+    function selectDestination(displayText, airportCode) {
+        document.getElementById('destinationDropdownButton').textContent = displayText;
+        document.getElementById('destination').value = airportCode;
+    }
+
+    // Cập nhật hàm swap button
+    document.getElementById('swap-button').addEventListener('click', function (e) {
+        e.preventDefault();
+        let originDropdown = document.getElementById('originDropdownButton');
+        let destinationDropdown = document.getElementById('destinationDropdownButton');
+        let originInput = document.getElementById('origin');
+        let destinationInput = document.getElementById('destination');
+
+        let tempText = originDropdown.textContent;
+        let tempValue = originInput.value;
+
+        originDropdown.textContent = destinationDropdown.textContent;
+        originInput.value = destinationInput.value;
+
+        destinationDropdown.textContent = tempText;
+        destinationInput.value = tempValue;
+    });
+</script>
+{% endblock%}

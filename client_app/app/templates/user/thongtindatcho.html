@@ -1,0 +1,1005 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Progress bar -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex align-items-center">
+                <div class="step active">
+                    <span class="step-number">1</span>
+                    <span class="step-text">Chi tiết chuyến đi của bạn</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">Thanh toán</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Form bên trái -->
+        <div class="col-md-8">
+            <!-- Thông tin liên hệ -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Thông tin liên hệ (nhận vé/phiếu thanh toán)</h5>
+
+                    <form id="contactForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Họ (vd: Nguyen)<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="contact_lastname" name="contact_lastname"
+                                    required>
+                                <small class="text-muted">như trên CCCD (không dấu)</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tên Đệm & Tên (vd: Thi Ngoc Anh)<span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="contact_firstname" name="contact_firstname"
+                                    required>
+                                <small class="text-muted">như trên CCCD (không dấu)</small>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Điện thoại di động<span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" id="countryCode">
+                                        +84
+                                    </button>
+                                    <input type="tel" class="form-control" id="contact_phone" name="contact_phone"
+                                        required>
+                                </div>
+                                <small class="text-muted">VD: +84 901234567 trong đó (+84) là mã quốc gia và 901234567
+                                    là số di động</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email<span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="contact_email" name="contact_email"
+                                    required>
+                                <small class="text-muted">VD: email@example.com</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Thông tin hành khách -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Thông tin hành khách</h5>
+                    <form id="passengersForm">
+                        <!-- Form sẽ được sinh động bằng JavaScript -->
+                    </form>
+                </div>
+            </div>
+
+            <div class="card bg-info-subtle mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Nhu yếu phẩm chuyến bay</h5>
+                    <div class="d-flex bg-white rounded-3 p-3 justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-2">Hành lý</h6>
+                            <p class="mb-0 text-secondary">Bạn có cần mua thêm hành lý? Chạm tại đây.</p>
+                            <!-- Thêm div hiển thị tổng phụ -->
+                            <div id="luggage-summary" class="text-primary mt-2" style="display: none;">
+                                Tổng phụ: <span class="fw-bold" id="luggage-total">0 VND</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#luggageModal">
+                            Chọn hành lý
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% include 'user/modalChonHanhLy.html' %}
+            <!-- Nút điều hướng -->
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-primary" onclick="history.back()">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveAndContinue()">
+                    Tiếp tục
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary bên phải -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Tóm tắt chuyến bay</h5>
+                    </div>
+                    <div data-simplebar data-simplebar-auto-hide="false" class="flight-info-container overflow-x-hidden"
+                        style="max-height: calc(100vh - 500px);">
+                        <!-- tự động điền -->
+                    </div>
+                </div>
+            </div>
+            <div class="card mb">
+                <div class="total-price-container">
+                    <!-- Card tổng tiền sẽ hiển thị ở đây -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none"
+    style="z-index: 1050;">
+    <div class="position-absolute top-50 start-50 translate-middle text-center">
+        <div class="spinner-border text-primary mb-2" role="status"></div>
+        <div>Đang xử lý...</div>
+    </div>
+</div>
+<script src="{{url_for('static', filename='js/validation.js')}}">
+
+</script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+
+            const bookingDataStr = localStorage.getItem('bookingData');
+            if (!bookingDataStr) {
+                alert('Không tìm thấy thông tin đặt chỗ');
+                window.location.href = '/';
+                return;
+            }
+            const bookingData = JSON.parse(bookingDataStr);
+            console.log('Booking Data:', bookingData);
+            displayFlightInfo(bookingData);
+            const passengerFormContainer = document.getElementById('passengersForm');
+            if (!passengerFormContainer) {
+                console.error('Không tìm thấy container cho form hành khách');
+                return;
+            }
+
+            let passengerFormsHTML = '';
+
+            for (let i = 0; i < bookingData.passengers.adults; i++) {
+                passengerFormsHTML += generateAdultForm(i);
+            }
+
+            for (let i = 0; i < bookingData.passengers.children; i++) {
+                passengerFormsHTML += generateChildForm(i);
+            }
+
+            for (let i = 0; i < bookingData.passengers.infants; i++) {
+                passengerFormsHTML += generateInfantForm(i);
+            }
+
+            passengerFormContainer.insertAdjacentHTML('beforeend', passengerFormsHTML);
+
+        } catch (error) {
+            console.error('Error loading booking data:', error);
+            alert('Có lỗi khi tải thông tin đặt chỗ');
+        }
+    });
+
+    const contactForm = document.getElementById('contactForm');
+    const passengersForm = document.getElementById('passengersForm');
+
+    if (contactForm && passengersForm) {
+        const handleSubmit = function (e) {
+            e.preventDefault();
+            updateBookingData();
+        };
+
+        contactForm.addEventListener('submit', handleSubmit);
+        passengersForm.addEventListener('submit', handleSubmit);
+    }
+
+    function generateAdultForm(index) {
+        return `
+            <hr>
+            <div class="passenger-info mb-4">
+                <h6>Người lớn ${index + 1}</h6>
+                <div class="alert alert-warning d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <div>
+                        <p class="mb-1">Vui lòng chú ý cho những điều sau đây:</p>
+                        <p class="mb-1">Bạn phải nhập chính xác tên như trong CCCD của mình.</p>
+                    </div>
+                </div>
+                <!-- Form fields cho người lớn -->
+                ${generatePassengerFields('adult', index)}
+                <small class="text-muted d-block mt-2">Hành khách người lớn (trên 12 tuổi)</small>
+            </div>
+        `;
+    }
+
+    function generateChildForm(index) {
+        return `
+            <hr>
+            <div class="passenger-info mb-4">
+                <h6>Trẻ em ${index + 1}</h6>
+                <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-info-circle"></i>
+                    <div>
+                        <p class="mb-1">Trẻ em từ 2 - 12 tuổi</p>
+                        <p class="mb-0">Vui lòng nhập đúng độ tuổi để đảm bảo giá vé phù hợp</p>
+                    </div>
+                </div>
+                <!-- Form fields cho trẻ em -->
+                ${generatePassengerFields('child', index)}
+            </div>
+        `;
+    }
+
+    function generateInfantForm(index) {
+        return `
+            <hr>
+            <div class="passenger-info mb-4">
+                <h6>Em bé ${index + 1}</h6>
+                <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-info-circle"></i>
+                    <div>
+                        <p class="mb-1">Em bé dưới 2 tuổi</p>
+                        <p class="mb-0">Em bé sẽ ngồi cùng người lớn đi kèm</p>
+                    </div>
+                </div>
+                <!-- Form fields cho em bé -->
+                ${generatePassengerFields('infant', index)}
+            </div>
+        `;
+    }
+
+    function generatePassengerFields(type, index) {
+        const currentYear = new Date().getFullYear();
+        const yearRange = {
+            adult: { start: currentYear - 100, end: currentYear - 12 },
+            child: { start: currentYear - 12, end: currentYear - 2 },
+            infant: { start: currentYear - 2, end: currentYear }
+        };
+
+        const range = yearRange[type];
+        const years = Array.from({ length: range.end - range.start + 1 }, (_, i) => range.start + i);
+
+        return `
+            <div class="row mb-3">
+                ${type === 'adult' ? `
+                <div class="col-md-4">
+                    <label class="form-label">Danh xưng<span class="text-danger">*</span></label>
+                    <select class="form-select" id="${type}_${index}_title" name="${type}_${index}_title" required>
+                        <option value="">Chọn danh xưng</option>
+                        <option value="Ông">Ông</option>
+                        <option value="Bà">Bà</option>
+                        <option value="Bà">Cô</option>
+                    </select>
+                </div>
+                ` : ''}
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Họ (vd: Nguyen)<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="${type}_${index}_lastname" name="${type}_${index}_lastname" required>
+                    <small class="text-muted">như trên giấy tờ (không dấu)</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tên Đệm & Tên (vd: Thi Ngoc Anh)<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="${type}_${index}_firstname" name="${type}_${index}_firstname" required>
+                    <small class="text-muted">như trên giấy tờ (không dấu)</small>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label class="form-label">Ngày sinh<span class="text-danger">*</span></label>
+                    <div class="row">
+                        <div class="col">
+                            <select class="form-select" id="${type}_${index}_day" name="${type}_${index}_day" required>
+                                <option value="">Ngày</option>
+                                ${Array.from({ length: 31 }, (_, i) => i + 1)
+                .map(day => `<option value="${day}">${day}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select class="form-select" id="${type}_${index}_month" name="${type}_${index}_month" required>
+                                <option value="">Tháng</option>
+                                ${Array.from({ length: 12 }, (_, i) => i + 1)
+                .map(month => `<option value="${month}">${month}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select class="form-select" id="${type}_${index}_year" name="${type}_${index}_year" required>
+                                <option value="">Năm</option>
+                                ${years.reverse().map(year => `<option value="${year}">${year}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Quốc tịch<span class="text-danger">*</span></label>
+                    <select class="form-select" id="${type}_${index}_nationality" name="${type}_${index}_nationality" required>
+                        <option value="">Chọn quốc tịch</option>
+                        <option value="VN">Việt Nam</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Số CCCD<span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="${type}_${index}_cccd" name="${type}_${index}_cccd" required>
+                </div>
+            </div>
+        `;
+    }
+
+    async function displayFlightInfo(bookingData) {
+        try {
+            const flightContainer = document.querySelector('.flight-info-container');
+            const totalPriceContainer = document.querySelector('.total-price-container');
+            let basePrice = 0;
+            let flightHtml = '';
+
+            const adultCount = bookingData.passengers.adults || 0;
+            const childCount = bookingData.passengers.children || 0;
+            const infantCount = bookingData.passengers.infants || 0;
+            const totalPassengers = adultCount + childCount;
+
+            flightHtml += generateFlightSummary(bookingData.outbound, 'Chuyến bay ' +
+                (bookingData.bookingType === 'one-way' ? '' : 'đi'));
+            basePrice += bookingData.outbound.package.gia_goi * totalPassengers;
+
+            if (bookingData.bookingType === 'round-trip' && bookingData.return) {
+                flightHtml += generateFlightSummary(bookingData.return, 'Chuyến bay về');
+                basePrice += bookingData.return.package.gia_goi * totalPassengers;
+            }
+
+            flightContainer.innerHTML = flightHtml;
+
+            const totalPriceHtml = `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <small class="text-muted">Chi tiết số lượng hành khách:</small>
+                            <div>Người lớn: ${adultCount}</div>
+                            ${childCount > 0 ? `<div>Trẻ em: ${childCount}</div>` : ''}
+                            ${infantCount > 0 ? `<div>Em bé: ${infantCount}</div>` : ''}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Tổng tiền cho ${totalPassengers} hành khách:</h6>
+                            <div class="text-danger h5 mb-0">${formatPrice(basePrice)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            totalPriceContainer.innerHTML = totalPriceHtml;
+            // Lưu basePrice vào bookingData
+            bookingData.basePrice = basePrice;
+            localStorage.setItem('bookingData', JSON.stringify(bookingData));
+
+        } catch (error) {
+            console.error('Error displaying flight info:', error);
+            alert('Có lỗi khi hiển thị thông tin chuyến bay');
+        }
+    }
+
+    function generateFlightSummary(flightData, title) {
+        return flightData.flight.is_connecting ?
+            generateConnectingFlightHTML(flightData, title) :
+            generateDirectFlightHTML(flightData, title);
+    }
+
+    function generateDirectFlightHTML(flightData, title) {
+        const flight = flightData.flight;
+        return `
+        <div class="flight-summary mb-4 p-4 border rounded-3 shadow-sm">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold">${title}</h6>
+                <span class="badge bg-success rounded-pill">
+                    <i class="bi bi-airplane me-1"></i>
+                    Bay thẳng
+                </span>
+            </div>
+
+            <!-- Flight Overview -->
+            <div class="d-flex justify-content-between align-items-center mb-4 position-relative">
+                <!-- Departure -->
+                <div class="text-center" style="min-width: 120px">
+                    <div class="h5 mb-1 fw-bold">${flight.san_bay_di}</div>
+                    <div class="text-muted small">${formatDate(flight.thoi_gian_di)}</div>
+                </div>
+
+                <!-- Flight Info -->
+                <div class="text-center flex-grow-1 px-4 position-relative">
+                    <div class="text-primary small fw-semibold mb-1">
+                        ${calculateFlightTime(flight.thoi_gian_di, flight.thoi_gian_den)}
+                    </div>
+                    <div class="flight-line">
+                        <i class="bi bi-airplane-engines position-absolute top-50 start-50 translate-middle bg-white px-2 text-primary"></i>
+                    </div>
+                </div>
+
+                <!-- Arrival -->
+                <div class="text-center" style="min-width: 120px">
+                    <div class="h5 mb-1 fw-bold">${flight.san_bay_den}</div>
+                    <div class="text-muted small">${formatDate(flight.thoi_gian_den)}</div>
+                </div>
+            </div>
+
+            <!-- Flight Details -->
+            <div class="bg-light p-3 rounded-3">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-airplane-engines text-primary"></i>
+                    <div>
+                        <span class="fw-semibold">${flight.hang_hang_khong}</span>
+                        <span class="text-muted mx-2">|</span>
+                        <span class="small">${flight.ma_chuyen_bay}</span>
+                        <span class="badge bg-secondary ms-2">${flight.loai_ghe}</span>
+                    </div>
+                </div>
+
+                <!-- Flight Times -->
+                <div class="d-flex justify-content-between mt-3 ps-4">
+                    <div>
+                        <div class="small text-muted">Cất cánh</div>
+                        <div class="fw-semibold">${formatTime(flight.thoi_gian_di)}</div>
+                    </div>
+                    <div>
+                        <div class="small text-muted">Hạ cánh</div>
+                        <div class="fw-semibold">${formatTime(flight.thoi_gian_den)}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Info -->
+            <div class="mt-4 pt-3 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted">Giá gói:</span>
+                        <span class="badge bg-info ms-2">${flightData.package.ten_goi || 'Tiêu chuẩn'}</span>
+                    </div>
+                    <div class="h5 mb-0 text-primary fw-bold">
+                        ${formatPrice(flightData.package.gia_goi)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    }
+
+    function generateConnectingFlightHTML(flightData, title) {
+        const segments = flightData.flight.segments;
+        const firstSegment = segments[0];
+        const lastSegment = segments[segments.length - 1];
+        const totalFlightTime = calculateFlightTime(firstSegment.thoi_gian_di, lastSegment.thoi_gian_den);
+
+        let html = `
+        <div class="flight-summary mb-4 p-4 border rounded-3 shadow-sm">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold">${title}</h6>
+                <span class="badge bg-warning rounded-pill">
+                    <i class="bi bi-arrow-repeat me-1"></i>
+                    Chuyến bay kết nối
+                </span>
+            </div>
+
+            <!-- Flight Overview -->
+            <div class="d-flex justify-content-between align-items-center mb-4 position-relative">
+                <!-- Departure -->
+                <div class="text-center" style="min-width: 120px">
+                    <div class="h5 mb-1 fw-bold">${firstSegment.san_bay_di}</div>
+                    <div class="text-muted small">${formatDate(firstSegment.thoi_gian_di)}</div>
+                </div>
+
+                <!-- Flight Info -->
+                <div class="text-center flex-grow-1 px-4 position-relative">
+                    <div class="text-primary small fw-semibold mb-1">
+                        ${totalFlightTime}
+                    </div>
+                    <div class="flight-line position-relative">
+                        <div class="flight-stops position-absolute start-0 end-0 d-flex justify-content-center align-items-center gap-2">
+                            ${generateStopsIndicator(segments.length - 1)}
+                        </div>
+                    </div>
+                    <div class="small text-muted mt-1">
+                        <i class="bi bi-clock me-1"></i>${segments.length - 1} điểm dừng
+                    </div>
+                </div>
+
+                <!-- Arrival -->
+                <div class="text-center" style="min-width: 120px">
+                    <div class="h5 mb-1 fw-bold">${lastSegment.san_bay_den}</div>
+                    <div class="text-muted small">${formatDate(lastSegment.thoi_gian_den)}</div>
+                </div>
+            </div>
+
+            <!-- Segments Detail -->
+            <div class="segments-container">
+                ${segments.map((segment, index) => `
+                    <div class="segment-detail ${index > 0 ? 'mt-4' : ''} p-3 bg-light rounded-3">
+                        <!-- Airline Info -->
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <i class="bi bi-airplane-engines text-primary"></i>
+                            <div>
+                                <span class="fw-semibold">${segment.hang_hang_khong}</span>
+                                <span class="text-muted mx-2">|</span>
+                                <span class="small">${segment.ma_chuyen_bay}</span>
+                                <span class="badge bg-secondary ms-2">${segment.loai_ghe}</span>
+                            </div>
+                        </div>
+
+                        <!-- Flight Route -->
+                        <div class="d-flex justify-content-between align-items-center ps-4">
+                            <div>
+                                <div class="fw-bold">${segment.san_bay_di}</div>
+                                <div class="small text-muted">${formatTime(segment.thoi_gian_di)}</div>
+                            </div>
+                            <div class="text-center px-4">
+                                <div class="text-primary small">
+                                    ${calculateFlightTime(segment.thoi_gian_di, segment.thoi_gian_den)}
+                                </div>
+                                <div class="flight-line-small"></div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">${segment.san_bay_den}</div>
+                                <div class="small text-muted">${formatTime(segment.thoi_gian_den)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${generateLayoverInfo(index, segments)}
+                `).join('')}
+            </div>
+
+            <!-- Price Info -->
+            <div class="mt-4 pt-3 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted">Giá gói:</span>
+                        <span class="badge bg-info ms-2">${flightData.package.ten_goi || 'Tiêu chuẩn'}</span>
+                    </div>
+                    <div class="h5 mb-0 text-primary fw-bold">
+                        ${formatPrice(flightData.package.gia_goi)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+        return html;
+    }
+
+    function generateLayoverInfo(index, segments) {
+        if (index < segments.length - 1) {
+            const layoverTime = calculateLayoverTime(
+                segments[index].thoi_gian_den,
+                segments[index + 1].thoi_gian_di
+            );
+            return `
+            <div class="layover-info text-center py-3">
+                <div class="d-inline-flex align-items-center gap-2 px-4 py-2 bg-white rounded-pill shadow-sm">
+                    <i class="bi bi-clock text-warning"></i>
+                    <span class="small text-muted">Thời gian chờ: ${layoverTime}</span>
+                    <span class="small text-muted">tại ${segments[index].san_bay_den}</span>
+                </div>
+            </div>
+        `;
+        }
+        return '';
+    }
+
+    function generateStopsIndicator(numStops) {
+        if (numStops === 0) return '';
+
+        let stops = '';
+        for (let i = 0; i < numStops; i++) {
+            stops += `
+            <div class="stop-point">
+                <div class="stop-dot bg-warning"></div>
+            </div>
+        `;
+        }
+        return stops;
+    }
+
+    // Helper function to format time only
+    function formatTime(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleTimeString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    }
+
+
+    function calculateFlightTime(startTime, endTime) {
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        const diff = end - start;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        return `${hours}h ${minutes}m`;
+    }
+
+    function calculateLayoverTime(arrivalTime, departureTime) {
+        const arrival = new Date(arrivalTime);
+        const departure = new Date(departureTime);
+        const diffInMinutes = Math.floor((departure - arrival) / (1000 * 60));
+
+        if (diffInMinutes < 60) {
+            return `${diffInMinutes} phút`;
+        }
+
+        const hours = Math.floor(diffInMinutes / 60);
+        const minutes = diffInMinutes % 60;
+
+        if (minutes === 0) {
+            return `${hours} giờ`;
+        }
+
+        return `${hours} giờ ${minutes} phút`;
+    }
+
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const days = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
+        const day = days[date.getDay()];
+        const dayOfMonth = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${day}, ${dayOfMonth} thg ${month} ${year} ${hours}:${minutes}`;
+    }
+
+    function formatPrice(price) {
+        return new Intl.NumberFormat('vi-VN', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price) + ' VND';
+    }
+
+
+    // lưu thông tin
+
+    // Thêm hàm kiểm tra toàn bộ form
+    function validateAllForms() {
+        let isValid = true;
+        const invalidElements = [];
+
+        // Validate form liên hệ
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.querySelectorAll('input, select').forEach(input => {
+                validateField(input);
+                if (input.classList.contains('is-invalid')) {
+                    isValid = false;
+                    invalidElements.push(input);
+                }
+            });
+        }
+
+        // Validate form hành khách
+        const passengersForm = document.getElementById('passengersForm');
+        if (passengersForm) {
+            passengersForm.querySelectorAll('input, select').forEach(input => {
+                validateField(input);
+                if (input.classList.contains('is-invalid')) {
+                    isValid = false;
+                    invalidElements.push(input);
+                }
+            });
+        }
+
+        // Nếu có lỗi, scroll đến phần tử đầu tiên có lỗi
+        if (!isValid && invalidElements.length > 0) {
+            invalidElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        return isValid;
+    }
+
+
+    // Format ngày sinh thành YYYY-MM-DD
+    function formatBirthday(year, month, day) {
+        month = String(month).padStart(2, '0');
+        day = String(day).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Hàm lấy thông tin hành lý cho một chuyến bay cụ thể
+    function getLuggageForFlight(flightCode, passengerIndex, direction) {
+        try {
+            const radioSelector = `input[name="luggage-p${passengerIndex}-${direction}"]:checked`;
+            const selectedRadio = document.querySelector(radioSelector);
+
+            if (!selectedRadio || selectedRadio.value === '0') {
+                return null;
+            }
+
+            return {
+                ma_hanh_khach: passengerIndex,
+                ma_chuyen_bay: flightCode,
+                ma_dich_vu_hanh_ly: selectedRadio.value
+            };
+        } catch (error) {
+            console.error('Lỗi khi lấy thông tin hành lý:', error);
+            return null;
+        }
+    }
+
+    // Hàm tổng hợp thông tin hành lý
+    function getAllPassengersLuggage() {
+        // Lấy bookingData từ localStorage
+        const bookingData = JSON.parse(localStorage.getItem('bookingData'));
+        if (!bookingData) {
+            console.error('Không tìm thấy thông tin booking');
+            return [];
+        }
+
+        const luggageServices = [];
+        const totalPassengers = bookingData.passengers.adults + (bookingData.passengers.children || 0);
+
+        for (let i = 1; i <= totalPassengers; i++) {
+            // Xử lý chuyến đi
+            if (bookingData.outbound?.flight) {
+                const outboundLuggage = getLuggageForFlight(
+                    bookingData.outbound.flight.ma_chuyen_bay,
+                    i,
+                    'out'
+                );
+                if (outboundLuggage) {
+                    luggageServices.push(outboundLuggage);
+                }
+            }
+
+            // Xử lý chuyến về nếu là vé khứ hồi
+            if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
+                const returnLuggage = getLuggageForFlight(
+                    bookingData.return.flight.ma_chuyen_bay,
+                    i,
+                    'return'
+                );
+                if (returnLuggage) {
+                    luggageServices.push(returnLuggage);
+                }
+            }
+        }
+
+        return luggageServices;
+    }
+
+    function getLuggageTotal() {
+        const totalPriceElement = document.getElementById('total-price');
+        if (totalPriceElement) {
+            const priceText = totalPriceElement.textContent;
+            return parseInt(priceText.replace(/[^\d]/g, '')) || 0;
+        }
+        return 0;
+    }
+
+    async function saveAndContinue() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('d-none');
+        }
+
+        try {
+            if (!validateAllForms()) {
+                alert('Vui lòng điền đầy đủ và chính xác thông tin');
+                return;
+            }
+
+            // Lấy bookingData từ localStorage
+            const bookingData = JSON.parse(localStorage.getItem('bookingData'));
+            if (!bookingData) {
+                throw new Error('Không tìm thấy thông tin đặt chỗ');
+            }
+
+            // Thu thập thông tin người liên hệ
+            const nguoi_lien_he = {
+                ho_nlh: document.getElementById('contact_lastname').value.trim(),
+                ten_nlh: document.getElementById('contact_firstname').value.trim(),
+                email: document.getElementById('contact_email').value.trim(),
+                sdt: document.getElementById('contact_phone').value.trim()
+            };
+
+            // Tạo mảng hành khách
+            const hanh_khach = [];
+
+            // Thu thập thông tin người lớn
+            for (let i = 0; i < bookingData.passengers.adults; i++) {
+                const passengerIndex = i + 1; // Hành khách thứ 1, 2, 3...
+
+                // Lấy hành lý chuyến đi
+                const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
+                const dich_vu_hanh_ly = [];
+
+                if (outboundLuggage && outboundLuggage.value !== '0') {
+                    dich_vu_hanh_ly.push({
+                        ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
+                        ma_dich_vu_hanh_ly: outboundLuggage.value
+                    });
+                }
+
+                // Lấy hành lý chuyến về nếu là vé khứ hồi
+                if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
+                    const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
+                    if (returnLuggage && returnLuggage.value !== '0') {
+                        dich_vu_hanh_ly.push({
+                            ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
+                            ma_dich_vu_hanh_ly: returnLuggage.value
+                        });
+                    }
+                }
+
+                const adult = {
+                    ho_hk: document.getElementById(`adult_${i}_lastname`).value.trim(),
+                    ten_hk: document.getElementById(`adult_${i}_firstname`).value.trim(),
+                    danh_xung: document.getElementById(`adult_${i}_title`).value,
+                    cccd: document.getElementById(`adult_${i}_cccd`).value.trim(),
+                    ngay_sinh: formatBirthday(
+                        document.getElementById(`adult_${i}_year`).value,
+                        document.getElementById(`adult_${i}_month`).value,
+                        document.getElementById(`adult_${i}_day`).value
+                    ),
+                    quoc_tich: document.getElementById(`adult_${i}_nationality`).value,
+                    loai_hk: "Người lớn",
+                    dich_vu_hanh_ly: dich_vu_hanh_ly
+                };
+                hanh_khach.push(adult);
+            }
+
+            // Thu thập thông tin trẻ em
+            for (let i = 0; i < bookingData.passengers.children; i++) {
+                const passengerIndex = bookingData.passengers.adults + i + 1;
+
+                // Lấy hành lý chuyến đi
+                const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
+                const dich_vu_hanh_ly = [];
+
+                if (outboundLuggage && outboundLuggage.value !== '0') {
+                    dich_vu_hanh_ly.push({
+                        ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
+                        ma_dich_vu_hanh_ly: outboundLuggage.value
+                    });
+                }
+
+                // Lấy hành lý chuyến về nếu là vé khứ hồi
+                if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
+                    const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
+                    if (returnLuggage && returnLuggage.value !== '0') {
+                        dich_vu_hanh_ly.push({
+                            ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
+                            ma_dich_vu_hanh_ly: returnLuggage.value
+                        });
+                    }
+                }
+
+                const child = {
+                    ho_hk: document.getElementById(`child_${i}_lastname`).value.trim(),
+                    ten_hk: document.getElementById(`child_${i}_firstname`).value.trim(),
+                    danh_xung: "",
+                    cccd: document.getElementById(`child_${i}_cccd`).value.trim(),
+                    ngay_sinh: formatBirthday(
+                        document.getElementById(`child_${i}_year`).value,
+                        document.getElementById(`child_${i}_month`).value,
+                        document.getElementById(`child_${i}_day`).value
+                    ),
+                    quoc_tich: document.getElementById(`child_${i}_nationality`).value,
+                    loai_hk: "Trẻ em",
+                    dich_vu_hanh_ly: dich_vu_hanh_ly
+                };
+                hanh_khach.push(child);
+            }
+
+            // Thu thập thông tin em bé (nếu có)
+            for (let i = 0; i < (bookingData.passengers.infants || 0); i++) {
+                const infant = {
+                    ho_hk: document.getElementById(`infant_${i}_lastname`).value.trim(),
+                    ten_hk: document.getElementById(`infant_${i}_firstname`).value.trim(),
+                    danh_xung: "",
+                    cccd: document.getElementById(`infant_${i}_cccd`).value.trim(),
+                    ngay_sinh: formatBirthday(
+                        document.getElementById(`infant_${i}_year`).value,
+                        document.getElementById(`infant_${i}_month`).value,
+                        document.getElementById(`infant_${i}_day`).value
+                    ),
+                    quoc_tich: document.getElementById(`infant_${i}_nationality`).value,
+                    loai_hk: "Em bé",
+                    dich_vu_hanh_ly: [] // Em bé không có hành lý
+                };
+                hanh_khach.push(infant);
+            }
+
+            let chuyen_bay = [];
+
+            // Xử lý chuyến bay đi
+            if (bookingData.outbound.flight.is_connecting) {
+                for (let segment of bookingData.outbound.flight.segments) {
+                    chuyen_bay.push({
+                        ma_chuyen_bay: segment.ma_chuyen_bay,
+                        so_ghe_bus: segment.loai_ghe === 'BUS' ? hanh_khach.length : 0,
+                        so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                    });
+                }
+            } else {
+                chuyen_bay.push({
+                    ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
+                    so_ghe_bus: bookingData.outbound.flight.loai_ghe === 'BUS' ? hanh_khach.length : 0,
+                    so_ghe_eco: bookingData.outbound.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                });
+            }
+
+            // Xử lý chuyến bay về
+            if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
+                if (bookingData.return.flight.is_connecting) {
+                    for (let segment of bookingData.return.flight.segments) {
+                        chuyen_bay.push({
+                            ma_chuyen_bay: segment.ma_chuyen_bay,
+                            so_ghe_bus: segment.loai_ghe === 'BUS' ? hanh_khach.length : 0,
+                            so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                        });
+                    }
+                } else {
+                    chuyen_bay.push({
+                        ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
+                        so_ghe_bus: bookingData.return.flight.loai_ghe === 'BUS' ? hanh_khach.length : 0,
+                        so_ghe_eco: bookingData.return.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                    });
+                }
+            }
+            console.log("cb: ", chuyen_bay)
+            // Tạo object cuối cùng để gửi lên API
+            const finalData = {
+                nguoi_lien_he,
+                hanh_khach,
+                chuyen_bay
+            };
+            // Lấy tổng tiền hành lý
+            const luggagePrice = getLuggageTotal();
+            console.log(finalData)
+            // Lưu thông tin vào bookingData
+            bookingData.bookingDetails = finalData;
+            bookingData.luggagePrice = luggagePrice;  // Thêm giá hành lý vào bookingData
+            localStorage.setItem('bookingData', JSON.stringify(bookingData));
+
+            // Gọi API tạo booking
+            const response = await fetch('http://127.0.0.1:5000/api/booking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(finalData)
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || 'Có lỗi xảy ra khi tạo booking');
+            }
+            bookingData.temp = result
+            // Lưu booking ID và chuyển trang
+            localStorage.setItem('bookingData', JSON.stringify(bookingData));
+            window.location.href = '/datcho/thanhtoan';
+
+        } catch (error) {
+            console.error('Error creating booking:', error);
+            alert(error.message || 'Có lỗi xảy ra, vui lòng thử lại');
+        } finally {
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('d-none');
+            }
+        }
+    }
+    // Hàm hỗ trợ format ngày sinh
+    function formatBirthday(year, month, day) {
+        return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+    }
+
+</script>
+{% endblock %}

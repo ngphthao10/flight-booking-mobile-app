@@ -1,0 +1,427 @@
+<!-- Modal -->
+<div class="modal fade" id="luggageModal" tabindex="-1" aria-labelledby="luggageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="luggageModalLabel">Hành lý</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body p-0">
+                <!-- Flight Direction Tabs -->
+                <ul class="nav nav-tabs nav-fill sticky-top bg-white" id="flightTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-semibold py-3" id="outbound-tab" data-bs-toggle="tab"
+                            data-bs-target="#outbound" type="button" role="tab">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-airplane-fill"></i>
+                                <span id="outbound-route"></span>
+                            </div>
+                        </button>
+                    </li>
+                    <li class="nav-item d-none" role="presentation" id="return-tab-container">
+                        <button class="nav-link fw-semibold py-3" id="return-tab" data-bs-toggle="tab"
+                            data-bs-target="#return" type="button" role="tab">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-airplane-fill" style="transform: rotate(-180deg)"></i>
+                                <span id="return-route"></span>
+                            </div>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Contents -->
+                <div class="tab-content" id="flightTabContent">
+                    <!-- Outbound Flight -->
+                    <div class="tab-pane fade show active px-4" id="outbound" role="tabpanel">
+                        <!-- Airline Info -->
+                        <div class="d-flex align-items-center gap-2 my-4">
+                            <span class="text-muted" id="outbound-airline"></span>
+                        </div>
+
+                        <!-- Passengers will be dynamically inserted here -->
+                        <div id="outbound-passengers"></div>
+                    </div>
+
+                    <!-- Return Flight -->
+                    <div class="tab-pane fade px-4" id="return" role="tabpanel">
+                        <!-- Airline Info -->
+                        <div class="d-flex align-items-center gap-2 my-4">
+                            <span class="text-muted" id="return-airline"></span>
+                        </div>
+
+                        <!-- Passengers will be dynamically inserted here -->
+                        <div id="return-passengers"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer bg-light">
+                <div>
+                    <small class="text-muted">Tổng phụ</small>
+                    <div class="h4 mb-0 fw-bold text-primary" id="total-price">0 VND</div>
+                </div>
+                <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">
+                    Hoàn tất
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let bookingData = null;
+        let luggageServices = {
+            outbound: [],
+            return: []
+        };
+        console.log(bookingData)
+        // Function to format currency in VND
+        function formatCurrency(amount) {
+            return amount.toLocaleString('vi-VN') + ' VND';
+        }
+
+        // Function to format flight route for both direct and connecting flights
+        function formatFlightRoute(flight) {
+            if (flight.is_connecting) {
+                const segments = flight.segments;
+                const stops = segments.map(segment => segment.san_bay_di).concat(segments[segments.length - 1].san_bay_den);
+                return stops.join(' → ');
+            }
+            return `${flight.san_bay_di} → ${flight.san_bay_den}`;
+        }
+
+        function createPassengerSection(passengerIndex, direction, services, seatClass, baseLuggage) {
+            const container = document.createElement('div');
+            container.className = 'mb-4';
+
+            const isAdult = passengerIndex <= bookingData.passengers.adults;
+            const passengerType = isAdult ? 'Người lớn' : 'Trẻ em';
+            const totalPassengers = bookingData.passengers.adults + bookingData.passengers.children;
+
+            // Get flight data based on direction
+            const flightData = direction === 'out' ? bookingData.outbound.flight : bookingData.return?.flight;
+            const routeDisplay = formatFlightRoute(flightData);
+
+            container.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold mb-1">Hành khách ${passengerIndex}/${totalPassengers}</h6>
+                    <p class="text-muted mb-0">${passengerType} ${isAdult ? passengerIndex : passengerIndex - bookingData.passengers.adults}</p>
+                </div>
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                    ${seatClass}
+                </span>
+            </div>
+            
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-airplane me-2"></i>
+                <span>${routeDisplay}</span>
+            </div>`;
+
+            // Base luggage info section
+            const baseLuggageSection = `
+            <div class="bg-light p-3 rounded mb-4">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="d-flex flex-column">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-suitcase text-primary"></i>
+                                <span class="text-muted">Đã bao gồm (Miễn phí)</span>
+                            </div>
+                            <div class="fw-bold">Xách tay: ${baseLuggage.details.hanh_ly_xach_tay}kg</div>
+                            <div class="fw-bold">Ký gửi: ${baseLuggage.details.hanh_ly_ky_gui}kg</div>
+                        </div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <div class="text-muted mb-1">Tổng số hành lý</div>
+                        <div class="fw-bold total-weight" data-passenger="p${passengerIndex}-${direction}">
+                            ${baseLuggage.baseWeight} kg
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            container.innerHTML += baseLuggageSection;
+
+            // Check for connecting flights in either direction
+            const hasConnectingFlight = flightData.is_connecting;
+
+            if (hasConnectingFlight) {
+                container.innerHTML += `
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Dịch vụ mua hành lý không áp dụng cho chuyến bay kết nối
+                </div>`;
+
+                // Add connecting flight details if available
+                if (flightData.segments && flightData.segments.length > 0) {
+                    const flightDetails = document.createElement('div');
+                    flightDetails.className = 'connecting-flights-info mt-3';
+
+                    const segments = flightData.segments;
+                    segments.forEach((segment, index) => {
+                        flightDetails.innerHTML += `
+                        <div class="connecting-segment mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="segment-info">
+                                    <small class="text-muted">Chặng ${index + 1}:</small>
+                                    <span class="ms-2">${segment.san_bay_di} → ${segment.san_bay_den}</span>
+                                </div>
+                                <div class="airline-info">
+                                    <small class="text-muted">${segment.hang_hang_khong}</small>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+
+                    container.appendChild(flightDetails);
+                }
+            } else {
+                // Add luggage options section for direct flights
+                const luggageOptionsContainer = document.createElement('div');
+                luggageOptionsContainer.className = 'luggage-options';
+
+                // No Extra Luggage Option
+                const noExtraOption = `
+                <div class="card mb-3 luggage-card">
+                    <div class="card-body p-0">
+                        <input type="radio" class="btn-check" name="luggage-p${passengerIndex}-${direction}" 
+                               id="no-extra-p${passengerIndex}-${direction}" value="0" checked>
+                        <label class="btn w-100 text-start p-3" for="no-extra-p${passengerIndex}-${direction}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold mb-1">Không có hành lý bổ sung</div>
+                                    <small class="text-muted">Chỉ sử dụng hành lý miễn phí</small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold">0 VND</div>
+                                    <small class="text-muted">+0 kg</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>`;
+
+                luggageOptionsContainer.innerHTML = noExtraOption;
+
+                // Add additional luggage service options
+                services.forEach(service => {
+                    const serviceElement = document.createElement('div');
+                    serviceElement.className = 'card mb-3 luggage-card';
+                    serviceElement.innerHTML = `
+                    <div class="card-body p-0">
+                        <input type="radio" class="btn-check" name="luggage-p${passengerIndex}-${direction}"
+                               id="extra${service.so_ky}-p${passengerIndex}-${direction}"
+                               value="${service.ma_dich_vu}" data-price="${service.gia}">
+                        <label class="btn w-100 text-start p-3" for="extra${service.so_ky}-p${passengerIndex}-${direction}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold mb-1">Hành lý bổ sung</div>
+                                    <small class="text-muted">Thêm hành lý ký gửi</small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-danger">${formatCurrency(service.gia)}</div>
+                                    <small class="text-muted">+${service.so_ky} kg</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>`;
+                    luggageOptionsContainer.appendChild(serviceElement);
+                });
+
+                container.appendChild(luggageOptionsContainer);
+            }
+
+            return container;
+        }
+
+        async function updateTotalWeight(input, baseWeight) {
+            const additionalWeight = parseInt(input.value);
+            const passengerId = input.name.replace('luggage-', '');
+            const totalWeightElement = document.querySelector(`[data-passenger="${passengerId}"]`);
+
+            if (totalWeightElement) {
+                totalWeightElement.textContent = `${baseWeight + additionalWeight} kg`;
+            }
+        }
+
+        function updateTotalPrice() {
+            let total = 0;
+
+            document.querySelectorAll('.btn-check:checked').forEach(input => {
+                total += parseInt(input.dataset.price || 0);
+            });
+
+            document.getElementById('total-price').textContent = formatCurrency(total);
+
+            const luggageDisplay = document.querySelector('.card.bg-info-subtle .text-secondary');
+
+            if (total > 0) {
+                luggageDisplay.innerHTML = `
+                    Bạn có cần mua thêm hành lý? Chạm tại đây.
+                    <div class="text-primary mt-1 fw-bold">Tổng phụ: ${formatCurrency(total)}</div>
+                `;
+            } else {
+                luggageDisplay.textContent = 'Bạn có cần mua thêm hành lý? Chạm tại đây.';
+            }
+        }
+
+        document.querySelector('[data-bs-dismiss="modal"]').addEventListener('click', function () {
+            updateTotalPrice();
+        });
+
+        document.querySelector('[data-bs-toggle="modal"]').addEventListener('click', function () {
+            const currentDisplay = document.querySelector('.card.bg-info-subtle .text-secondary').innerHTML;
+            this.dataset.previousState = currentDisplay;
+        });
+
+        document.getElementById('luggageModal').addEventListener('hidden.bs.modal', function (e) {
+            // Nếu không có hành lý nào được chọn, quay lại trạng thái trước đó
+            const total = [...document.querySelectorAll('.btn-check:checked')]
+                .reduce((sum, input) => sum + parseInt(input.dataset.price || 0), 0);
+
+            if (total === 0) {
+                const button = document.querySelector('[data-bs-toggle="modal"]');
+                const previousState = button.dataset.previousState;
+                if (previousState) {
+                    document.querySelector('.card.bg-info-subtle .text-secondary').innerHTML = previousState;
+                }
+            }
+        });
+
+        async function fetchLuggageServices(flightId) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/api/flights/${flightId}/luggage-services`);
+                const data = await response.json();
+                return data.dich_vu_hanh_ly;
+            } catch (error) {
+                console.error('Error fetching luggage services:', error);
+                return [];
+            }
+        }
+
+        async function fetchBaseLuggage(ma_goi, ma_hhk, loai_ve) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/api/packages/${ma_goi}/luggage?hang_hang_khong=${ma_hhk}&loai_ve=${loai_ve}`);
+                const data = await response.json();
+                return {
+                    baseWeight: data.chi_tiet.hanh_ly_xach_tay + data.chi_tiet.hanh_ly_ky_gui,
+                    details: data.chi_tiet
+                };
+            } catch (error) {
+                console.error('Error fetching base luggage:', error);
+                return {
+                    baseWeight: 0,
+                    details: {
+                        hanh_ly_xach_tay: 0,
+                        hanh_ly_ky_gui: 0
+                    }
+                };
+            }
+        }
+
+        // Initialize modal content
+        async function initializeModal() {
+            try {
+                const storedBooking = localStorage.getItem('bookingData');
+                if (!storedBooking) {
+                    throw new Error('No booking data found');
+                }
+
+                bookingData = JSON.parse(storedBooking);
+
+                // Set routes with connecting flight support
+                document.getElementById('outbound-route').textContent = formatFlightRoute(bookingData.outbound.flight);
+
+                if (bookingData.bookingType === 'round-trip' && bookingData.return) {
+                    document.getElementById('return-tab-container').classList.remove('d-none');
+                    document.getElementById('return-route').textContent = formatFlightRoute(bookingData.return.flight);
+                }
+
+                // Set airlines
+                document.getElementById('outbound-airline').textContent = bookingData.outbound.flight.hang_hang_khong;
+                if (bookingData.return) {
+                    document.getElementById('return-airline').textContent = bookingData.return.flight.hang_hang_khong;
+                }
+
+                // Fetch base luggage info using package information directly from bookingData
+                const outboundHHK = bookingData.outbound.flight.is_connecting
+                    ? bookingData.outbound.flight.segments[0].hang_hang_khong
+                    : bookingData.outbound.flight.hang_hang_khong;
+
+                const outboundBaseLuggage = await fetchBaseLuggage(
+                    bookingData.outbound.package.ma_goi,
+                    outboundHHK,
+                    bookingData.outbound.package.ten_goi?.toUpperCase().includes('BUSINESS') ? 'BUS' : 'ECO'
+                );
+
+                let returnBaseLuggage = null;
+                if (bookingData.return) {
+                    const returnHHK = bookingData.return.flight.is_connecting
+                        ? bookingData.return.flight.segments[0].hang_hang_khong
+                        : bookingData.return.flight.hang_hang_khong;
+
+                    returnBaseLuggage = await fetchBaseLuggage(
+                        bookingData.return.package.ma_goi,
+                        returnHHK,
+                        bookingData.return.package.ten_goi?.toUpperCase().includes('BUSINESS') ? 'BUS' : 'ECO'
+                    );
+                }
+
+                // Fetch luggage services
+                luggageServices.outbound = await fetchLuggageServices(bookingData.outbound.flight.ma_chuyen_bay);
+
+                if (bookingData.return) {
+                    luggageServices.return = await fetchLuggageServices(bookingData.return.flight.ma_chuyen_bay);
+                }
+
+                // Create passenger sections
+                const totalPassengers = bookingData.passengers.adults + bookingData.passengers.children;
+                const outboundContainer = document.getElementById('outbound-passengers');
+                const returnContainer = document.getElementById('return-passengers');
+
+                outboundContainer.innerHTML = '';
+                returnContainer.innerHTML = '';
+
+                for (let i = 1; i <= totalPassengers; i++) {
+                    outboundContainer.appendChild(
+                        createPassengerSection(i, 'out', luggageServices.outbound, bookingData.outbound.package.ten_goi, outboundBaseLuggage)
+                    );
+
+                    if (bookingData.return) {
+                        returnContainer.appendChild(
+                            createPassengerSection(i, 'return', luggageServices.return, bookingData.return.package.ten_goi, returnBaseLuggage)
+                        );
+                    }
+                }
+
+                // Add event listeners for luggage selection
+                document.querySelectorAll('.btn-check').forEach(input => {
+                    input.addEventListener('change', () => {
+                        const direction = input.name.includes('-out') ? 'out' : 'return';
+                        const baseLuggage = direction === 'out' ? outboundBaseLuggage : returnBaseLuggage;
+
+                        updateTotalWeight(input, baseLuggage.baseWeight);
+                        updateTotalPrice();
+                    });
+                });
+            } catch (error) {
+                console.error('Error in initializeModal:', error);
+                const errorContainer = document.createElement('div');
+                errorContainer.className = 'alert alert-danger';
+                errorContainer.innerHTML = 'Có lỗi xảy ra khi tải thông tin hành lý. Vui lòng thử lại sau.';
+                document.getElementById('outbound-passengers').appendChild(errorContainer);
+            }
+        }
+
+        // Initialize modal when shown
+        const luggageModal = document.getElementById('luggageModal');
+        luggageModal.addEventListener('show.bs.modal', initializeModal);
+    });
+</script>

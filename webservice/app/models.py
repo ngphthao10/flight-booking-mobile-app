@@ -80,20 +80,33 @@ class DichVu(db.Model):
     MaDV = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TenDichVu = db.Column(db.String(50), nullable=False)
     MoTa = db.Column(db.String(200))
-    
-    ds_hang_hang_khong = db.relationship('HangHangKhong', secondary='DICHVUVE', backref=db.backref('ds_dich_vu', lazy=True))
+    TrangThai = db.Column(db.Integer, default=0)
 
+    dich_vu_ve = db.relationship('DichVuVe', backref='dich_vu', lazy='dynamic')
+
+class GoiDichVu(db.Model):
+    __tablename__ = 'GOIDICHVU'
+    
+    MaGoi = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TenGoi = db.Column(db.String(100), nullable=False)
+    MoTa = db.Column(db.String(500))
+    HeSoGia = db.Column(db.Numeric(3,2), default=1.00)
+    TrangThai = db.Column(db.Integer, default=0)
+
+    dich_vu_ve = db.relationship('DichVuVe', backref='goi_dich_vu', lazy='dynamic')
 
 class DichVuVe(db.Model):
     __tablename__ = 'DICHVUVE'
     
-    MaHHK = db.Column(db.String(5), db.ForeignKey('HANGHANGKHONG.MaHHK', ondelete='CASCADE'), primary_key=True)
-    MaDV = db.Column(db.Integer, db.ForeignKey('DICHVU.MaDV', ondelete='CASCADE'), primary_key=True)
-    ThamSo = db.Column(db.Integer, nullable=False)
+    MaDV = db.Column(db.Integer, db.ForeignKey('DICHVU.MaDV'), primary_key=True)
+    MaHHK = db.Column(db.String(5), db.ForeignKey('HANGHANGKHONG.MaHHK'), primary_key=True)
+    MaGoi = db.Column(db.Integer, db.ForeignKey('GOIDICHVU.MaGoi'), primary_key=True)
     LoaiVeApDung = db.Column(db.String(20), primary_key=True)
-    
+    ThamSo = db.Column(db.Numeric(10,2))
+
+    hang_hang_khong = db.relationship('HangHangKhong', backref='dich_vu_ve')
     __table_args__ = (
-        db.CheckConstraint(LoaiVeApDung.in_(['Economy', 'Business'])),
+        db.CheckConstraint(LoaiVeApDung.in_(['Economy', 'Business']), name='check_loai_ve'),
     )
 
 class MayBay(db.Model):
@@ -125,7 +138,7 @@ class ChuyenBay(db.Model):
     GiaVeBus = db.Column(db.DECIMAL(15,2))
     GiaVeEco = db.Column(db.DECIMAL(15,2))
     TrangThaiVe = db.Column(db.Integer, default=0)
-    TrangThai = db.Column(db.Integer, default=0)
+    TrangThai = db.Column(db.Integer, default=0) # =1: Đã hủy, =0: Đang hoạt động
 
     __table_args__ = (
         db.CheckConstraint(LoaiChuyenBay.in_(['Quốc tế', 'Nội địa'])),
@@ -225,7 +238,7 @@ class DatCho(db.Model):
     __tablename__ = 'DATCHO'
     
     MaDatCho = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    MaCB = db.Column(db.String(8), db.ForeignKey('CHUYENBAY.MaChuyenBay', ondelete='CASCADE'))
+    MaCB = db.Column(db.String(8), db.ForeignKey('CHUYENBAY.MaChuyenBay', ondelete='CASCADE'), primary_key=True)
     MaNLH = db.Column(db.Integer, db.ForeignKey('NGUOILIENHE.MaNLH', ondelete='CASCADE'), nullable=False)
     SoLuongGheBus = db.Column(db.Integer, nullable=False)
     SoLuongGheEco = db.Column(db.Integer, nullable=False)
@@ -331,3 +344,22 @@ class ThanhToan(db.Model):
     
     dat_cho = db.relationship('DatCho', backref='thanh_toan')
     khuyen_mai = db.relationship('KhuyenMai')
+
+class BookingTamThoi(db.Model):
+    __tablename__ = 'BOOKINGTAMTHOI'
+    
+    BookingId = db.Column(db.String(100), primary_key=True)
+    Data = db.Column(db.JSON, nullable=False)
+    CreatedAt = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    ExpiresAt = db.Column(db.DateTime, nullable=False)
+    
+    @classmethod
+    def cleanup_expired(cls):
+        """Xóa các booking đã hết hạn"""
+        try:
+            expired = cls.query.filter(cls.ExpiresAt < datetime.utcnow()).all()
+            for booking in expired:
+                db.session.delete(booking)
+            db.session.commit()
+        except:
+            db.session.rollback()

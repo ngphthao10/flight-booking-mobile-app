@@ -1,0 +1,361 @@
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Bộ lọc</h6>
+        <button id="resetFilter" class="btn btn-sm btn-link">Đặt lại</button>
+    </div>
+    <div class="card-body">
+        <!-- Số điểm dừng -->
+        <div class="filter-section border-bottom pb-3 mb-3">
+            <h6 class="d-flex align-items-center gap-2 cursor-pointer" data-bs-toggle="collapse"
+                data-bs-target="#stopPoints">
+                Số điểm dừng
+                <i class="bi bi-chevron-up"></i>
+            </h6>
+            <div id="stopPoints" class="collapse show">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="transit" id="directFlight" value="direct">
+                    <label class="form-check-label" for="directFlight">Bay thẳng</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="transit" id="oneStop" value="1stop">
+                    <label class="form-check-label" for="oneStop">Bay kết nối</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hãng hàng không -->
+        <div class="filter-section border-bottom pb-3 mb-3">
+            <h6 class="d-flex align-items-center gap-2 cursor-pointer" data-bs-toggle="collapse"
+                data-bs-target="#airlines">
+                Hãng hàng không
+                <i class="bi bi-chevron-up"></i>
+            </h6>
+            <div id="airlines" class="collapse show">
+                <div class="form-check d-flex align-items-center gap-2">
+                    <input class="form-check-input" type="checkbox" id="bamboo">
+                    <label class="form-check-label d-flex justify-content-between w-100" for="bamboo">
+                        <span>Bamboo Airways</span>
+                    </label>
+                </div>
+                <div class="form-check d-flex align-items-center gap-2">
+                    <input class="form-check-input" type="checkbox" id="vietjet">
+                    <label class="form-check-label d-flex justify-content-between w-100" for="vietjet">
+                        <span>VietJet Air</span>
+                    </label>
+                </div>
+                <div class="form-check d-flex align-items-center gap-2">
+                    <input class="form-check-input" type="checkbox" id="vietnam">
+                    <label class="form-check-label d-flex justify-content-between w-100" for="vietnam">
+                        <span>Vietnam Airlines</span>
+                    </label>
+                </div>
+                <div class="form-check d-flex align-items-center gap-2">
+                    <input class="form-check-input" type="checkbox" id="vietravel">
+                    <label class="form-check-label d-flex justify-content-between w-100" for="vietravel">
+                        <span>Vietravel Airlines</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thời gian bay -->
+        <div class="filter-section border-bottom pb-3 mb-3">
+            <h6 class="d-flex align-items-center gap-2 cursor-pointer" data-bs-toggle="collapse"
+                data-bs-target="#flightTime">
+                Thời gian bay
+                <i class="bi bi-chevron-up"></i>
+            </h6>
+            <div id="flightTime" class="collapse show">
+                <p>Giờ cất cánh</p>
+                <div class="time-slot mb-2">
+                    <div class="row row-cols-2 g-2">
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="00:00-06:00">
+                                <small class="d-block">Đêm đến Sáng</small>
+                                00:00 - 06:00
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="06:00-12:00">
+                                <small class="d-block">Sáng đến Trưa</small>
+                                06:00 - 12:00
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="12:00-18:00">
+                                <small class="d-block">Trưa đến Tối</small>
+                                12:00 - 18:00
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="18:00-24:00">
+                                <small class="d-block">Tối đến Đêm</small>
+                                18:00 - 24:00
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <p>Giờ hạ cánh</p>
+                <div class="time-slot">
+                    <div class="row row-cols-2 g-2">
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="00:00-06:00">
+                                <small class="d-block">Đêm đến Sáng</small>
+                                00:00 - 06:00
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="06:00-12:00">
+                                <small class="d-block">Sáng đến Trưa</small>
+                                06:00 - 12:00
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="12:00-18:00">
+                                <small class="d-block">Trưa đến Tối</small>
+                                12:00 - 18:00
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-outline-primary w-100 p-2" data-time="18:00-24:00">
+                                <small class="d-block">Tối đến Đêm</small>
+                                18:00 - 24:00
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Giá/hành khách -->
+
+        <!-- Phần HTML của thanh trượt giá -->
+        <div class="filter-section mb-3">
+            <h6 class="d-flex align-items-center gap-2 cursor-pointer" data-bs-toggle="collapse"
+                data-bs-target="#priceRange">
+                Giá/hành khách
+                <i class="bi bi-chevron-up"></i>
+            </h6>
+            <div id="priceRange" class="collapse show">
+                <div class="price-range">
+                    <div class="mb-2 d-flex justify-content-between">
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <input type="range" class="form-range" id="priceSlider">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .time-slot button {
+        font-size: 0.875rem;
+    }
+
+    .time-slot button.active {
+        background-color: var(--bs-primary);
+        color: white;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Xử lý click time slot buttons
+        const timeSlotButtons = document.querySelectorAll('.time-slot button');
+        timeSlotButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                this.classList.toggle('active');
+            });
+        });
+
+        // Xử lý price slider
+        const priceSlider = document.getElementById('priceSlider');
+        priceSlider.addEventListener('input', function () {
+            // Xử lý khi giá trị thay đổi
+        });
+
+        // Xử lý reset filter
+        document.getElementById('resetFilter').addEventListener('click', function () {
+            // Reset all filters to default state
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('.time-slot button').forEach(btn => btn.classList.remove('active'));
+            priceSlider.value = priceSlider.min;
+        });
+    });
+    // Lưu trữ dữ liệu chuyến bay gốc
+    let originalFlightData = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy dữ liệu chuyến bay từ template
+        const flightDataElement = document.getElementById('flight-data');
+        if (flightDataElement) {
+            try {
+                originalFlightData = JSON.parse(flightDataElement.textContent);
+                initializePriceRange(originalFlightData);
+                initializeFilters();
+            } catch (error) {
+                console.error('Error parsing flight data:', error);
+            }
+        }
+    });
+
+    function initializeFilters() {
+        // Xử lý click cho các nút khoảng thời gian
+        const timeSlotButtons = document.querySelectorAll('.time-slot button');
+        timeSlotButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                this.classList.toggle('active');
+                applyFilters();
+            });
+        });
+
+        // Xử lý cho các radio button loại chuyến bay
+        document.querySelectorAll('input[name="transit"]').forEach(radio => {
+            radio.addEventListener('change', applyFilters);
+        });
+
+        // Xử lý cho các checkbox hãng hàng không
+        document.querySelectorAll('#airlines input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', applyFilters);
+        });
+
+        // Xử lý thanh trượt giá
+        const priceSlider = document.getElementById('priceSlider');
+        if (priceSlider) {
+            priceSlider.addEventListener('input', applyFilters);
+        }
+
+        // Xử lý nút reset
+        document.getElementById('resetFilter').addEventListener('click', resetFilters);
+    }
+
+    async function applyFilters() {
+        if (!originalFlightData) return;
+
+        // Thu thập các giá trị filter
+        const filters = {
+            // Loại chuyến bay
+            flight_type: document.querySelector('input[name="transit"]:checked')?.value || 'all',
+
+            // Khoảng thời gian khởi hành đã chọn
+            departure_time: Array.from(
+                document.querySelectorAll('.time-slot:first-child button.active')
+            ).map(btn => btn.dataset.time),
+
+            // Khoảng thời gian đến đã chọn
+            arrival_time: Array.from(
+                document.querySelectorAll('.time-slot:last-child button.active')
+            ).map(btn => btn.dataset.time),
+
+            // Các hãng hàng không đã chọn
+            airlines: Array.from(
+                document.querySelectorAll('#airlines input[type="checkbox"]:checked')
+            ).map(cb => {
+                // Map ID của checkbox sang mã hãng hàng không
+                const airlineMap = {
+                    'bamboo': 'QH',
+                    'vietjet': 'VJ',
+                    'vietnam': 'VN',
+                    'vietravel': 'VU'
+                };
+                return airlineMap[cb.id];
+            }),
+
+            // Giá tối đa
+            max_price: parseInt(document.getElementById('priceSlider')?.value) || Infinity
+        };
+
+        try {
+            const response = await fetch('/api/flights/filter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    flights: originalFlightData,
+                    filters: filters
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                updateFlightDisplay(result.data);
+            } else {
+                console.error('Filter error:', result.message);
+            }
+        } catch (error) {
+            console.error('Error applying filters:', error);
+        }
+    }
+
+    function resetFilters() {
+        // Reset radio buttons
+        document.querySelectorAll('input[name="transit"]')
+            .forEach(radio => radio.checked = false);
+
+        // Reset checkboxes
+        document.querySelectorAll('#airlines input[type="checkbox"]')
+            .forEach(cb => cb.checked = false);
+
+        // Reset time slot buttons
+        document.querySelectorAll('.time-slot button')
+            .forEach(btn => btn.classList.remove('active'));
+
+        // Reset price slider
+        const priceSlider = document.getElementById('priceSlider');
+        if (priceSlider) {
+            priceSlider.value = priceSlider.min;
+            updatePriceDisplay(priceSlider.min, priceSlider.max);
+        }
+
+        // Hiển thị lại tất cả chuyến bay
+        if (originalFlightData) {
+            updateFlightDisplay(originalFlightData);
+        }
+    }
+
+    function updateFlightDisplay(filteredFlights) {
+        const container = document.getElementById('outboundFlightsContainer');
+        if (!container) return;
+
+        let html = '';
+
+        // Hiển thị chuyến bay thẳng
+        if (filteredFlights.direct_flights.length > 0) {
+            filteredFlights.direct_flights.forEach(flight => {
+                html += createDirectFlightCard(flight);
+            });
+        }
+
+        // Hiển thị chuyến bay kết nối
+        if (filteredFlights.connecting_flights.length > 0) {
+            filteredFlights.connecting_flights.forEach(connection => {
+                html += createConnectingFlightCard(connection);
+            });
+        }
+
+        // Cập nhật nội dung
+        container.innerHTML = html || '<div class="alert alert-info">Không tìm thấy chuyến bay phù hợp với bộ lọc</div>';
+
+        // Cập nhật số lượng kết quả
+        const totalFlights =
+            filteredFlights.direct_flights.length +
+            filteredFlights.connecting_flights.length;
+
+        const countElement = document.getElementById('flight-count');
+        if (countElement) {
+            countElement.textContent = `Tìm thấy ${totalFlights} chuyến bay`;
+        }
+    }
+</script>

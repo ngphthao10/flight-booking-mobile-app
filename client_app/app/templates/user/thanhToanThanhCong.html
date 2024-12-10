@@ -1,0 +1,192 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
+            style="width: 80px; height: 80px;">
+            <i class="bi bi-check-lg fs-1"></i>
+        </div>
+        <h1 class="mb-2">Đặt vé thành công!</h1>
+        <p class="text-muted">Mã đặt chỗ của bạn là: <strong class="text-success" id="bookingCode">VJ000457</strong></p>
+    </div>
+
+    <!-- Thông tin chuyến bay -->
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0">
+            <h4 class="mb-0">Thông tin chuyến bay</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <span class="text-muted">Hãng bay:</span>
+                            <strong class="ms-2" id="airline">VietJet Air</strong>
+                        </li>
+                        <li class="mb-3">
+                            <span class="text-muted">Mã chuyến bay:</span>
+                            <strong class="ms-2" id="flightCode">VJ002</strong>
+                        </li>
+                        <li class="mb-3">
+                            <span class="text-muted">Ngày bay:</span>
+                            <strong class="ms-2" id="departureDate">29-12-2024</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <span class="text-muted">Điểm đi:</span>
+                            <strong class="ms-2" id="origin">SGN</strong>
+                        </li>
+                        <li class="mb-3">
+                            <span class="text-muted">Điểm đến:</span>
+                            <strong class="ms-2" id="destination">HAN</strong>
+                        </li>
+                        <li class="mb-3">
+                            <span class="text-muted">Thời gian:</span>
+                            <strong class="ms-2" id="departureTime">10:00:00</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin hành khách -->
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0">
+            <h4 class="mb-0">Thông tin hành khách</h4>
+        </div>
+        <div class="card-body">
+            <div id="passengersList">
+                <!-- Được render bằng JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Chi tiết thanh toán -->
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0">
+            <h4 class="mb-0">Chi tiết thanh toán</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-8">Giá vé gốc</div>
+                <div class="col-4 text-end" id="basePrice">3.700.000 ₫</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-8">
+                    Mã giảm giá
+                    <span class="badge bg-success ms-2" id="promoCode">UuDaiCuiNam</span>
+                </div>
+                <div class="col-4 text-end text-success" id="discountAmount">-200.000 ₫</div>
+            </div>
+            <div class="row border-top pt-3">
+                <div class="col-8">
+                    <strong>Tổng tiền</strong>
+                </div>
+                <div class="col-4 text-end">
+                    <strong class="fs-5" id="totalPrice">3.500.000 ₫</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="text-center">
+        <button class="btn btn-primary me-2" onclick="window.print()">
+            <i class="bi bi-printer me-2"></i>In vé
+        </button>
+        <a href="/" class="btn btn-outline-primary">
+            <i class="bi bi-house me-2"></i>Về trang chủ
+        </a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy dữ liệu từ localStorage
+        const bookingData = JSON.parse(localStorage.getItem('bookingData'));
+
+        if (!bookingData) {
+            console.error('Không tìm thấy dữ liệu đặt vé!');
+            return;
+        }
+        console.log("BookingData", bookingData)
+        // Cập nhật thông tin mã đặt chỗ
+        document.getElementById('bookingCode').textContent = bookingData.temp.booking_id;
+
+        // Cập nhật thông tin chuyến bay
+        document.getElementById('airline').textContent = bookingData.outbound.flight.hang_hang_khong;
+        document.getElementById('flightCode').textContent = bookingData.outbound.flight.ma_chuyen_bay;
+        document.getElementById('departureDate').textContent = formatDate(bookingData.departureDate);
+        document.getElementById('origin').textContent = bookingData.origin;
+        document.getElementById('destination').textContent = bookingData.destination;
+        document.getElementById('departureTime').textContent = formatTime(bookingData.outbound.flight.thoi_gian_di);
+
+        // Render danh sách hành khách
+        const passengersContainer = document.getElementById('passengersList');
+        const passengers = bookingData.bookingDetails.hanh_khach;
+
+        passengers.forEach((passenger, index) => {
+            const passengerHtml = `
+            <div class="row ${index > 0 ? 'border-top pt-3 mt-3' : ''}">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="text-muted">Họ tên:</span>
+                            <strong class="ms-2">${passenger.ho_hk, " ", passenger.ten_hk}</strong>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-muted">CCCD:</span>
+                            <strong class="ms-2">${passenger.cccd}</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="text-muted">Ngày sinh:</span>
+                            <strong class="ms-2">${formatDate(passenger.ngay_sinh)}</strong>
+                        </li>
+                        <li class="mb-2">
+                            <span class="text-muted">Loại hành khách:</span>
+                            <strong class="ms-2">${passenger.loai_hk}</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+            passengersContainer.insertAdjacentHTML('beforeend', passengerHtml);
+        });
+
+        // Cập nhật thông tin thanh toán
+        document.getElementById('basePrice').textContent = formatCurrency(bookingData.basePrice);
+        document.getElementById('promoCode').textContent = bookingData.appliedPromotion.code;
+        document.getElementById('discountAmount').textContent = `-${formatCurrency(bookingData.appliedPromotion.discount)}`;
+        document.getElementById('totalPrice').textContent = formatCurrency(bookingData.finalPrice);
+    });
+
+    // Hàm format tiền tệ
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(amount);
+    }
+
+    // Hàm format ngày
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('vi-VN');
+    }
+
+    // Hàm format thời gian
+    function formatTime(timeStr) {
+        return timeStr.substring(11, 19);
+    }
+</script>
+{% endblock %}

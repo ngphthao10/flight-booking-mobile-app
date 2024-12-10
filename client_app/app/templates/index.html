@@ -105,7 +105,7 @@
                     // Lưu thông tin user vào localStorage nếu cần
                     localStorage.setItem('user', JSON.stringify(data.data));
                     // Chuyển hướng đến trang chủ
-                    window.location.href = '/';
+                    window.location.href = '/admin/home';
                 } else {
                     // Hiển thị lỗi
                     errorDiv.textContent = data.message;

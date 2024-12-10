@@ -1,0 +1,62 @@
+<!-- Modal chọn package -->
+<div class="modal fade" id="packageSelectionModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chọn loại vé</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Các tab chuyến bay đi/về -->
+                <ul class="nav nav-tabs mb-3" id="packageTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="outbound-tab" data-bs-toggle="tab"
+                            data-bs-target="#outbound-content" type="button">
+                            Chuyến đi
+                        </button>
+                    </li>
+                    <li class="nav-item d-none" id="return-tab-item" role="presentation">
+                        <button class="nav-link" id="return-tab" data-bs-toggle="tab" data-bs-target="#return-content"
+                            type="button">
+                            Chuyến về
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Nội dung tab -->
+                <div class="tab-content" id="packageTabContent">
+                    <!-- Tab chuyến đi -->
+                    <div class="tab-pane fade show active" id="outbound-content">
+                        <div class="flight-summary mb-3 p-3 bg-light rounded">
+                            <!-- Thông tin chuyến đi sẽ được điền bằng JS -->
+                        </div>
+                        <div class="package-options d-flex gap-3 overflow-auto py-2">
+                            <!-- Options chuyến đi sẽ được điền bằng JS -->
+                        </div>
+                    </div>
+
+                    <!-- Tab chuyến về -->
+                    <div class="tab-pane fade" id="return-content">
+                        <div class="flight-summary mb-3 p-3 bg-light rounded">
+                            <!-- Thông tin chuyến về sẽ được điền bằng JS -->
+                        </div>
+                        <div class="package-options d-flex gap-3 overflow-auto py-2">
+                            <!-- Options chuyến về sẽ được điền bằng JS -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Thêm phần hiển thị tổng tiền -->
+                <div class="total-price-section border-top mt-3 pt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>Giá cho 1 hành khách</div>
+                        <div class="h4 mb-0 text-primary" id="packageTotalPrice">0 đ</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPackageSelection()">Tiếp tục</button>
+            </div>
+        </div>
+    </div>
+</div>

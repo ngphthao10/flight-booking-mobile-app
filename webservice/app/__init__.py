@@ -27,8 +27,12 @@ def create_app():
     from app.routes.auth_route import auth_bp 
     from app.routes.user_routes import user_bp 
     from app.routes.user.chuyenbay import chuyenbay
+    from app.routes.admin.hanghangkhong import hanghangkhong
+    from app.routes.admin.maybay import maybay
     app.register_blueprint(auth_bp)  
     app.register_blueprint(user_bp) 
     app.register_blueprint(chuyenbay)
+    app.register_blueprint(hanghangkhong)
+    app.register_blueprint(maybay)
     
     return app

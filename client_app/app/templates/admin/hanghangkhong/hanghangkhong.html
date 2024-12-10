@@ -1,0 +1,758 @@
+{% extends "admin/base.html" %}
+{% block title %}Quản lý hãng hàng không{% endblock %}
+
+{% block content %}
+<div id="pagination-config" data-api-url="{{ api_url }}" data-current-page="{{ pagination.page }}"
+    data-per-page="{{ pagination.per_page }}" style="display: none;">
+</div>
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-exclamation-triangle mb-1 me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z" />
+                        <path
+                            d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z" />
+                    </svg>
+                    Xác nhận xóa
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Bạn có chắc chắn muốn xóa hãng hàng không này không? Hành động này không thể hoàn tác.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-x-lg mb-1 me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                    </svg>
+                    Hủy
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-trash3 mb-1 me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
+                    </svg>
+                    Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container py-3">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="text-center fw-bold">
+                Quản lý hãng hàng không
+            </h1>
+            <hr class="my-2">
+        </div>
+    </div>
+
+    <!-- Message Area -->
+    <div id="message-area" class="mb-3"></div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- List Airlines Table -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        Thêm hãng hàng không
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="airline-form" class="needs-validation" novalidate>
+                        <div class="row mb-3">
+
+                            <div class="col-md-4">
+                                <label for="maHHK" class="form-label">Mã hàng hàng không <span
+                                        style="color:red;">*</span></label>
+                                <input type="text" class="form-control" id="maHHK" name="maHHK" placeholder="VD: VN"
+                                    required>
+                                <div class="invalid-feedback">
+                                    Vui lòng nhập mã hãng hàng không
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="tenHHK" class="form-label">Tên hãng hàng không <span
+                                        style="color:red;">*</span></label>
+                                <input type="text" class="form-control" id="tenHHK" name="tenHHK"
+                                    placeholder="VD: Vietnam Airlines" required>
+                                <div class="invalid-feedback">
+                                    Vui lòng nhập tên hãng hàng không
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="maQG" class="form-label">Quốc Gia <span style="color:red;">*</span></label>
+                                <select class="form-select" id="maQG" name="maQG" required>
+                                    <option value="">Chọn quốc gia</option>
+                                    <!-- Options sẽ được load bằng JavaScript -->
+                                </select>
+                                <div class="invalid-feedback">
+                                    Vui lòng chọn quốc gia
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="d-flex justify-content-start">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-floppy mb-1" viewBox="0 0 16 16">
+                                        <path d="M11 2H9v3h2z" />
+                                        <path
+                                            d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                                    </svg>
+                                    Lưu
+                                </button>
+                                <button type="reset" class="btn btn-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-arrow-counterclockwise mb-1" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                                        <path
+                                            d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+                                    </svg>
+                                    Làm mới
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover border">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Mã hãng hàng không</th>
+                            <th scope="col">Tên hãng hàng không</th>
+                            <th scope="col">Quốc gia</th>
+                            <th scope="col" class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="airlines-table">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-center align-items-center p-4 border-top">
+                    {% if pagination.total > 0 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <!-- Nút Previous -->
+                            <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ pagination.page - 1 }}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- Các số trang -->
+                            {% set start = pagination.page - 2 if pagination.page - 2 > 1 else 1 %}
+                            {% set end = pagination.pages + 1 if pagination.pages + 1 < pagination.page + 3 else
+                                pagination.page + 3 %} {% for p in range(start, end) if p <=pagination.pages %} <li
+                                class="page-item {% if p == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+                                </li>
+                                {% endfor %}
+
+                                <!-- Nút Next -->
+                                <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                                    <a class="page-link" href="#" data-page="{{ pagination.page + 1 }}"
+                                        aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-4">
+            <div class="content-section">
+                <h5><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-funnel me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                    </svg>Bộ lọc tìm kiếm</h5>
+                <br />
+                <div>
+                    <form method="GET" action="{{ url_for('hanghangkhong.get_hang_hang_khong') }}"
+                        class="needs-validation">
+                        <div class="mb-3">
+                            <label for="ma_hhk" class="form-label">Mã hãng hàng không</label>
+                            <input type="text" class="form-control" id="ma_hhk" name="ma_hhk"
+                                value="{{ filters.ma_hhk }}" placeholder="Nhập mã hãng hàng không...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ten_hhk" class="form-label">Tên hãng hàng không</label>
+                            <input type="text" class="form-control" id="ten_hhk" name="ten_hhk"
+                                value="{{ filters.ten_hhk }}" placeholder="Nhập tên hãng hàng không...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ma_qg" class="form-label">Quốc gia</label>
+                            <select class="form-select" id="ma_qg" name="ma_qg">
+                                <option value="">Tất cả quốc gia</option>
+                                <!-- Options sẽ được load bằng JavaScript -->
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sort_by" class="form-label">Sắp xếp theo</label>
+                            <select class="form-select" id="sort_by" name="sort_by">
+                                <option value="MaHHK" {% if filters.sort_by=='MaHHK' %}selected{% endif %}>
+                                    Mã hãng hàng không
+                                </option>
+                                <option value="TenHHK" {% if filters.sort_by=='TenHHK' %}selected{% endif %}>
+                                    Tên hãng hàng không
+                                </option>
+                                <option value="MaQG" {% if filters.sort_by=='MaQG' %}selected{% endif %}>
+                                    Mã quốc gia
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order" class="form-label">Thứ tự</label>
+                            <select class="form-select" id="order" name="order">
+                                <option value="asc" {% if filters.order=='asc' %}selected{% endif %}>
+                                    Tăng dần
+                                </option>
+                                <option value="desc" {% if filters.order=='desc' %}selected{% endif %}>
+                                    Giảm dần
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-search mb-1" viewBox="0 0 16 16">
+                                    <path
+                                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                                </svg>
+                                Tìm kiếm
+                            </button>
+                            <a href="{{url_for('hanghangkhong.get_hang_hang_khong')}}"
+                                class="btn btn-outline-secondary">
+                                <i class="fas fa-redo me-2"></i>Đặt lại
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Khởi tạo biến từ config
+        const config = document.getElementById('pagination-config');
+        const API_URL = config.dataset.apiUrl;
+        let currentPage = parseInt(config.dataset.currentPage);
+        const perPage = parseInt(config.dataset.perPage);
+        // Hàm load danh sách quốc gia
+        async function loadQuocGia() {
+            try {
+                const response = await fetch(`${API_URL}/api/quoc-gia`);
+                const result = await response.json();
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+
+                // Lấy các select box quốc gia
+                const selects = [
+                    document.getElementById('maQG'),  // Select trong form thêm
+                    document.getElementById('ma_qg')   // Select trong form tìm kiếm
+                ];
+
+                // Thêm options vào các select box
+                selects.forEach(select => {
+                    if (select) {
+                        // Giữ lại option đầu tiên (placeholder)
+                        const firstOption = select.options[0];
+                        select.innerHTML = '';
+                        select.appendChild(firstOption);
+
+                        // Thêm các options quốc gia
+                        result.data.forEach(qg => {
+                            const option = document.createElement('option');
+                            option.value = qg.MaQG;
+                            option.textContent = `${qg.MaQG} - ${qg.TenQG}`;
+                            select.appendChild(option);
+                        });
+
+                        // Nếu có giá trị mặc định (cho form tìm kiếm)
+                        if (select.id === 'ma_qg' && urlParams.get('ma_qg')) {
+                            select.value = urlParams.get('ma_qg');
+                        }
+                    }
+                });
+
+            } catch (error) {
+                showMessage('danger', `Lỗi khi tải danh sách quốc gia: ${error.message}`);
+            }
+        }
+        // Hàm hiển thị thông báo
+        function showMessage(type, message) {
+            // Lấy toast element
+            const toastEl = document.getElementById('liveToast');
+            const toastHeader = toastEl.querySelector('.toast-header');
+
+            // Set class cho toast và header theo type
+            toastEl.className = 'toast border-' + (type === 'success' ? 'success' : 'danger');
+            toastHeader.className = 'toast-header text-white ' + (type === 'success' ? 'bg-success' : 'bg-danger');
+
+            // Cập nhật nút close thành màu trắng
+            const closeBtn = toastHeader.querySelector('.btn-close');
+            closeBtn.className = 'btn-close btn-close-white';
+
+            // Set message
+            toastEl.querySelector('.toast-body').textContent = message;
+
+            // Khởi tạo và hiển thị toast
+            const toast = new bootstrap.Toast(toastEl, {
+                delay: 5000
+            });
+            toast.show();
+        }
+
+
+        // Thêm biến để theo dõi trạng thái form
+        let isEditMode = false;
+        let editingAirlineId = null;
+
+        async function editAirline(maHHK) {
+            try {
+                // Lấy thông tin hãng hàng không từ API
+                const response = await fetch(`${API_URL}/api/hang-hang-khong/${maHHK}`);
+                const result = await response.json();
+
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+
+                // Cập nhật form với dữ liệu
+                const form = document.getElementById('airline-form');
+                form.querySelector('#maHHK').value = result.data.MaHHK;
+                form.querySelector('#tenHHK').value = result.data.TenHHK;
+                form.querySelector('#maQG').value = result.data.MaQG;
+
+                // Disable trường mã hãng hàng không
+                form.querySelector('#maHHK').disabled = true;
+
+                // Ẩn nút làm mới
+                const resetButton = form.querySelector('button[type="reset"]');
+                if (resetButton) {
+                    resetButton.style.display = 'none';
+                }
+
+                // Cập nhật UI form
+                updateFormToEditMode();
+
+                // Cập nhật trạng thái
+                isEditMode = true;
+                editingAirlineId = maHHK;
+
+                // Scroll lên form
+                form.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showMessage('danger', `Lỗi khi lấy thông tin hãng hàng không: ${error.message}`);
+            }
+        }
+
+        // Hàm cập nhật UI form sang chế độ sửa
+        function updateFormToEditMode() {
+            // Cập nhật tiêu đề
+            document.querySelector('.card-title').textContent = 'Cập nhật hãng hàng không';
+
+            // Cập nhật nút submit
+            const submitBtn = document.querySelector('#airline-form button[type="submit"]');
+            submitBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-save mb-1" viewBox="0 0 16 16">
+            <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
+        </svg> Cập nhật
+    `;
+
+            // Thêm nút hủy
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle mb-1" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg> Hủy
+    `;
+            cancelBtn.addEventListener('click', resetForm);
+
+            // Thêm nút hủy vào form nếu chưa có
+            const btnContainer = document.querySelector('#airline-form .d-flex');
+            if (!btnContainer.querySelector('button[type="button"]')) {
+                btnContainer.appendChild(cancelBtn);
+            }
+        }
+
+        function resetForm(isCancel = false) {
+            const form = document.getElementById('airline-form');
+            const maHHKInput = form.querySelector('#maHHK');
+
+            // Reset form
+            form.reset();
+            form.classList.remove('was-validated');
+
+            // Hiện lại nút làm mới
+            const resetButton = form.querySelector('button[type="reset"]');
+            if (resetButton) {
+                resetButton.style.display = '';
+            }
+
+            // Enable lại trường mã hãng hàng không
+            maHHKInput.disabled = false;
+
+            // Cập nhật tiêu đề
+            document.querySelector('.card-title').textContent = 'Thêm hãng hàng không';
+
+            // Cập nhật nút submit
+            const submitBtn = document.querySelector('#airline-form button[type="submit"]');
+            submitBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+            class="bi bi-floppy mb-1" viewBox="0 0 16 16">
+            <path d="M11 2H9v3h2z" />
+            <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+        </svg>
+        Lưu
+    `;
+
+            // Xóa nút hủy nếu có
+            const cancelBtn = document.querySelector('#airline-form button[type="button"]');
+            if (cancelBtn) {
+                cancelBtn.remove();
+            }
+
+            // Reset trạng thái
+            isEditMode = false;
+            editingAirlineId = null;
+        }
+        // Biến lưu trữ mã hãng hàng không cần xóa
+        let deletingAirlineId = null;
+
+        // Hàm xử lý hiển thị modal xóa
+        function deleteAirline(maHHK) {
+            // Lưu mã hãng hàng không cần xóa
+            deletingAirlineId = maHHK;
+
+            // Hiển thị modal
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            deleteModal.show();
+        }
+
+        // Xử lý sự kiện khi click nút xác nhận xóa
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
+            if (!deletingAirlineId) return;
+
+            try {
+                // Gọi API xóa
+                const response = await fetch(`${API_URL}/api/hang-hang-khong/${deletingAirlineId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                // Ẩn modal
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                deleteModal.hide();
+
+                if (result.status) {
+                    // Hiển thị thông báo thành công
+                    showMessage('success', result.message);
+
+                    // Refresh lại dữ liệu bảng
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentPage = parseInt(urlParams.get('page')) || 1;
+
+                    // Lấy các tham số tìm kiếm hiện tại
+                    const searchParams = {
+                        ma_hhk: urlParams.get('ma_hhk') || '',
+                        ten_hhk: urlParams.get('ten_hhk') || '',
+                        ma_qg: urlParams.get('ma_qg') || '',
+                        sort_by: urlParams.get('sort_by') || 'MaHHK',
+                        order: urlParams.get('order') || 'asc'
+                    };
+
+                    // Fetch lại dữ liệu
+                    fetchAirlines(currentPage, searchParams);
+                } else {
+                    // Hiển thị thông báo lỗi
+                    showMessage('danger', result.message);
+                }
+
+            } catch (error) {
+                showMessage('danger', 'Có lỗi xảy ra khi xóa hãng hàng không');
+                console.error(error);
+            } finally {
+                // Reset mã hãng hàng không
+                deletingAirlineId = null;
+            }
+        });
+        // Cập nhật xử lý form submit
+        document.getElementById('airline-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Kiểm tra validation của form
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
+            try {
+                // Lấy dữ liệu từ form
+                const formData = {
+                    MaHHK: document.getElementById('maHHK').value.trim(),
+                    TenHHK: document.getElementById('tenHHK').value.trim(),
+                    MaQG: document.getElementById('maQG').value
+                };
+                console.log("formData:", formData)
+                // Xác định URL và method dựa trên mode
+                const url = isEditMode
+                    ? `${API_URL}/api/hang-hang-khong/${editingAirlineId}`
+                    : `${API_URL}/api/hang-hang-khong`;
+                const method = isEditMode ? 'PUT' : 'POST';
+
+                // Gọi API
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.status) {
+                    // Hiển thị thông báo thành công
+                    showMessage('success', result.message);
+
+                    // Reset form và trạng thái
+                    resetForm();
+
+                    // Refresh lại dữ liệu bảng
+                    fetchAirlines(currentPage);
+                } else {
+                    // Hiển thị thông báo lỗi
+                    showMessage('danger', result.message);
+                }
+
+            } catch (error) {
+                showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                console.error(error);
+            }
+        });
+        // Hàm fetch dữ liệu với các tham số tìm kiếm
+        async function fetchAirlines(page, searchParams = {}) {
+            try {
+                // Tạo URL search params
+                const params = new URLSearchParams({
+                    page: page,
+                    per_page: perPage,
+                    ...searchParams // Thêm các tham số tìm kiếm
+                });
+
+                const response = await fetch(`${API_URL}/api/hang-hang-khong?${params.toString()}`);
+                const result = await response.json();
+
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+
+                updateTable(result.data);
+
+                // Cập nhật URL với các tham số tìm kiếm
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+
+            } catch (error) {
+                showMessage('danger', `Lỗi: ${error.message}`);
+            }
+        }
+
+        // Xử lý form tìm kiếm
+        const searchForm = document.querySelector('form.needs-validation');
+        searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Lấy tất cả các giá trị từ form
+            const searchParams = {
+                ma_hhk: document.getElementById('ma_hhk').value,
+                ten_hhk: document.getElementById('ten_hhk').value,
+                ma_qg: document.getElementById('ma_qg').value,
+                sort_by: document.getElementById('sort_by').value,
+                order: document.getElementById('order').value
+            };
+
+            // Loại bỏ các tham số trống
+            Object.keys(searchParams).forEach(key => {
+                if (!searchParams[key]) {
+                    delete searchParams[key];
+                }
+            });
+
+            // Gọi API với tham số tìm kiếm
+            fetchAirlines(1, searchParams);
+        });
+
+
+        // Hàm cập nhật bảng
+        function updateTable(data) {
+            const table = document.getElementById('airlines-table');
+            table.innerHTML = '';
+
+            if (data && data.length > 0) {
+                data.forEach(airline => {
+                    const row = document.createElement('tr');
+                    // Escape các giá trị để tránh XSS
+                    const escapedMaHHK = escapeHtml(airline.MaHHK);
+                    const escapedTenHHK = escapeHtml(airline.TenHHK);
+                    const escapedMaQG = escapeHtml(airline.MaQG);
+
+                    row.innerHTML = `
+                <td>${escapedMaHHK}</td>
+                <td>${escapedTenHHK}</td>
+                <td>${escapedMaQG}</td>
+                <td class="text-center">
+                    <button 
+                        class="btn btn-outline-success btn-sm me-2 edit-btn"
+                        type="button"
+                        data-id="${escapedMaHHK}"
+                        aria-label="Sửa hãng hàng không ${escapedTenHHK}"
+                        data-bs-toggle="tooltip"
+                        title="Sửa hãng hàng không">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                        </svg>
+                    </button>
+                    <button 
+                        class="btn btn-outline-danger btn-sm delete-btn"
+                        type="button"
+                        data-id="${escapedMaHHK}"
+                        aria-label="Xóa hãng hàng không ${escapedTenHHK}"
+                        data-bs-toggle="tooltip"
+                        title="Xóa hãng hàng không">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+                    table.appendChild(row);
+
+                    // Thêm event listeners cho các nút
+                    const editBtn = row.querySelector('.edit-btn');
+                    const deleteBtn = row.querySelector('.delete-btn');
+
+                    editBtn.addEventListener('click', function () {
+                        editAirline(this.dataset.id);
+                    });
+
+                    deleteBtn.addEventListener('click', function () {
+                        deleteAirline(this.dataset.id);
+                    });
+                });
+
+                // Khởi tạo tooltips
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            } else {
+                table.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center">Không có dữ liệu</td>
+            </tr>
+        `;
+            }
+        }
+
+        // Hàm escape HTML để tránh XSS
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Xử lý sự kiện click phân trang
+        document.querySelectorAll('.pagination .page-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = parseInt(this.dataset.page);
+
+                // Kiểm tra page hợp lệ
+                if (!page || page < 1) return;
+
+                // Lấy các tham số tìm kiếm hiện tại
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParams = {
+                    ma_hhk: urlParams.get('ma_hhk') || '',
+                    ten_hhk: urlParams.get('ten_hhk') || '',
+                    ma_qg: urlParams.get('ma_qg') || '',
+                    sort_by: urlParams.get('sort_by') || 'MaHHK',
+                    order: urlParams.get('order') || 'asc'
+                };
+
+                // Thực hiện reload trang với tham số mới
+                window.location.href = `?page=${page}&${new URLSearchParams(searchParams).toString()}`;
+            });
+        });
+
+        // Khởi tạo dữ liệu ban đầu với các tham số từ URL (nếu có)
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialSearchParams = {
+            ma_hhk: urlParams.get('ma_hhk') || '',
+            ten_hhk: urlParams.get('ten_hhk') || '',
+            ma_qg: urlParams.get('ma_qg') || '',
+            sort_by: urlParams.get('sort_by') || 'MaHHK',
+            order: urlParams.get('order') || 'asc'
+        };
+
+        fetchAirlines(currentPage, initialSearchParams);
+        loadQuocGia();
+    });
+</script>
+
+{% endblock %}
