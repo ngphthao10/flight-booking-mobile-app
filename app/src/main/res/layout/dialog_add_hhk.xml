@@ -1,0 +1,56 @@
+<!-- res/layout/dialog_add_hhk.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Trường nhập Mã Hãng Hàng Không -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilMaHHK"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mã Hãng Hàng Không">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etMaHHK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Trường nhập Tên Hãng Hàng Không -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilTenHHK"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tên Hãng Hàng Không"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etTenHHK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Trường chọn Quốc Gia -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilMaQG"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Quốc Gia"
+        android:layout_marginTop="16dp">
+
+        <AutoCompleteTextView
+            android:id="@+id/etMaQG"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>
