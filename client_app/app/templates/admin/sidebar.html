@@ -37,10 +37,7 @@
             </a>
             <ul id="auth1" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                 <li class="sidebar-item">
-                    <a href="" class="sidebar-link">Quốc gia</a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="" class="sidebar-link">Sân bay</a>
+                    <a href="{{url_for('sanbay.get_san_bay')}}" class="sidebar-link">Sân bay</a>
                 </li>
                 <li class="sidebar-item">
                     <a href="{{url_for('hanghangkhong.get_hang_hang_khong')}}" class="sidebar-link">Hãng hàng không</a>

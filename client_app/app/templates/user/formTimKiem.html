@@ -186,54 +186,6 @@
         const outboundContainer = document.getElementById('outboundFlightsContainer');
         const returnContainer = document.getElementById('returnFlightsContainer');
 
-        // Khởi tạo dữ liệu từ backend
-        // const currentFlights = JSON.parse(`{{ flight_results | tojson | safe }}` || '{}');
-        // Function to save selected flights
-
-
-        // Function to restore selected flights
-        // function restoreSelectedFlights() {
-        //     try {
-        //         const savedOutbound = localStorage.getItem('selectedOutboundFlight');
-        //         const savedReturn = localStorage.getItem('selectedReturnFlight');
-
-        //         if (savedOutbound) {
-        //             const outboundData = JSON.parse(savedOutbound);
-        //             // Kiểm tra xem chuyến bay còn tồn tại trong kết quả filter không
-        //             const isConnecting = outboundData.flights !== undefined;
-        //             const flightExists = isConnecting ?
-        //                 document.querySelector(`button[data-connection-info]`) :
-        //                 document.querySelector(`button[data-flight-code="${outboundData.ma_chuyen_bay}"]`);
-
-        //             if (flightExists) {
-        //                 if (isConnecting) {
-        //                     selectConnectingFlight(flightExists);
-        //                 } else {
-        //                     selectFlight(outboundData.ma_chuyen_bay);
-        //                 }
-        //             }
-        //         }
-
-        //         if (savedReturn) {
-        //             const returnData = JSON.parse(savedReturn);
-        //             const isConnecting = returnData.flights !== undefined;
-        //             const flightExists = isConnecting ?
-        //                 document.querySelector(`button[data-connection-info]`) :
-        //                 document.querySelector(`button[data-flight-code="${returnData.ma_chuyen_bay}"]`);
-
-        //             if (flightExists) {
-        //                 if (isConnecting) {
-        //                     selectReturnConnectingFlight(flightExists);
-        //                 } else {
-        //                     selectReturnFlight(returnData.ma_chuyen_bay);
-        //                 }
-        //             }
-        //         }
-        //     } catch (error) {
-        //         console.error('Error restoring selected flights:', error);
-        //     }
-        // }
-
         // Function to restore selected flights
         function restoreSelectedFlights() {
             try {
@@ -243,7 +195,6 @@
                 }
                 const savedOutbound = localStorage.getItem('selectedOutboundFlight');
                 const savedReturn = localStorage.getItem('selectedReturnFlight');
-                console.log(savedOutbound, " hihi ", savedReturn)
                 // Restore outbound flight
                 if (savedOutbound) {
                     const outboundData = JSON.parse(savedOutbound);
@@ -342,15 +293,73 @@
 
 
         // Apply filter
+        // function applyFilter() {
+        //     try {
+        //         // saveSelectedFlights();
+        //         if (!isInitialPageLoad) {
+        //             saveSelectedFlights();
+        //         }
+        //         // Show loading state
+        //         const loadingHtml = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin me-2"></i>Đang lọc...</div>';
+        //         outboundContainer.innerHTML = loadingHtml;
+        //         if (returnContainer && returnContainer.style.display !== 'none') {
+        //             returnContainer.innerHTML = loadingHtml;
+        //         }
+
+        //         // Build URL with filter params
+        //         const url = new URL(window.location.href);
+        //         url.searchParams.set('filtered', 'true');
+
+        //         const filterParams = getFilterParams();
+        //         console.log("filter:", filterParams)
+        //         Object.entries(filterParams).forEach(([key, value]) => {
+        //             if (Array.isArray(value)) {
+        //                 url.searchParams.delete(`${key}[]`);
+        //                 value.forEach(v => url.searchParams.append(`${key}[]`, v));
+        //             } else {
+        //                 url.searchParams.set(key, value);
+        //             }
+        //         });
+
+        //         // Reload page with filter params
+        //         window.location.href = url.toString();
+
+        //     } catch (error) {
+        //         console.error('Filter error:', error);
+        //         console.log("filter:", filterParams)
+        //         const errorHtml = `
+        //             <div class="alert alert-danger">
+        //                 <i class="fas fa-exclamation-circle me-2"></i>
+        //                 Đã có lỗi xảy ra khi lọc chuyến bay
+        //             </div>
+        //         `;
+        //         outboundContainer.innerHTML = errorHtml;
+        //         if (returnContainer && returnContainer.style.display !== 'none') {
+        //             returnContainer.innerHTML = errorHtml;
+        //         }
+        //     }
+        // }
+
         function applyFilter() {
             try {
-                // saveSelectedFlights();
+                // First verify containers exist
+                const outboundContainer = document.getElementById('outbound-container'); // Add proper selector
+                const returnContainer = document.getElementById('return-container'); // Add proper selector
+
                 if (!isInitialPageLoad) {
                     saveSelectedFlights();
                 }
-                // Show loading state
+
+                // Loading state HTML
                 const loadingHtml = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin me-2"></i>Đang lọc...</div>';
-                outboundContainer.innerHTML = loadingHtml;
+
+                // Safely update containers
+                if (outboundContainer) {
+                    outboundContainer.innerHTML = loadingHtml;
+                } else {
+                    console.warn('Outbound container not found');
+                }
+
                 if (returnContainer && returnContainer.style.display !== 'none') {
                     returnContainer.innerHTML = loadingHtml;
                 }
@@ -358,8 +367,9 @@
                 // Build URL with filter params
                 const url = new URL(window.location.href);
                 url.searchParams.set('filtered', 'true');
-
                 const filterParams = getFilterParams();
+                console.log("filter:", filterParams);
+
                 Object.entries(filterParams).forEach(([key, value]) => {
                     if (Array.isArray(value)) {
                         url.searchParams.delete(`${key}[]`);
@@ -369,18 +379,22 @@
                     }
                 });
 
-                // Reload page with filter params
                 window.location.href = url.toString();
-
             } catch (error) {
                 console.error('Filter error:', error);
+
                 const errorHtml = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        Đã có lỗi xảy ra khi lọc chuyến bay
-                    </div>
-                `;
-                outboundContainer.innerHTML = errorHtml;
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Đã có lỗi xảy ra khi lọc chuyến bay
+            </div>
+        `;
+
+                // Safely show error messages
+                if (outboundContainer) {
+                    outboundContainer.innerHTML = errorHtml;
+                }
+
                 if (returnContainer && returnContainer.style.display !== 'none') {
                     returnContainer.innerHTML = errorHtml;
                 }

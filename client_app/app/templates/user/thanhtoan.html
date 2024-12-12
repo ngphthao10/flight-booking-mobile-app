@@ -704,60 +704,6 @@
         return diff / (1000 * 60 * 60); // Convert to hours
     }
 
-    // async function loadPromotions() {
-    //     try {
-    //         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
-    //         if (!bookingData) {
-    //             console.error('Không tìm thấy booking data');
-    //             return;
-    //         }
-
-    //         // Lấy danh sách mã chuyến bay
-    //         let flight_codes = [];
-    //         if (bookingData.outbound.flight.is_connecting) {
-    //             flight_codes = bookingData.outbound.flight.segments.map(segment => segment.ma_chuyen_bay);
-    //         } else {
-    //             flight_codes.push(bookingData.outbound.flight.ma_chuyen_bay);
-    //         }
-
-    //         // Thêm mã chuyến bay cho chuyến về nếu có
-    //         if (bookingData.bookingType === 'round-trip' && bookingData.return) {
-    //             if (bookingData.return.flight.is_connecting) {
-    //                 flight_codes = flight_codes.concat(
-    //                     bookingData.return.flight.segments.map(segment => segment.ma_chuyen_bay)
-    //                 );
-    //             } else {
-    //                 flight_codes.push(bookingData.return.flight.ma_chuyen_bay);
-    //             }
-    //         }
-
-    //         const requestData = {
-    //             hang_hang_khong: bookingData.outbound.flight.hang_hang_khong, // Sử dụng tên hãng hàng không
-    //             ma_chuyen_bay: flight_codes,
-    //             tong_tien: bookingData.basePrice,
-    //             booking_type: bookingData.bookingType
-    //         };
-
-    //         const response = await fetch('http://127.0.0.1:5000/api/bookings/temp/promotions', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify(requestData)
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error('Không thể tải thông tin khuyến mãi');
-    //         }
-
-    //         const promotionData = await response.json();
-    //         displayPromotions(promotionData);
-
-    //     } catch (error) {
-    //         console.error('Error loading promotions:', error);
-    //     }
-    // }
-
     async function loadPromotions() {
         try {
             const bookingData = JSON.parse(localStorage.getItem('bookingData'));
@@ -918,53 +864,6 @@
         updateTotalPrice(bookingData);
         loadPromotions();
     }
-
-    // // Function để kiểm tra khuyến mãi chuyến bay
-    // async function checkFlightPromotion(event, ma_khuyen_mai, hhk) {
-    //     event.preventDefault();
-    //     const promotionCode = document.getElementById('flightPromotionCode').value || ma_khuyen_mai;
-    //     if (!promotionCode) return;
-    //     console.log(promotionCode)
-    //     try {
-    //         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
-    //         if (!bookingData) return;
-
-    //         const response = await fetch('http://127.0.0.1:5000/api/bookings/temp/promotions', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify({
-    //                 hang_hang_khong: bookingData.outbound.flight.hang_hang_khong,
-    //                 ma_chuyen_bay: [bookingData.outbound.flight.ma_chuyen_bay],
-    //                 tong_tien: bookingData.finalPrice
-    //             })
-    //         });
-
-    //         const promotionData = await response.json();
-    //         const flightPromoCB = promotionData.khuyen_mai.CHUYEN_BAY.find(p => p.ma_khuyen_mai === promotionCode);
-    //         const flightPromoHHK = promotionData.khuyen_mai.HANG_HANG_KHONG.find(p => p.ma_khuyen_mai === promotionCode);
-    //         console.log(hhk)
-    //         if (!hhk) {
-    //             if (flightPromoCB) {
-    //                 applyPromotion(flightPromoCB.ma_khuyen_mai, flightPromoCB.tien_giam, 'CHUYEN_BAY');
-    //             } else {
-    //                 alert('Mã khuyến mãi chuyến bay không hợp lệ hoặc đã hết hạn');
-    //             }
-    //         }
-    //         else {
-    //             if (flightPromoHHK) {
-    //                 applyPromotion(flightPromoHHK.ma_khuyen_mai, flightPromoHHK.tien_giam, 'HANG_HANG_KHONG', flightPromoHHK.ap_dung_cho);
-    //             } else {
-    //                 alert('Mã khuyến mãi hãng hàng không không hợp lệ hoặc đã hết hạn');
-    //             }
-    //         }
-
-    //     } catch (error) {
-    //         console.error('Error checking flight promotion:', error);
-    //         alert('Có lỗi xảy ra khi kiểm tra mã khuyến mãi');
-    //     }
-    // }
 
     async function checkFlightPromotion(event, ma_khuyen_mai, hhk) {
         event.preventDefault();

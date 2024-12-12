@@ -213,6 +213,8 @@ def search_flights():
             except Exception as e:
                 print(f"Filter Error: {str(e)}")
                 flash('Lỗi khi lọc kết quả', 'danger')
+        
+        # print(processed_results)
 
         return render_template(
             'user/flight_results.html',

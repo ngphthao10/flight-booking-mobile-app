@@ -29,10 +29,14 @@ def create_app():
     from app.routes.user.chuyenbay import chuyenbay
     from app.routes.admin.hanghangkhong import hanghangkhong
     from app.routes.admin.maybay import maybay
+    from app.routes.admin.sanbay import sanbay
+    from app.routes.admin.quocgia import quocgia
     app.register_blueprint(auth_bp)  
     app.register_blueprint(user_bp) 
     app.register_blueprint(chuyenbay)
     app.register_blueprint(hanghangkhong)
     app.register_blueprint(maybay)
+    app.register_blueprint(sanbay)
+    app.register_blueprint(quocgia)
     
     return app

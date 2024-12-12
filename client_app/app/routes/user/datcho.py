@@ -21,7 +21,6 @@ def thanhtoan():
 def booking_success():
     return render_template('user/thanhToanThanhCong.html')
 
-# Route để xóa booking tạm thời khỏi session
 @datcho.route('/clear-temp-booking', methods=['POST'])
 def clear_temp_booking():
     session.pop('temp_booking', None)

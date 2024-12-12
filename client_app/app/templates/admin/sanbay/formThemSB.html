@@ -1,0 +1,74 @@
+<form id="sanbay-form" class="needs-validation" novalidate>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label for="maSanBay" class="form-label">Mã sân bay <span style="color:red;">*</span></label>
+            <input type="text" class="form-control" id="maSanBay" name="maSanBay" placeholder="VD: SB001" required>
+            <div class="invalid-feedback">
+                Vui lòng nhập mã sân bay
+            </div>
+        </div>
+        <div class="col-md-5">
+            <label for="tenSanBay" class="form-label">Tên sân bay <span style="color:red;">*</span></label>
+            <input type="text" class="form-control" id="tenSanBay" name="tenSanBay"
+                placeholder="VD: Sân bay Tân Sơn Nhất" required>
+            <div class="invalid-feedback">
+                Vui lòng nhập tên sân bay
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="thanhPho" class="form-label">Thành phố <span style="color:red;">*</span></label>
+            <input type="text" class="form-control" id="thanhPho" name="thanhPho" placeholder="VD: TP HCM" required>
+            <div class="invalid-feedback">
+                Vui lòng nhập thành phố
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="maQGSanBay" class="form-label">Quốc gia <span style="color:red;">*</span></label>
+            <select class="form-select" id="maQGSanBay" name="maQGSanBay" required>
+                <option value="">Chọn quốc gia</option>
+                <!-- Options sẽ được load bằng JavaScript -->
+                <option value="add_new">+ Thêm quốc gia mới</option>
+                <!-- Tùy chọn thêm quốc gia mới -->
+            </select>
+            <div class="invalid-feedback">
+                Vui lòng chọn quốc gia
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="loaiSB" class="form-label">Loại sân bay <span style="color:red;">*</span></label>
+            <select class="form-select" id="loaiSB" name="loaiSB" required>
+                <option value="">Chọn loại sân bay</option>
+                <option value="Quốc tế">Quốc tế</option>
+                <option value="Nội địa">Nội địa</option>
+            </select>
+            <div class="invalid-feedback">
+                Vui lòng chọn loại sân bay
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="d-flex justify-content-start">
+            <button type="submit" class="btn btn-primary me-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-floppy mb-1" viewBox="0 0 16 16">
+                    <path d="M11 2H9v3h2z" />
+                    <path
+                        d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                </svg>
+                Lưu
+            </button>
+            <button type="reset" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-counterclockwise mb-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                    <path
+                        d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+                </svg>
+                Làm mới
+            </button>
+        </div>
+    </div>
+</form>

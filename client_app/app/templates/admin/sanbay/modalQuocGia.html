@@ -1,0 +1,337 @@
+<!-- Modal Quản Lý Quốc Gia -->
+<div class="modal fade" id="quocGiaModal" tabindex="-1" aria-labelledby="quocGiaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quocGiaModalLabel">Quản Lý Quốc Gia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form Thêm Quốc Gia Mới -->
+                <form id="addQuocGiaForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="MaQG" class="form-label">Mã Quốc Gia <span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="MaQG" name="MaQG" required maxlength="5"
+                            pattern="^[A-Za-z0-9]+$">
+                        <div class="invalid-feedback">
+                            Vui lòng nhập mã quốc gia (không quá 5 ký tự, chỉ chữ và số).
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="TenQuocGia" class="form-label">Tên Quốc Gia <span
+                                style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="TenQuocGia" name="TenQuocGia" required
+                            maxlength="50">
+                        <div class="invalid-feedback">
+                            Vui lòng nhập tên quốc gia (không quá 50 ký tự).
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Thêm Quốc Gia</button>
+                </form>
+
+                <hr>
+
+                <!-- Danh Sách Quốc Gia -->
+                <h5>Danh Sách Quốc Gia</h5>
+                <table class="table table-bordered table-hover mt-3">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã Quốc Gia</th>
+                            <th>Tên Quốc Gia</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quocGiaTableBody">
+                        <!-- Các dòng sẽ được thêm bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const maQGSanBaySelect = document.getElementById('maQGSanBay');
+        const quocGiaModalElement = document.getElementById('quocGiaModal');
+        const quocGiaModal = new bootstrap.Modal(quocGiaModalElement);
+        const addQuocGiaForm = document.getElementById('addQuocGiaForm');
+        const quocGiaTableBody = document.getElementById('quocGiaTableBody');
+
+        // Event listener khi chọn "Thêm quốc gia mới"
+        maQGSanBaySelect.addEventListener('change', function () {
+            if (this.value === 'add_new') {
+                // Mở modal quản lý quốc gia
+                quocGiaModal.show();
+
+                // Reset giá trị select box
+                this.value = '';
+            }
+        });
+
+        // Hàm để load danh sách quốc gia và hiển thị trong bảng
+        async function loadQuocGia() {
+            try {
+                const response = await fetch(`${API_URL}/api/quoc-gia`);
+                const result = await response.json();
+
+                if (result.status) {
+                    quocGiaTableBody.innerHTML = ''; // Xóa danh sách cũ
+
+                    result.data.forEach(qg => {
+                        const row = document.createElement('tr');
+
+                        row.innerHTML = `
+                        <td>${qg.MaQG}</td>
+                        <td>${(qg.TenQG)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary edit-quocgia-btn" data-maqg="${(qg.MaQG)}">Sửa</button>
+                            <button class="btn btn-sm btn-danger delete-quocgia-btn" data-maqg="${(qg.MaQG)}">Xóa</button>
+                        </td>
+                    `;
+
+                        quocGiaTableBody.appendChild(row);
+                    });
+                } else {
+                    showMessage('danger', 'Không thể tải danh sách quốc gia.');
+                }
+            } catch (error) {
+                showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                console.error(error);
+            }
+        }
+
+        // Gọi hàm loadQuocGia khi modal được mở
+        quocGiaModalElement.addEventListener('shown.bs.modal', function () {
+            loadQuocGia();
+        });
+
+        // Xử lý submit form thêm quốc gia
+        addQuocGiaForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Kiểm tra form hợp lệ
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
+            const MaQG = document.getElementById('MaQG').value.trim();
+            const TenQuocGia = document.getElementById('TenQuocGia').value.trim();
+
+            try {
+                const response = await fetch(`${API_URL}/api/quoc-gia`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ MaQG, TenQuocGia })
+                });
+
+                const result = await response.json();
+
+                if (result.status) {
+                    // Hiển thị thông báo thành công
+                    showMessage('success', result.message);
+
+                    // Thêm quốc gia mới vào bảng
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${(result.data.MaQG)}</td>
+                        <td>${(result.data.TenQuocGia)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary edit-quocgia-btn" data-maqg="${(result.data.MaQG)}">Sửa</button>
+                            <button class="btn btn-sm btn-danger delete-quocgia-btn" data-maqg="${(result.data.MaQG)}">Xóa</button>
+                        </td>
+                    `;
+                    quocGiaTableBody.appendChild(newRow);
+
+                    // Đóng modal
+                    quocGiaModal.hide();
+
+                    // Reset form
+                    addQuocGiaForm.reset();
+                    addQuocGiaForm.classList.remove('was-validated');
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    // Hiển thị thông báo lỗi
+                    showMessage('danger', result.message);
+                }
+            } catch (error) {
+                // Hiển thị thông báo lỗi
+                showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                console.error(error);
+            }
+        });
+
+        // Event delegation cho các nút Sửa và Xóa trong bảng
+        quocGiaTableBody.addEventListener('click', function (e) {
+            if (e.target.classList.contains('edit-quocgia-btn')) {
+                const MaQG = e.target.getAttribute('data-maqg');
+                openEditModal(MaQG);
+            }
+
+            if (e.target.classList.contains('delete-quocgia-btn')) {
+                const MaQG = e.target.getAttribute('data-maqg');
+                deleteQuocGia(MaQG);
+            }
+        });
+
+        // Hàm mở modal sửa quốc gia
+        function openEditModal(MaQG) {
+            // Tạo modal sửa nếu chưa có
+            if (!document.getElementById('editQuocGiaModal')) {
+                const editModalHTML = `
+                <div class="modal fade" id="editQuocGiaModal" tabindex="-1" aria-labelledby="editQuocGiaModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form id="editQuocGiaForm" class="needs-validation" novalidate>
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="editQuocGiaModalLabel">Sửa Quốc Gia</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="editMaQG" class="form-label">Mã Quốc Gia</label>
+                            <input type="text" class="form-control" id="editMaQG" name="editMaQG" readonly>
+                          </div>
+                          <div class="mb-3">
+                            <label for="editTenQuocGia" class="form-label">Tên Quốc Gia <span style="color:red;">*</span></label>
+                            <input type="text" class="form-control" id="editTenQuocGia" name="editTenQuocGia" required maxlength="50">
+                            <div class="invalid-feedback">
+                              Vui lòng nhập tên quốc gia (không quá 50 ký tự).
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                          <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+            `;
+                document.body.insertAdjacentHTML('beforeend', editModalHTML);
+            }
+
+            const editQuocGiaModalElement = document.getElementById('editQuocGiaModal');
+            const editQuocGiaModal = new bootstrap.Modal(editQuocGiaModalElement);
+            const editQuocGiaForm = document.getElementById('editQuocGiaForm');
+
+            // Lấy thông tin quốc gia từ API
+            fetch(`${API_URL}/api/quoc-gia/${MaQG}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status) {
+                        document.getElementById('editMaQG').value = result.data.MaQG;
+                        document.getElementById('editTenQuocGia').value = result.data.TenQuocGia;
+                        editQuocGiaModal.show();
+                    } else {
+                        showMessage('danger', result.message);
+                    }
+                })
+                .catch(error => {
+                    showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                    console.error(error);
+                });
+
+            // Xử lý submit form sửa quốc gia
+            editQuocGiaForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Kiểm tra form hợp lệ
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    this.classList.add('was-validated');
+                    return;
+                }
+
+                const updatedTenQuocGia = document.getElementById('editTenQuocGia').value.trim();
+
+                fetch(`${API_URL}/api/quoc-gia/${MaQG}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ TenQuocGia: updatedTenQuocGia })
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.status) {
+                            showMessage('success', result.message);
+                            quocGiaModal.hide();
+                            editQuocGiaModal.hide();
+
+                            // loadQuocGia()
+                            setTimeout(() => {
+                                location.reload();
+                            }, 3000); // Tải lại sau 3 giây
+                        } else {
+
+                            showMessage('danger', result.message);
+                        }
+                    })
+                    .catch(error => {
+                        showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                        console.error(error);
+                    });
+            }, { once: true }); // Sử dụng { once: true } để lắng nghe sự kiện chỉ một lần
+        }
+
+        // Hàm xóa quốc gia
+        function deleteQuocGia(MaQG) {
+            if (!confirm('Bạn có chắc chắn muốn xóa quốc gia này?')) {
+                return;
+            }
+
+            fetch(`${API_URL}/api/quoc-gia/${MaQG}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status) {
+                        showMessage('success', result.message);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 3000); // Tải lại sau 3 giây
+                        // loadQuocGia();
+                    } else {
+                        showMessage('danger', result.message);
+                    }
+                })
+                .catch(error => {
+                    showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                    console.error(error);
+                });
+        }
+
+        // Xử lý form validation cho các form
+        // Form Thêm Quốc Gia
+        addQuocGiaForm.addEventListener('submit', function (e) {
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('was-validated');
+            }
+        }, false);
+
+        // Form Sửa Quốc Gia
+        document.body.addEventListener('submit', function (e) {
+            if (e.target && e.target.id === 'editQuocGiaForm') {
+                if (!e.target.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.target.classList.add('was-validated');
+                }
+            }
+        }, false);
+    });
+
+</script>

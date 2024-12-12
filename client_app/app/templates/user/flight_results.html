@@ -99,14 +99,16 @@
                             | {% if search_params.seat_class == 'ECO' %}Phổ thông{% else %}Thương gia{% endif %}
                         </p>
                     </div>
-                    <div class="col-md-6 text-end">
+                    <!-- <div class="col-md-6 text-end">
                         <button class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#searchForm">
                             <i class="bi bi-pencil"></i> Thay đổi tìm kiếm
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div id="searchParams" data-is-round-trip="{{ search_params.is_round_trip|tojson }}"></div>
+            {% if flight_results.connecting_flights or flight_results.direct_flights or
+            flight_results.return_connecting_flights or flight_results.return_direct_flights%}
             <div id="outboundFlightsContainer">
                 {% for flight in flight_results.direct_flights %}
                 <div class="card mb-3 flight-card">
@@ -322,6 +324,11 @@
                 {% endfor %}
 
             </div>
+            {% else %}
+            <div class="alert alert-primary text-center" role="alert">
+                Rất tiếc! Chúng tôi không tìm thấy chuyến bay phù hợp!
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -434,62 +441,6 @@
         </div>`;
     }
 
-    // Common function to handle flight selection
-    // function handleFlightSelection(params) {
-    //     const {
-    //         flightData,
-    //         isReturn = false,
-    //         isConnecting = false,
-    //         detailsElementId,
-    //         statusElementId
-    //     } = params;
-
-    //     try {
-    //         // Reset selected state
-    //         document.querySelectorAll('.flight-card').forEach(card => {
-    //             card.classList.remove('selected');
-    //         });
-
-    //         // Add selected class
-    //         const selectedCard = isConnecting ?
-    //             params.button.closest('.flight-card') :
-    //             document.querySelector(`button[data-flight-code="${params.flightCode}"]`).closest('.flight-card');
-    //         selectedCard.classList.add('selected');
-
-    //         // Update flight details
-    //         const detailsElement = document.getElementById(detailsElementId);
-    //         detailsElement.style.display = 'block';
-    //         detailsElement.innerHTML = renderFlightDetails(flightData, isConnecting);
-
-    //         // Update status
-    //         document.getElementById(statusElementId).innerHTML = '<span class="badge bg-success">Đã chọn</span>';
-
-    //         // Store selected flight
-    //         if (isReturn) {
-    //             selectedReturnFlight = flightData;
-    //             showPackageModal();
-    //         } else {
-    //             selectedOutboundFlight = flightData;
-    //             const isRoundTrip = JSON.parse(document.getElementById('searchParams').dataset.isRoundTrip);
-
-    //             if (isRoundTrip) {
-    //                 document.getElementById('returnFlightsContainer').style.display = 'block';
-    //                 document.getElementById('outboundFlightsContainer').style.display = 'none';
-
-    //                 document.getElementById('outboundNumber').classList.replace('bg-primary', 'bg-secondary');
-    //                 document.getElementById('returnNumber').classList.replace('bg-secondary', 'bg-primary');
-    //             } else {
-    //                 showPackageModal();
-    //             }
-    //         }
-
-    //         // Scroll to top
-    //         window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    //     } catch (error) {
-    //         console.error(`Error in handleFlightSelection:`, error);
-    //     }
-    // }
 
     // Function to handle flight selection
     function handleFlightSelection(params) {
