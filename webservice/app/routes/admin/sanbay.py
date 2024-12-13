@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.models import SanBay, QuocGia
+from sqlalchemy import or_
+from app.models import SanBay, QuocGia, ChuyenBay
 from math import ceil
 from app import db
 
@@ -35,6 +36,12 @@ def get_all_san_bay():
         
         if hasattr(SanBay, sort_by):
             sort_column = getattr(SanBay, sort_by)
+            print(sort_by, sort_column)
+            if sort_column == SanBay.MaQG:
+                print("hehehe")
+                query = query.join(QuocGia)
+                sort_column  = QuocGia.TenQuocGia
+            
             if order == 'desc':
                 query = query.order_by(sort_column.desc())
             else:
@@ -95,6 +102,13 @@ def create_san_bay():
                 'status': False,
                 'message': 'Thiếu thông tin bắt buộc'
             }), 400
+        
+        MaSB = data.get('MaSanBay', '').strip()
+        if not MaSB.isalnum():
+            return jsonify({
+                'status': False,
+                'message': 'Mã sân bay chỉ được chứa kí tự chữ và số'
+            }), 400 
         
         existing_san_bay_name = SanBay.query.filter_by(TenSanBay=data['TenSanBay']).first()
         if existing_san_bay_name:
@@ -201,6 +215,13 @@ def delete_san_bay(maSanBay):
                 'message': 'Sân bay không tồn tại'
             }), 404
 
+        existChuyenBay = ChuyenBay.query.filter(or_(ChuyenBay.MaSanBayDi==maSanBay,ChuyenBay.MaSanBayDen==maSanBay)).first()
+        if existChuyenBay:
+            return jsonify({
+                'status': False,
+                'message': 'Không thể xóa sân bay đã được tạo chuyến bay'
+            }), 400
+        
         db.session.delete(sanbay)
         db.session.commit()
 
