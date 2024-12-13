@@ -182,8 +182,6 @@
                         </div>
                         <div>
                             <h6 class="mb-1">Tóm tắt vé máy bay</h6>
-                            <div class="text-muted small">Mã đặt chỗ: <span class="text-dark fw-semibold"
-                                    id="booking-code"></span></div>
                         </div>
                     </div>
 
@@ -209,6 +207,7 @@
         </div>
     </div>
 </div>
+<div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;"></div>
 
 
 <style>
@@ -344,31 +343,29 @@
     }
 </style>
 
-
 <script>
-    // Xử lý khi bấm nút xác nhận thanh toán trong modal QR
+
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+    console.log("THANHTOAN:", API_URL)
     document.getElementById('confirmPayment').addEventListener('click', async function () {
-        // Lấy button và hiển thị loading
         const button = this;
         button.disabled = true;
         button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
 
         try {
-            // Lấy dữ liệu từ localStorage
             const bookingData = JSON.parse(localStorage.getItem('bookingData'));
 
-            // Lấy phương thức thanh toán được chọn
             const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-            console.log("bookingid", bookingData.temp.booking_id)
-            // Gọi API xác nhận thanh toán
-            const response = await fetch(`http://127.0.0.1:5000/api/bookings/${bookingData.temp.booking_id}/confirm`, {
+
+            const response = await fetch(`${API_URL}/api/bookings/${bookingData.temp.booking_id}/confirm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     tong_tien: bookingData.basePrice,
-                    ma_khuyen_mai: bookingData.appliedPromotion.code,
+                    ma_khuyen_mai: bookingData.appliedPromotion?.code || '',
                     phuong_thuc: selectedPaymentMethod
                 })
             });
@@ -376,21 +373,18 @@
             const data = await response.json();
 
             if (data.success) {
-                // Xóa dữ liệu booking từ localStorage
-                // localStorage.removeItem('bookingData');
+                bookingData.bookingInfo = data;
+                localStorage.setItem('bookingData', JSON.stringify(bookingData));
 
-                // Đóng modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('qrModal'));
                 modal.hide();
 
-                // Hiển thị toast thành công
                 const toast = new bootstrap.Toast(document.getElementById('paymentToast'));
                 document.getElementById('toastMessage').textContent = 'Thanh toán thành công!';
                 document.getElementById('toastMessage').classList.remove('text-danger');
                 document.getElementById('toastMessage').classList.add('text-success');
                 toast.show();
 
-                // Chuyển hướng sau 2s
                 setTimeout(() => {
                     window.location.href = `/datcho/booking-success`;
                 }, 2000);
@@ -399,66 +393,39 @@
             }
 
         } catch (error) {
-            // Hiển thị toast lỗi
             const toast = new bootstrap.Toast(document.getElementById('paymentToast'));
             document.getElementById('toastMessage').textContent = error.message;
             document.getElementById('toastMessage').classList.remove('text-success');
             document.getElementById('toastMessage').classList.add('text-danger');
             toast.show();
         } finally {
-            // Khôi phục trạng thái button
             button.disabled = false;
             button.innerHTML = '<i class="bi bi-download me-2"></i>Xác nhận đã thanh toán';
         }
     });
 
     document.getElementById('paymentButton').addEventListener('click', function () {
-        // Show loading spinner
         this.querySelector('.spinner-border').classList.remove('d-none');
         this.disabled = true;
 
-        // Simulate loading delay
         setTimeout(() => {
-            // Hide loading spinner
             this.querySelector('.spinner-border').classList.add('d-none');
             this.disabled = false;
 
-            // Show QR modal
             var qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
             qrModal.show();
         }, 1000);
     });
 
-    // // Timer countdown function
-    // function startTimer(duration, display) {
-    //     var timer = duration, minutes, seconds;
-    //     var interval = setInterval(function () {
-    //         minutes = parseInt(timer / 60, 10);
-    //         seconds = parseInt(timer % 60, 10);
-
-    //         minutes = minutes < 10 ? "0" + minutes : minutes;
-    //         seconds = seconds < 10 ? "0" + seconds : seconds;
-
-    //         display.textContent = minutes + ":" + seconds;
-
-    //         if (--timer < 0) {
-    //             clearInterval(interval);
-    //             // Handle timer expiration
-    //         }
-    //     }, 1000);
-    // }
-
-    // Start timer when modal opens
     document.getElementById('qrModal').addEventListener('show.bs.modal', function () {
         var display = document.getElementById('qrTimer');
     });
+
     function updateFlightInfo(flightData, isReturn = false) {
         const container = !isReturn ? 'outbound-flight' : 'return-flight-container';
         const flight = flightData.flight;
 
-        // Kiểm tra xem có phải là chuyến bay kết nối không
         if (flight.segments && flight.segments.length > 1) {
-            // Xử lý chuyến bay kết nối
             let html = `
             <div class="bg-light p-4 rounded-4 mb-2">
                 <!-- Header chuyến bay -->
@@ -533,7 +500,6 @@
 
             document.getElementById(container).innerHTML = html;
         } else {
-            // Xử lý chuyến bay thẳng
             let html = `
             <div class="bg-light p-4 rounded-4 mb-2">
                 <!-- Header chuyến bay -->
@@ -587,7 +553,6 @@
         }
     }
 
-
     function updateTotalPrice(bookingData) {
         const totalPriceElement = document.getElementById('total-price');
         const totalAmountElement = document.getElementById('total-amount');
@@ -597,10 +562,8 @@
         const flightPrice = bookingData.basePrice || 0;
         const luggagePrice = bookingData.luggagePrice || 0;
         const discountAmount = bookingData.appliedPromotion?.discount || 0;
-        // Tổng giá = giá vé + giá hành lý - giảm giá
         const totalPrice = flightPrice + luggagePrice - discountAmount;
 
-        // Hiển thị chi tiết các khoản tiền
         if (totalPriceElement) {
             let priceHTML = `
             <div class="text-end">
@@ -613,7 +576,6 @@
             totalPriceElement.innerHTML = priceHTML;
         }
 
-        // Cập nhật phần "Tổng cộng"
         if (totalAmountElement) {
             totalAmountElement.innerHTML = `${formatPrice(totalPrice)}`;
         }
@@ -621,7 +583,6 @@
             qrElement.innerHTML = `${formatPrice(totalPrice)}`;
         }
 
-        // Lưu lại tổng tiền vào bookingData
         bookingData.totalPrice = totalPrice;
         localStorage.setItem('bookingData', JSON.stringify(bookingData));
     }
@@ -632,12 +593,10 @@
 
         let passengersHTML = '';
 
-        // Khởi tạo biến đếm cho từng loại hành khách
         let adultCount = 0;
         let childCount = 0;
         let infantCount = 0;
 
-        // Xử lý danh sách hành khách
         if (passengerDetails.hanh_khach && passengerDetails.hanh_khach.length > 0) {
             passengerDetails.hanh_khach.forEach(passenger => {
                 let typeDisplay = '';
@@ -667,6 +626,7 @@
 
         container.innerHTML = passengersHTML;
     }
+
     // Các hàm helper
     function formatDate(dateStr) {
         const date = new Date(dateStr);
@@ -729,7 +689,6 @@
                 }
             }
 
-            // Lấy danh sách hãng hàng không
             const airlines = new Set();
             if (bookingData.outbound.flight.is_connecting) {
                 airlines.add(bookingData.outbound.flight.segments[0].hang_hang_khong);
@@ -752,7 +711,7 @@
                 tong_tien: bookingData.basePrice
             };
 
-            const response = await fetch('http://127.0.0.1:5000/api/bookings/temp/promotions', {
+            const response = await fetch(`${API_URL}/api/bookings/temp/promotions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -839,7 +798,6 @@
     }
 
 
-
     // Function để áp dụng khuyến mãi
     function applyPromotion(promotionCode, discountAmount, type, airline = null) {
         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
@@ -880,7 +838,7 @@
                 airlines.add(bookingData.return.flight.hang_hang_khong);
             }
 
-            const response = await fetch('http://127.0.0.1:5000/api/bookings/temp/promotions', {
+            const response = await fetch(`${API_URL}/api/bookings/temp/promotions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -959,6 +917,8 @@
         // Cập nhật tổng tiền
         updateTotalPrice(bookingData);
         loadPromotions();
+
     });
+
 </script>
 {% endblock %}

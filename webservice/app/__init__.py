@@ -27,6 +27,10 @@ def create_app():
     from app.routes.auth_route import auth_bp 
     from app.routes.user_routes import user_bp 
     from app.routes.user.chuyenbay import chuyenbay
+    from app.routes.user.khuyenmai import khuyenmai
+    from app.routes.user.dichvuve import dichvuve
+    from app.routes.user.datcho import datcho
+    from app.routes.user.dichvuhanhly import dichvuhanhly
     from app.routes.admin.hanghangkhong import hanghangkhong
     from app.routes.admin.maybay import maybay
     from app.routes.admin.sanbay import sanbay
@@ -38,5 +42,9 @@ def create_app():
     app.register_blueprint(maybay)
     app.register_blueprint(sanbay)
     app.register_blueprint(quocgia)
+    app.register_blueprint(khuyenmai)
+    app.register_blueprint(dichvuve)
+    app.register_blueprint(dichvuhanhly)
+    app.register_blueprint(datcho)
     
     return app

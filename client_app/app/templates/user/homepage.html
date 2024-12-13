@@ -154,7 +154,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                                     <input type="date" id="departure-date" name="departure-date" class="form-control"
-                                        value="{{ default_data.departure_date }}">
+                                        value="{{ default_data.departure_date }}" min="{{ today_date }}" />
                                 </div>
                             </div>
 
@@ -163,7 +163,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                                     <input type="date" id="return-date" name="return-date" class="form-control"
-                                        value="{{ default_data.return_date }}">
+                                        value="{{ default_data.return_date }}" min="{{ today_date }}">
                                 </div>
                             </div>
                         </div>
@@ -187,6 +187,13 @@
 </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0]; // Lấy định dạng YYYY-MM-DD
+        document.getElementById('departure-date').setAttribute('min', formattedDate);
+        document.getElementById('return-date').setAttribute('min', formattedDate);
+    });
+
     document.querySelectorAll('.passenger-input').forEach(input => {
         input.addEventListener('change', function () {
             const nguoiLon = document.getElementById('nguoiLon').value;

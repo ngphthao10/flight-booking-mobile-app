@@ -1,176 +1,458 @@
 {% extends 'user/base.html' %}
 
 {% block content %}
-<div class="container py-5">
-    <!-- Header -->
-    <div class="text-center mb-5">
-        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
-            style="width: 80px; height: 80px;">
-            <i class="bi bi-check-lg fs-1"></i>
-        </div>
-        <h1 class="mb-2">Đặt vé thành công!</h1>
-        <p class="text-muted">Mã đặt chỗ của bạn là: <strong class="text-success" id="bookingCode">VJ000457</strong></p>
-    </div>
-
-    <!-- Thông tin chuyến bay -->
-    <div class="card shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-transparent border-0 pt-4 pb-0">
-            <h4 class="mb-0">Thông tin chuyến bay</h4>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <ul class="list-unstyled">
-                        <li class="mb-3">
-                            <span class="text-muted">Hãng bay:</span>
-                            <strong class="ms-2" id="airline">VietJet Air</strong>
-                        </li>
-                        <li class="mb-3">
-                            <span class="text-muted">Mã chuyến bay:</span>
-                            <strong class="ms-2" id="flightCode">VJ002</strong>
-                        </li>
-                        <li class="mb-3">
-                            <span class="text-muted">Ngày bay:</span>
-                            <strong class="ms-2" id="departureDate">29-12-2024</strong>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <ul class="list-unstyled">
-                        <li class="mb-3">
-                            <span class="text-muted">Điểm đi:</span>
-                            <strong class="ms-2" id="origin">SGN</strong>
-                        </li>
-                        <li class="mb-3">
-                            <span class="text-muted">Điểm đến:</span>
-                            <strong class="ms-2" id="destination">HAN</strong>
-                        </li>
-                        <li class="mb-3">
-                            <span class="text-muted">Thời gian:</span>
-                            <strong class="ms-2" id="departureTime">10:00:00</strong>
-                        </li>
-                    </ul>
+<div class="container py-4">
+    <!-- Header với animation -->
+    <div class="text-center mb-2">
+        <div class="position-relative mb-2">
+            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2 animate__animated animate__bounceIn"
+                style="width: 60px; height: 60px;">
+                <i class="bi bi-check-lg" style="font-size: 2.5rem;"></i>
+            </div>
+            <div class="position-absolute top-100 start-50 translate-middle-x" style="z-index: 1;">
+                <div class="bg-success-subtle text-success px-3 py-1 rounded-pill" style="font-size: 0.8rem;">
+                    Mã đặt chỗ: <strong id="bookingCode" class="ms-1"></strong>
                 </div>
             </div>
+        </div>
+        <div class="mt-4 pt-2">
+            <h1 class="h2 fw-bold mb-2">Đặt vé thành công!</h1>
+            <p class="text-muted small">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi</p>
         </div>
     </div>
-
-    <!-- Thông tin hành khách -->
-    <div class="card shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-transparent border-0 pt-4 pb-0">
-            <h4 class="mb-0">Thông tin hành khách</h4>
-        </div>
-        <div class="card-body">
-            <div id="passengersList">
-                <!-- Được render bằng JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Chi tiết thanh toán -->
-    <div class="card shadow-sm rounded-4 mb-4">
-        <div class="card-header bg-transparent border-0 pt-4 pb-0">
-            <h4 class="mb-0">Chi tiết thanh toán</h4>
-        </div>
-        <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-8">Giá vé gốc</div>
-                <div class="col-4 text-end" id="basePrice">3.700.000 ₫</div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-8">
-                    Mã giảm giá
-                    <span class="badge bg-success ms-2" id="promoCode">UuDaiCuiNam</span>
+    <div class="row g-3">
+        <!-- Thông tin chuyến bay -->
+        <div class="col-12">
+            <div class="card shadow-sm rounded-3 border-0 hover-shadow mb-3">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-airplane-engines fs-5 text-primary me-2"></i>
+                        <h5 class="mb-0">Thông tin chuyến bay</h5>
+                    </div>
                 </div>
-                <div class="col-4 text-end text-success" id="discountAmount">-200.000 ₫</div>
-            </div>
-            <div class="row border-top pt-3">
-                <div class="col-8">
-                    <strong>Tổng tiền</strong>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Hãng bay</span>
+                                        <strong class="text-end" style="font-size: 0.95rem;" id="airline"></strong>
+                                    </div>
+                                </div>
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Mã chuyến bay</span>
+                                        <strong class="text-end" style="font-size: 0.95rem;" id="flightCode"></strong>
+                                    </div>
+                                </div>
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Ngày bay</span>
+                                        <strong class="text-end" style="font-size: 0.95rem;"
+                                            id="departureDate"></strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Điểm đi</span>
+                                        <strong class="text-end" style="font-size: 0.95rem;" id="origin"></strong>
+                                    </div>
+                                </div>
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Điểm đến</span>
+                                        <strong class="text-end" style="font-size: 0.95rem;" id="destination"></strong>
+                                    </div>
+                                </div>
+                                <div class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Thời gian khởi hành</span>
+                                        <strong class="text-end" style="font-size: 0.95rem;"
+                                            id="departureTime"></strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-4 text-end">
-                    <strong class="fs-5" id="totalPrice">3.500.000 ₫</strong>
+            </div>
+        </div>
+
+        <!-- Thông tin hành khách -->
+        <div class="col-12">
+            <div class="card shadow-sm rounded-3 border-0 hover-shadow">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person-vcard fs-5 text-primary me-2"></i>
+                        <h5 class="mb-0">Thông tin hành khách</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="passengersList" class="passenger-list">
+                        <!-- Được render bằng JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi tiết thanh toán -->
+        <div class="col-12">
+            <div class="card shadow-sm rounded-3 border-0 hover-shadow">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-credit-card fs-5 text-primary me-2"></i>
+                        <h5 class="mb-0">Chi tiết thanh toán</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="paymentDetails" class="list-group list-group-flush">
+                        <!-- Giá vé gốc -->
+                        <div class="list-group-item border-0 px-0 py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small">Giá vé gốc</div>
+                                <div id="basePrice" class="text-end" style="font-size: 0.95rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Giá vé gốc -->
+                        <div class="list-group-item border-0 px-0 py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="small">Tổng tiền hành lý</div>
+                                <div id="luggagePrice" class="text-end" style="font-size: 0.95rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Tổng tiền -->
+                        <div class="list-group-item border-0 px-0 pt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong class="h6 mb-0">Tổng tiền</strong>
+                                <strong id="totalPrice" class="text-primary" style="font-size: 1.1rem;"></strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Buttons -->
-    <div class="text-center">
-        <button class="btn btn-primary me-2" onclick="window.print()">
+    <div class="text-center mt-4">
+        <button class="btn btn-primary px-4 me-2 shadow-sm hover-lift" onclick="window.print()">
             <i class="bi bi-printer me-2"></i>In vé
         </button>
-        <a href="/" class="btn btn-outline-primary">
+        <a href="/home" class="btn btn-outline-primary px-4 shadow-sm hover-lift">
             <i class="bi bi-house me-2"></i>Về trang chủ
         </a>
     </div>
 </div>
 
+<!-- CSS -->
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+
+    .hover-shadow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .3rem .8rem rgba(0, 0, 0, .12) !important;
+    }
+
+    .hover-lift {
+        transition: all 0.2s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-1px);
+    }
+
+    .passenger-list>div:not(:last-child) {
+        border-bottom: 1px solid rgba(0, 0, 0, .1);
+        margin-bottom: 1.25rem;
+        padding-bottom: 1.25rem;
+    }
+
+    /* Smaller text for passenger details */
+    .passenger-list .text-muted {
+        font-size: 0.85rem;
+    }
+
+    .passenger-list strong {
+        font-size: 0.95rem;
+    }
+
+    @media print {
+        .btn {
+            display: none;
+        }
+    }
+</style>
+
+<!-- Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Lấy dữ liệu từ localStorage
         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
 
         if (!bookingData) {
             console.error('Không tìm thấy dữ liệu đặt vé!');
             return;
         }
-        console.log("BookingData", bookingData)
-        // Cập nhật thông tin mã đặt chỗ
-        document.getElementById('bookingCode').textContent = bookingData.temp.booking_id;
+        console.log(bookingData)
+        document.getElementById('bookingCode').textContent = bookingData.bookingInfo.ma_dat_cho_goc;
 
-        // Cập nhật thông tin chuyến bay
-        document.getElementById('airline').textContent = bookingData.outbound.flight.hang_hang_khong;
-        document.getElementById('flightCode').textContent = bookingData.outbound.flight.ma_chuyen_bay;
-        document.getElementById('departureDate').textContent = formatDate(bookingData.departureDate);
-        document.getElementById('origin').textContent = bookingData.origin;
-        document.getElementById('destination').textContent = bookingData.destination;
-        document.getElementById('departureTime').textContent = formatTime(bookingData.outbound.flight.thoi_gian_di);
+        if (bookingData.outbound.flight.is_connecting) {
+            renderConnectingFlight(bookingData.outbound.flight, 'outbound');
+        } else {
+            renderDirectFlight(bookingData.outbound.flight);
+        }
 
-        // Render danh sách hành khách
-        const passengersContainer = document.getElementById('passengersList');
-        const passengers = bookingData.bookingDetails.hanh_khach;
+        if (bookingData.bookingType === 'round-trip' && bookingData.return) {
+            addReturnFlightSection();
 
-        passengers.forEach((passenger, index) => {
-            const passengerHtml = `
-            <div class="row ${index > 0 ? 'border-top pt-3 mt-3' : ''}">
-                <div class="col-md-6">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <span class="text-muted">Họ tên:</span>
-                            <strong class="ms-2">${passenger.ho_hk, " ", passenger.ten_hk}</strong>
-                        </li>
-                        <li class="mb-2">
-                            <span class="text-muted">CCCD:</span>
-                            <strong class="ms-2">${passenger.cccd}</strong>
-                        </li>
-                    </ul>
+            if (bookingData.return.flight.is_connecting) {
+                renderConnectingFlight(bookingData.return.flight, 'return');
+            } else {
+                renderDirectFlight(bookingData.return.flight, 'return');
+            }
+        }
+
+        renderPassengers(bookingData.bookingDetails.hanh_khach);
+
+        updatePaymentDetails(bookingData);
+    });
+
+    function addReturnFlightSection() {
+        const outboundCard = document.querySelector('.card:first-child');
+        const returnFlightHtml = `
+        <div class="col-12">
+            <div class="card shadow-sm rounded-3 border-0 hover-shadow">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-airplane-engines fs-5 text-primary me-2" style="transform: rotate(180deg)"></i>
+                        <h5 class="mb-0">Thông tin chuyến bay về</h5>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <span class="text-muted">Ngày sinh:</span>
-                            <strong class="ms-2">${formatDate(passenger.ngay_sinh)}</strong>
-                        </li>
-                        <li class="mb-2">
-                            <span class="text-muted">Loại hành khách:</span>
-                            <strong class="ms-2">${passenger.loai_hk}</strong>
-                        </li>
-                    </ul>
+                <div class="card-body">
+                    <div id="returnFlightInfo" class="row">
+                        <!-- Thông tin sẽ được điền động -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+        outboundCard.insertAdjacentHTML('afterend', returnFlightHtml);
+    }
+
+    function renderDirectFlight(flight, type = 'outbound') {
+        const container = type === 'outbound' ? document.querySelector('.card-body .row') : document.getElementById('returnFlightInfo');
+        container.innerHTML = `
+        <div class="col-md-6">
+            <div class="list-group list-group-flush">
+                <div class="list-group-item border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Hãng bay</span>
+                        <strong class="text-end" style="font-size: 0.95rem;">${flight.hang_hang_khong}</strong>
+                    </div>
+                </div>
+                <div class="list-group-item border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Mã chuyến bay</span>
+                        <strong class="text-end" style="font-size: 0.95rem;">${flight.ma_chuyen_bay}</strong>
+                    </div>
+                </div>
+                <div class="list-group-item border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Ngày bay</span>
+                        <strong class="text-end" style="font-size: 0.95rem;">${formatDate(flight.thoi_gian_di)}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="list-group list-group-flush">
+                <div class="list-group-item border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Điểm đi</span>
+                        <strong class="text-end" style="font-size: 0.95rem;">${flight.san_bay_di}</strong>
+                    </div>
+                </div>
+                <div class="list-group-item border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Điểm đến</span>
+                        <strong class="text-end" style="font-size: 0.95rem;">${flight.san_bay_den}</strong>
+                    </div>
+                </div>
+                <div class="list-group-item border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Thời gian khởi hành</span>
+                        <strong class="text-end" style="font-size: 0.95rem;">${formatTime(flight.thoi_gian_di)}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    }
+    function renderConnectingFlight(flight, type = 'outbound') {
+        const container = type === 'outbound' ? document.querySelector('.card-body .row') : document.getElementById('returnFlightInfo');
+
+        let segmentsHtml = flight.segments.map((segment, index) => `
+        <div class="col-12 mb-2">
+            <div class="p-3 bg-light rounded-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary">Chặng ${index + 1}</span>
+                    <span class="text-muted small">${segment.hang_hang_khong}</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item border-0 px-0 py-1 bg-transparent">
+                                <span class="text-muted small">Mã chuyến bay:</span>
+                                <strong class="ms-2" style="font-size: 0.95rem;">${segment.ma_chuyen_bay}</strong>
+                            </div>
+                            <div class="list-group-item border-0 px-0 py-1 bg-transparent">
+                                <span class="text-muted small">Ngày bay:</span>
+                                <strong class="ms-2" style="font-size: 0.95rem;">${formatDate(segment.thoi_gian_di)}</strong>
+                            </div>
+                            <div class="list-group-item border-0 px-0 py-1 bg-transparent">
+                                <span class="text-muted small">Thời gian khởi hành:</span>
+                                <strong class="ms-2" style="font-size: 0.95rem;">${formatTime(segment.thoi_gian_di)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item border-0 px-0 py-1 bg-transparent">
+                                <span class="text-muted small">Điểm đi:</span>
+                                <strong class="ms-2" style="font-size: 0.95rem;">${segment.san_bay_di}</strong>
+                            </div>
+                            <div class="list-group-item border-0 px-0 py-1 bg-transparent">
+                                <span class="text-muted small">Điểm đến:</span>
+                                <strong class="ms-2" style="font-size: 0.95rem;">${segment.san_bay_den}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+        if (flight.layover_times && flight.layover_times.length > 0) {
+            const layoverInfo = flight.layover_times.map((time, index) => `
+                <div class="col-12">
+                    <div class="text-muted small text-center">
+                        <i class="bi bi-clock me-1"></i>
+                        Thời gian dừng tại ${flight.segments[index + 1].san_bay_di}: ${time} giờ
+                    </div>
+                </div>
+            `).join('');
+            segmentsHtml += layoverInfo;
+        }
+
+        container.innerHTML = `
+            <div class="col-12 mb-2">
+                <div class="alert alert-info mb-2" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Chuyến bay này có ${flight.num_stops} điểm dừng
+                </div>
+            </div>
+            ${segmentsHtml}
+        `;
+    }
+
+    function updatePaymentDetails(bookingData) {
+        document.getElementById('basePrice').textContent = formatCurrency(bookingData.basePrice);
+        document.getElementById('luggagePrice').textContent = formatCurrency(bookingData.luggagePrice);
+
+        const paymentDetails = document.getElementById('paymentDetails');
+        const totalPriceRow = paymentDetails.querySelector('.list-group-item:last-child');
+
+        if (bookingData.appliedPromotion?.discount > 0) {
+            const promoHtml = `
+            <div class="list-group-item border-0 px-0 py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <span class="small">Mã giảm giá ${bookingData.appliedPromotion.airline || ''}</span>
+                        <span class="badge bg-success bg-opacity-10 text-success ms-2" style="font-size: 0.8rem;">
+                            ${bookingData.appliedPromotion.code}
+                        </span>
+                    </div>
+                    <div class="text-success text-end" style="font-size: 0.95rem;">
+                        -${formatCurrency(bookingData.appliedPromotion.discount)}
+                    </div>
                 </div>
             </div>
         `;
+            totalPriceRow.insertAdjacentHTML('beforebegin', promoHtml);
+        }
+
+        document.getElementById('totalPrice').textContent = formatCurrency(bookingData.totalPrice);
+    }
+
+    function renderPassengers(passengers) {
+        const passengersContainer = document.getElementById('passengersList');
+        passengers.forEach((passenger, index) => {
+            const passengerHtml = `
+        <div>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h6 class="mb-0" style="font-size: 1rem;">Hành khách ${index + 1}</h6>
+                <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1" style="font-size: 0.8rem;">
+                    ${passenger.loai_hk}
+                </span>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item border-0 px-0 py-1">
+                            <span class="text-muted" style="font-size: 0.85rem;">Họ tên:</span>
+                            <strong class="ms-2" style="font-size: 0.95rem;">${passenger.ho_hk} ${passenger.ten_hk}</strong>
+                        </div>
+                        <div class="list-group-item border-0 px-0 py-1">
+                            <span class="text-muted" style="font-size: 0.85rem;">CCCD:</span>
+                            <strong class="ms-2" style="font-size: 0.95rem;">${passenger.cccd}</strong>
+                        </div>
+                        ${passenger.danh_xung ? `
+                        <div class="list-group-item border-0 px-0 py-1">
+                            <span class="text-muted" style="font-size: 0.85rem;">Danh xưng:</span>
+                            <strong class="ms-2" style="font-size: 0.95rem;">${passenger.danh_xung}</strong>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item border-0 px-0 py-1">
+                            <span class="text-muted" style="font-size: 0.85rem;">Quốc tịch:</span>
+                            <strong class="ms-2" style="font-size: 0.95rem;">${passenger.quoc_tich}</strong>
+                        </div>
+                        <div class="list-group-item border-0 px-0 py-1">
+                            <span class="text-muted" style="font-size: 0.85rem;">Ngày sinh:</span>
+                            <strong class="ms-2" style="font-size: 0.95rem;">${formatDate(passenger.ngay_sinh)}</strong>
+                        </div>
+                        ${passenger.dich_vu_hanh_ly && passenger.dich_vu_hanh_ly.length > 0 ? `
+                        <div class="list-group-item border-0 px-0 py-1">
+                            <span class="text-muted" style="font-size: 0.85rem;">Hành lý:</span>
+                            ${passenger.dich_vu_hanh_ly.map(baggage => `
+                                
+                                    <span class="ms-2 text-muted small">
+                                        ${baggage.so_ky}kg - Chuyến bay: ${baggage.ma_chuyen_bay}
+                                    </span>
+                            
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
             passengersContainer.insertAdjacentHTML('beforeend', passengerHtml);
         });
+    }
 
-        // Cập nhật thông tin thanh toán
-        document.getElementById('basePrice').textContent = formatCurrency(bookingData.basePrice);
-        document.getElementById('promoCode').textContent = bookingData.appliedPromotion.code;
-        document.getElementById('discountAmount').textContent = `-${formatCurrency(bookingData.appliedPromotion.discount)}`;
-        document.getElementById('totalPrice').textContent = formatCurrency(bookingData.finalPrice);
-    });
-
-    // Hàm format tiền tệ
     function formatCurrency(amount) {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -178,13 +460,21 @@
         }).format(amount);
     }
 
-    // Hàm format ngày
     function formatDate(dateStr) {
+        // if (!dateStr) return '';
+
+        // // Kiểm tra nếu là format DD-MM-YYYY
+        if (dateStr.length === 10) {
+            const [day, month, year] = dateStr.split('-');
+            const date = new Date(year, month - 1, day);
+            return date.toLocaleDateString('vi-VN');
+        }
+
+        // Nếu là format ISO hoặc các format khác
         const date = new Date(dateStr);
         return date.toLocaleDateString('vi-VN');
     }
 
-    // Hàm format thời gian
     function formatTime(timeStr) {
         return timeStr.substring(11, 19);
     }

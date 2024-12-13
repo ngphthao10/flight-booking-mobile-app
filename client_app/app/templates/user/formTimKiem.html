@@ -137,7 +137,6 @@
 </div>
 
 <script>
-    // Thêm style cho nút active
     document.querySelectorAll('#flightTime .time-slot button').forEach(button => {
         button.addEventListener('click', () => {
             button.classList.toggle('active');
@@ -152,7 +151,6 @@
         });
     });
     document.addEventListener('DOMContentLoaded', function () {
-        // Xử lý click time slot buttons
         const timeSlotButtons = document.querySelectorAll('.time-slot button');
         timeSlotButtons.forEach(button => {
             button.addEventListener('click', function () {
@@ -160,7 +158,6 @@
             });
         });
 
-        // Xử lý price slider
         const priceSlider = document.getElementById('priceSlider');
         if (priceSlider) {
             priceSlider.addEventListener('input', function (e) {
@@ -170,9 +167,7 @@
             });
         }
 
-        // Xử lý reset filter
         document.getElementById('resetFilter').addEventListener('click', function () {
-            // Reset all filters to default state
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
             document.querySelectorAll('.time-slot button').forEach(btn => btn.classList.remove('active'));
@@ -181,21 +176,17 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        // Get DOM elements
         const filterForm = document.querySelector('.card');
         const outboundContainer = document.getElementById('outboundFlightsContainer');
         const returnContainer = document.getElementById('returnFlightsContainer');
 
-        // Function to restore selected flights
         function restoreSelectedFlights() {
             try {
-                // Chỉ restore nếu đang trong quá trình lọc
                 if (!isFilterAction()) {
                     return;
                 }
                 const savedOutbound = localStorage.getItem('selectedOutboundFlight');
                 const savedReturn = localStorage.getItem('selectedReturnFlight');
-                // Restore outbound flight
                 if (savedOutbound) {
                     const outboundData = JSON.parse(savedOutbound);
                     const detailsElement = document.getElementById('selectedFlightDetails');
@@ -209,7 +200,6 @@
                         statusElement.innerHTML = '<span class="badge bg-success">Đã chọn</span>';
                     }
 
-                    // Tìm và highlight card đã chọn nếu có trong view hiện tại
                     if (outboundData.isConnecting) {
                         const buttons = document.querySelectorAll('button[data-connection-info]');
                         buttons.forEach(button => {
@@ -227,7 +217,6 @@
                     selectedOutboundFlight = outboundData;
                 }
 
-                // Restore return flight
                 if (savedReturn) {
                     const returnData = JSON.parse(savedReturn);
                     const detailsElement = document.getElementById('returnFlightDetails');
@@ -241,7 +230,6 @@
                         statusElement.innerHTML = '<span class="badge bg-success">Đã chọn</span>';
                     }
 
-                    // Tìm và highlight card đã chọn nếu có trong view hiện tại
                     if (returnData.isConnecting) {
                         const buttons = document.querySelectorAll('button[data-connection-info]');
                         buttons.forEach(button => {
@@ -263,19 +251,16 @@
             }
         }
 
-        // Collect filter params
         function getFilterParams() {
             const transitType = document.querySelector('input[name="transit"]:checked')?.value;
             const selectedAirlines = Array.from(
                 document.querySelectorAll('input[name="airlines[]"]:checked')
             ).map(cb => cb.value);
 
-            // Lấy thời gian khởi hành
             const departureTimeSlots = Array.from(
                 document.querySelectorAll('#flightTime .time-slot:first-of-type button.active')
             ).map(btn => btn.dataset.time);
 
-            // Lấy thời gian hạ cánh
             const arrivalTimeSlots = Array.from(
                 document.querySelectorAll('#flightTime .time-slot:last-of-type button.active')
             ).map(btn => btn.dataset.time);
@@ -291,58 +276,8 @@
             };
         }
 
-
-        // Apply filter
-        // function applyFilter() {
-        //     try {
-        //         // saveSelectedFlights();
-        //         if (!isInitialPageLoad) {
-        //             saveSelectedFlights();
-        //         }
-        //         // Show loading state
-        //         const loadingHtml = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin me-2"></i>Đang lọc...</div>';
-        //         outboundContainer.innerHTML = loadingHtml;
-        //         if (returnContainer && returnContainer.style.display !== 'none') {
-        //             returnContainer.innerHTML = loadingHtml;
-        //         }
-
-        //         // Build URL with filter params
-        //         const url = new URL(window.location.href);
-        //         url.searchParams.set('filtered', 'true');
-
-        //         const filterParams = getFilterParams();
-        //         console.log("filter:", filterParams)
-        //         Object.entries(filterParams).forEach(([key, value]) => {
-        //             if (Array.isArray(value)) {
-        //                 url.searchParams.delete(`${key}[]`);
-        //                 value.forEach(v => url.searchParams.append(`${key}[]`, v));
-        //             } else {
-        //                 url.searchParams.set(key, value);
-        //             }
-        //         });
-
-        //         // Reload page with filter params
-        //         window.location.href = url.toString();
-
-        //     } catch (error) {
-        //         console.error('Filter error:', error);
-        //         console.log("filter:", filterParams)
-        //         const errorHtml = `
-        //             <div class="alert alert-danger">
-        //                 <i class="fas fa-exclamation-circle me-2"></i>
-        //                 Đã có lỗi xảy ra khi lọc chuyến bay
-        //             </div>
-        //         `;
-        //         outboundContainer.innerHTML = errorHtml;
-        //         if (returnContainer && returnContainer.style.display !== 'none') {
-        //             returnContainer.innerHTML = errorHtml;
-        //         }
-        //     }
-        // }
-
         function applyFilter() {
             try {
-                // First verify containers exist
                 const outboundContainer = document.getElementById('outbound-container'); // Add proper selector
                 const returnContainer = document.getElementById('return-container'); // Add proper selector
 
@@ -350,10 +285,8 @@
                     saveSelectedFlights();
                 }
 
-                // Loading state HTML
                 const loadingHtml = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin me-2"></i>Đang lọc...</div>';
 
-                // Safely update containers
                 if (outboundContainer) {
                     outboundContainer.innerHTML = loadingHtml;
                 } else {
@@ -364,7 +297,6 @@
                     returnContainer.innerHTML = loadingHtml;
                 }
 
-                // Build URL with filter params
                 const url = new URL(window.location.href);
                 url.searchParams.set('filtered', 'true');
                 const filterParams = getFilterParams();
@@ -384,13 +316,12 @@
                 console.error('Filter error:', error);
 
                 const errorHtml = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                Đã có lỗi xảy ra khi lọc chuyến bay
-            </div>
-        `;
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Đã có lỗi xảy ra khi lọc chuyến bay
+                    </div>
+                `;
 
-                // Safely show error messages
                 if (outboundContainer) {
                     outboundContainer.innerHTML = errorHtml;
                 }
@@ -401,19 +332,15 @@
             }
         }
 
-        // Attach event listeners
         function attachFilterListeners() {
-            // Transit type radio buttons
             document.querySelectorAll('input[name="transit"]').forEach(radio => {
                 radio.addEventListener('change', applyFilter);
             });
 
-            // Airline checkboxes
             document.querySelectorAll('input[name="airlines[]"]').forEach(checkbox => {
                 checkbox.addEventListener('change', applyFilter);
             });
 
-            // Time slot buttons
             document.querySelectorAll('#flightTime button').forEach(button => {
                 button.addEventListener('click', function () {
                     this.classList.toggle('active');
@@ -428,7 +355,6 @@
                 });
             });
 
-            // Price slider
             const priceSlider = document.getElementById('priceSlider');
             if (priceSlider) {
                 let timeout;
@@ -442,13 +368,11 @@
                 });
             }
 
-            // Reset button
             const resetButton = document.getElementById('resetFilter');
             if (resetButton) {
                 resetButton.addEventListener('click', function (e) {
                     e.preventDefault();
 
-                    // Reset all inputs
                     document.querySelectorAll('input[name="transit"]').forEach(radio => radio.checked = false);
                     document.querySelectorAll('input[name="airlines[]"]').forEach(cb => cb.checked = false);
                     document.querySelectorAll('#flightTime button').forEach(btn => {
@@ -456,7 +380,6 @@
                         btn.classList.add('btn-outline-primary');
                     });
 
-                    // Reset price slider
                     const priceSlider = document.getElementById('priceSlider');
                     if (priceSlider) {
                         const maxPrice = priceSlider.getAttribute('max');
@@ -470,10 +393,8 @@
             }
         }
 
-        // Initialize
         attachFilterListeners();
 
-        // Restore filter state from URL params if any
         try {
             const url = new URL(window.location.href);
             if (url.searchParams.get('filtered')) {
@@ -517,13 +438,6 @@
                     }
                 }
                 restoreSelectedFlights();
-                // Chỉ restore nếu thực sự đã có chọn chuyến bay (kiểm tra trạng thái "Đã chọn")
-                // const hasOutboundSelection = document.querySelector('#outboundStatus .badge.bg-success') !== null;
-                // const hasReturnSelection = document.querySelector('#returnStatus .badge.bg-success') !== null;
-
-                // if (hasOutboundSelection || hasReturnSelection) {
-                //     restoreSelectedFlights();
-                // }
             }
         } catch (error) {
             console.error('Error restoring filter state:', error);

@@ -234,17 +234,42 @@ class NguoiLienHe(db.Model):
         db.CheckConstraint(SDT.regexp_match('^[0-9]+$')),
     )
 
+# class DatCho(db.Model):
+#     __tablename__ = 'DATCHO'
+    
+#     MaDatCho = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     MaCB = db.Column(db.String(8), db.ForeignKey('CHUYENBAY.MaChuyenBay', ondelete='CASCADE'), primary_key=True)
+#     MaNLH = db.Column(db.Integer, db.ForeignKey('NGUOILIENHE.MaNLH', ondelete='CASCADE'), nullable=False)
+#     SoLuongGheBus = db.Column(db.Integer, nullable=False)
+#     SoLuongGheEco = db.Column(db.Integer, nullable=False)
+#     NgayMua = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+#     TrangThai = db.Column(db.String(25), nullable=False)
+#     MaND = db.Column(db.Integer, db.ForeignKey('NGUOIDUNG.MaND', ondelete='CASCADE'), nullable=False)
+    
+#     # Relationships
+#     nguoi_lien_he = db.relationship('NguoiLienHe', backref='ds_dat_cho')
+#     chuyen_bay = db.relationship('ChuyenBay', backref='ds_dat_cho')
+#     nguoi_dung = db.relationship('NguoiDung', backref='ds_dat_cho')
+#     ds_hanh_khach = db.relationship('HanhKhach', 
+#                                  secondary='CHITIETDATCHO',
+#                                  backref=db.backref('ds_dat_cho', lazy=True))
+    
+#     __table_args__ = (
+#         db.CheckConstraint(TrangThai.in_(['Đang thanh toán', 'Đã thanh toán', 'Đã hủy'])),
+#     )
+
 class DatCho(db.Model):
     __tablename__ = 'DATCHO'
     
     MaDatCho = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    MaCB = db.Column(db.String(8), db.ForeignKey('CHUYENBAY.MaChuyenBay', ondelete='CASCADE'), primary_key=True)
+    MaCB = db.Column(db.String(8), db.ForeignKey('CHUYENBAY.MaChuyenBay', ondelete='CASCADE'), nullable=False)
     MaNLH = db.Column(db.Integer, db.ForeignKey('NGUOILIENHE.MaNLH', ondelete='CASCADE'), nullable=False)
     SoLuongGheBus = db.Column(db.Integer, nullable=False)
     SoLuongGheEco = db.Column(db.Integer, nullable=False)
     NgayMua = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     TrangThai = db.Column(db.String(25), nullable=False)
     MaND = db.Column(db.Integer, db.ForeignKey('NGUOIDUNG.MaND', ondelete='CASCADE'), nullable=False)
+    MaDatChoGoc = db.Column(db.Integer, db.ForeignKey('DATCHO.MaDatCho'), nullable=True)  # New column
     
     # Relationships
     nguoi_lien_he = db.relationship('NguoiLienHe', backref='ds_dat_cho')
@@ -253,6 +278,9 @@ class DatCho(db.Model):
     ds_hanh_khach = db.relationship('HanhKhach', 
                                  secondary='CHITIETDATCHO',
                                  backref=db.backref('ds_dat_cho', lazy=True))
+    dat_cho_lien_quan = db.relationship('DatCho',
+                                    remote_side=[MaDatCho],
+                                    backref=db.backref('dat_cho_goc', remote_side=[MaDatChoGoc]))
     
     __table_args__ = (
         db.CheckConstraint(TrangThai.in_(['Đang thanh toán', 'Đã thanh toán', 'Đã hủy'])),

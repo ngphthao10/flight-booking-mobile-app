@@ -46,7 +46,8 @@ def home():
             'user/homepage.html',
             san_bay=[],
             default_data={},
-            error=error_message
+            error=error_message,
+            api_url=current_app.config['API_URL']
         )
     except Exception as e:
         error_message = f"Lỗi hệ thống: {str(e)}"
@@ -57,7 +58,8 @@ def home():
             'user/homepage.html',
             san_bay=[],
             default_data={},
-            error=error_message
+            error=error_message,
+            api_url=current_app.config['API_URL']
         )
 
 @homepage.route('/search-flights', methods=['GET', 'POST'])
@@ -139,12 +141,10 @@ def search_flights():
             session['search_params'] = search_params
             session['flight_results'] = processed_results
 
-        else:  # GET request
-            # Lấy dữ liệu từ session
+        else:
             search_params = session.get('search_params', {})
             processed_results = session.get('flight_results', processed_results)
 
-        # Lấy danh sách sân bay
         try:
             sanbay_response = requests.get(f"{current_app.config['API_URL']}/api/sanbay")
             sanbay_response.raise_for_status()
@@ -152,9 +152,7 @@ def search_flights():
         except:
             sanbay_list = []
 
-        # Tính toán thống kê
         all_flights = []
-        # Gộp tất cả chuyến bay
         for flight_type in ['direct_flights', 'return_direct_flights']:
             if processed_results.get(flight_type):
                 all_flights.extend(processed_results[flight_type])
@@ -163,7 +161,6 @@ def search_flights():
                 for connection in processed_results[connection_type]:
                     all_flights.extend(connection['flights'])
 
-        # Tính price range và airline stats
         price_range = {'min': float('inf'), 'max': 0}
         airlines_stats = {
             'QH': {'name': 'Bamboo Airways', 'count': 0},
@@ -173,12 +170,10 @@ def search_flights():
         }
 
         for flight in all_flights:
-            # Cập nhật số lượng chuyến bay theo hãng
             airline = flight['ma_hhk']
             if airline in airlines_stats:
                 airlines_stats[airline]['count'] += 1
 
-            # Cập nhật price range
             for price_type in ['gia_ve_eco', 'gia_ve_bus']:
                 if flight.get(price_type):
                     price_range['min'] = min(price_range['min'], flight[price_type])
@@ -187,7 +182,6 @@ def search_flights():
         if price_range['min'] == float('inf'):
             price_range['min'] = 0
 
-        # Xử lý filter nếu có
         if request.args.get('filtered'):
             filter_params = {
                 'flight_type': request.args.get('flight_type', 'all'),
@@ -214,15 +208,14 @@ def search_flights():
                 print(f"Filter Error: {str(e)}")
                 flash('Lỗi khi lọc kết quả', 'danger')
         
-        # print(processed_results)
-
         return render_template(
             'user/flight_results.html',
             san_bay=sanbay_list,
             search_params=search_params,
             flight_results=processed_results,
             price_range=price_range,
-            airlines_stats=airlines_stats
+            airlines_stats=airlines_stats,
+            api_url=current_app.config['API_URL']
         )
         
     except requests.exceptions.RequestException as e:

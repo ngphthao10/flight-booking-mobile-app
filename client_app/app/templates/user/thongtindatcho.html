@@ -1,6 +1,7 @@
 {% extends 'user/base.html' %}
-
+{% block title %}Thông tin đặt chỗ{% endblock %}
 {% block content %}
+<div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;"></div>
 <div class="container my-4">
     <!-- Progress bar -->
     <div class="row mb-4">
@@ -106,7 +107,7 @@
                     <i class="bi bi-arrow-left"></i> Quay lại
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveAndContinue()">
-                    Tiếp tục
+                    Tiếp tục<i class="bi bi-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -140,10 +141,12 @@
         <div>Đang xử lý...</div>
     </div>
 </div>
-<script src="{{url_for('static', filename='js/validation.js')}}">
-
-</script>
+<script src="{{url_for('static', filename='js/validation.js')}}"></script>
+{% block scripts %}
 <script>
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+    console.log("DATCHO:", API_URL)
 
     document.addEventListener('DOMContentLoaded', function () {
         try {
@@ -320,7 +323,7 @@
                     <label class="form-label">Quốc tịch<span class="text-danger">*</span></label>
                     <select class="form-select" id="${type}_${index}_nationality" name="${type}_${index}_nationality" required>
                         <option value="">Chọn quốc tịch</option>
-                        <option value="VN">Việt Nam</option>
+                        <option value="Việt Nam">Việt Nam</option>
                     </select>
                 </div>
             </div>
@@ -814,7 +817,7 @@
 
             // Thu thập thông tin người lớn
             for (let i = 0; i < bookingData.passengers.adults; i++) {
-                const passengerIndex = i + 1; // Hành khách thứ 1, 2, 3...
+                const passengerIndex = i + 1;
 
                 // Lấy hành lý chuyến đi
                 const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
@@ -823,7 +826,8 @@
                 if (outboundLuggage && outboundLuggage.value !== '0') {
                     dich_vu_hanh_ly.push({
                         ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
-                        ma_dich_vu_hanh_ly: outboundLuggage.value
+                        ma_dich_vu_hanh_ly: outboundLuggage.value,
+                        so_ky: outboundLuggage.dataset.weight
                     });
                 }
 
@@ -833,10 +837,12 @@
                     if (returnLuggage && returnLuggage.value !== '0') {
                         dich_vu_hanh_ly.push({
                             ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
-                            ma_dich_vu_hanh_ly: returnLuggage.value
+                            ma_dich_vu_hanh_ly: returnLuggage.value,
+                            so_ky: returnLuggage.dataset.weight
                         });
                     }
                 }
+                console.log("hanhlynguoilon: ", dich_vu_hanh_ly)
 
                 const adult = {
                     ho_hk: document.getElementById(`adult_${i}_lastname`).value.trim(),
@@ -866,7 +872,9 @@
                 if (outboundLuggage && outboundLuggage.value !== '0') {
                     dich_vu_hanh_ly.push({
                         ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
-                        ma_dich_vu_hanh_ly: outboundLuggage.value
+                        ma_dich_vu_hanh_ly: outboundLuggage.value,
+                        so_ky: outboundLuggage.dataset.weight
+
                     });
                 }
 
@@ -876,7 +884,8 @@
                     if (returnLuggage && returnLuggage.value !== '0') {
                         dich_vu_hanh_ly.push({
                             ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
-                            ma_dich_vu_hanh_ly: returnLuggage.value
+                            ma_dich_vu_hanh_ly: returnLuggage.value,
+                            so_ky: returnLuggage.dataset.weight
                         });
                     }
                 }
@@ -895,6 +904,7 @@
                     loai_hk: "Trẻ em",
                     dich_vu_hanh_ly: dich_vu_hanh_ly
                 };
+                console.log("hanhlytreem: ", dich_vu_hanh_ly)
                 hanh_khach.push(child);
             }
 
@@ -919,7 +929,6 @@
 
             let chuyen_bay = [];
 
-            // Xử lý chuyến bay đi
             if (bookingData.outbound.flight.is_connecting) {
                 for (let segment of bookingData.outbound.flight.segments) {
                     chuyen_bay.push({
@@ -936,7 +945,7 @@
                 });
             }
 
-            // Xử lý chuyến bay về
+
             if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
                 if (bookingData.return.flight.is_connecting) {
                     for (let segment of bookingData.return.flight.segments) {
@@ -954,23 +963,20 @@
                     });
                 }
             }
-            console.log("cb: ", chuyen_bay)
-            // Tạo object cuối cùng để gửi lên API
+
             const finalData = {
                 nguoi_lien_he,
                 hanh_khach,
                 chuyen_bay
             };
-            // Lấy tổng tiền hành lý
+
             const luggagePrice = getLuggageTotal();
-            console.log(finalData)
-            // Lưu thông tin vào bookingData
+
             bookingData.bookingDetails = finalData;
-            bookingData.luggagePrice = luggagePrice;  // Thêm giá hành lý vào bookingData
+            bookingData.luggagePrice = luggagePrice;
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
 
-            // Gọi API tạo booking
-            const response = await fetch('http://127.0.0.1:5000/api/booking', {
+            const response = await fetch(`${API_URL}/api/booking`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -985,6 +991,7 @@
             bookingData.temp = result
             // Lưu booking ID và chuyển trang
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
+
             window.location.href = '/datcho/thanhtoan';
 
         } catch (error) {
@@ -1002,4 +1009,8 @@
     }
 
 </script>
+
+
+{% endblock %}
+
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "user/base.html" %}
+{% block title %}Kết quả tìm kiếm{% endblock %}
 {% block content %}
 <div class="container mt-4">
     <div class="row">
@@ -335,24 +336,21 @@
 
 {% include 'user/modalChonPackage.html' %}
 
-
+{% block scripts %}
+{{ super() }}
 <script>
-    // Biến toàn cục để lưu trữ chuyến bay đã chọn
+    console.log("TIMKIEM:", API_URL)
     let selectedOutboundFlight = null;
     let selectedReturnFlight = null;
-
     let isInitialPageLoad = true;
 
-    // Thêm hàm để kiểm tra xem có phải đang lọc không
     function isFilterAction() {
         const url = new URL(window.location.href);
         return url.searchParams.get('filtered') === 'true';
     }
 
-    // Thêm đoạn này vào khi trang load
     window.addEventListener('load', () => {
         if (!isFilterAction()) {
-            // Nếu là lần đầu vào trang (không phải đang filter), xóa localStorage
             localStorage.removeItem('selectedOutboundFlight');
             localStorage.removeItem('selectedReturnFlight');
             selectedOutboundFlight = null;
@@ -382,63 +380,64 @@
             const lastFlight = flights[flights.length - 1];
 
             return `
+                <div class="selected-flight-info">
+                    <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                        <div>
+                            <span class="badge bg-warning mb-1">Chuyến bay kết nối</span>
+                            <div class="small fw-bold">${flights.map(f => f.ma_chuyen_bay).join(' → ')}</div>
+                            <div class="small">${firstFlight.hang_hang_khong}</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-primary fw-bold">${formatPrice(flightData.tong_gia_ve)}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 small text-muted">
+                        <div>
+                            <div class="fw-bold">${formatTime(firstFlight.thoi_gian_di)}</div>
+                            <div>${firstFlight.san_bay_di}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="flight-duration">${formatDuration(flightData.total_time)}</div>
+                            <div class="flight-line"></div>
+                            <div class="small mt-1">${flightData.num_stops} điểm dừng</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">${formatTime(lastFlight.thoi_gian_den)}</div>
+                            <div>${lastFlight.san_bay_den}</div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        return `
             <div class="selected-flight-info">
                 <div class="d-flex justify-content-between align-items-center border-top pt-2">
                     <div>
-                        <span class="badge bg-warning mb-1">Chuyến bay kết nối</span>
-                        <div class="small fw-bold">${flights.map(f => f.ma_chuyen_bay).join(' → ')}</div>
-                        <div class="small">${firstFlight.hang_hang_khong}</div>
+                        <span class="badge bg-primary mb-1">${flightData.ma_chuyen_bay}</span>
+                        <div class="small fw-bold">${flightData.hang_hang_khong}</div>
                     </div>
                     <div class="text-end">
-                        <span class="text-primary fw-bold">${formatPrice(flightData.tong_gia_ve)}</span>
+                        <span class="text-primary fw-bold">
+                            ${flightData.loai_ghe === 'ECO' ? formatPrice(flightData.gia_ve_eco) :
+                formatPrice(flightData.gia_ve_bus)}
+                        </span>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between mt-2 small text-muted">
                     <div>
-                        <div class="fw-bold">${formatTime(firstFlight.thoi_gian_di)}</div>
-                        <div>${firstFlight.san_bay_di}</div>
+                        <div class="fw-bold">${formatTime(flightData.thoi_gian_di)}</div>
+                        <div>${flightData.san_bay_di}</div>
                     </div>
                     <div class="text-center">
-                        <div class="flight-duration">${formatDuration(flightData.total_time)}</div>
+                        <div class="flight-duration">${formatDuration(flightData.thoi_gian_bay)}</div>
                         <div class="flight-line"></div>
-                        <div class="small mt-1">${flightData.num_stops} điểm dừng</div>
                     </div>
                     <div class="text-end">
-                        <div class="fw-bold">${formatTime(lastFlight.thoi_gian_den)}</div>
-                        <div>${lastFlight.san_bay_den}</div>
+                        <div class="fw-bold">${formatTime(flightData.thoi_gian_den)}</div>
+                        <div>${flightData.san_bay_den}</div>
                     </div>
                 </div>
             </div>`;
-        }
-
-        return `
-        <div class="selected-flight-info">
-            <div class="d-flex justify-content-between align-items-center border-top pt-2">
-                <div>
-                    <span class="badge bg-primary mb-1">${flightData.ma_chuyen_bay}</span>
-                    <div class="small fw-bold">${flightData.hang_hang_khong}</div>
-                </div>
-                <div class="text-end">
-                    <span class="text-primary fw-bold">
-                        ${flightData.loai_ghe === 'ECO' ? formatPrice(flightData.gia_ve_eco) : formatPrice(flightData.gia_ve_bus)}
-                    </span>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between mt-2 small text-muted">
-                <div>
-                    <div class="fw-bold">${formatTime(flightData.thoi_gian_di)}</div>
-                    <div>${flightData.san_bay_di}</div>
-                </div>
-                <div class="text-center">
-                    <div class="flight-duration">${formatDuration(flightData.thoi_gian_bay)}</div>
-                    <div class="flight-line"></div>
-                </div>
-                <div class="text-end">
-                    <div class="fw-bold">${formatTime(flightData.thoi_gian_den)}</div>
-                    <div>${flightData.san_bay_den}</div>
-                </div>
-            </div>
-        </div>`;
     }
 
 
@@ -453,13 +452,11 @@
         } = params;
 
         try {
-            // Reset selected state for the appropriate container
             const container = isReturn ? 'returnFlightsContainer' : 'outboundFlightsContainer';
             document.querySelectorAll(`#${container} .flight-card`).forEach(card => {
                 card.classList.remove('selected');
             });
 
-            // Add selected class
             const selectedCard = isConnecting ?
                 params.button.closest('.flight-card') :
                 document.querySelector(`button[data-flight-code="${params.flightCode}"]`).closest('.flight-card');
@@ -467,20 +464,17 @@
                 selectedCard.classList.add('selected');
             }
 
-            // Update flight details
             const detailsElement = document.getElementById(detailsElementId);
             if (detailsElement) {
                 detailsElement.style.display = 'block';
                 detailsElement.innerHTML = renderFlightDetails(flightData, isConnecting);
             }
 
-            // Update status
             const statusElement = document.getElementById(statusElementId);
             if (statusElement) {
                 statusElement.innerHTML = '<span class="badge bg-success">Đã chọn</span>';
             }
 
-            // Store selected flight
             if (isReturn) {
                 selectedReturnFlight = {
                     ...flightData,
@@ -522,7 +516,6 @@
         }
     }
 
-    // Main selection functions
     function selectFlight(flightCode) {
         const button = document.querySelector(`button[data-flight-code="${flightCode}"]`);
         const flightData = JSON.parse(button.getAttribute('data-flight-info'));
@@ -611,7 +604,6 @@
         document.getElementById('outboundNumber').classList.add('bg-primary');
         document.getElementById('returnNumber').classList.remove('bg-primary');
         document.getElementById('returnNumber').classList.add('bg-secondary');
-        // Reset selected state
         document.querySelectorAll('.flight-card').forEach(card => {
             card.classList.remove('selected');
         });
@@ -623,7 +615,6 @@
         document.getElementById('returnNumber').classList.add('bg-primary');
         document.getElementById('outboundNumber').classList.remove('bg-primary');
         document.getElementById('outboundNumber').classList.add('bg-secondary');
-        // Reset selected state
         document.querySelectorAll('.flight-card').forEach(card => {
             card.classList.remove('selected');
         });
@@ -634,12 +625,10 @@
     let selectedReturnPackagePrice = 0;
     let selectedOutboundPackage = null;
     let selectedReturnPackage = null;
-
     async function loadFlightServices(flights, isReturn = false) {
         try {
-            // Nếu là chuyến bay đơn
             if (!Array.isArray(flights)) {
-                const response = await fetch(`http://127.0.0.1:5000/api/flights/${flights}/services`, {
+                const response = await fetch(`${API_URL}/api/flights/${flights}/services`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -654,9 +643,8 @@
                 return await response.json();
             }
 
-            // Xử lý chuyến bay kết nối
             const servicesPromises = flights.map(flight =>
-                fetch(`http://127.0.0.1:5000/api/flights/${flight.ma_chuyen_bay}/services`, {
+                fetch(`${API_URL}/api/flights/${flight.ma_chuyen_bay}/services`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -672,7 +660,6 @@
 
             const servicesResults = await Promise.all(servicesPromises);
 
-            // Merge services từ các chuyến bay
             const mergedServices = {
                 goi_dich_vu: mergeServicePackages(servicesResults)
             };
@@ -684,9 +671,7 @@
         }
     }
 
-    // Hàm để merge các gói dịch vụ từ nhiều chuyến bay
     function mergeServicePackages(servicesResults) {
-        // Tạo map để track các gói dịch vụ theo tên
         const packagesMap = new Map();
 
         servicesResults.forEach(result => {
@@ -710,7 +695,6 @@
                 const existingPkg = packagesMap.get(pkg.ten_goi);
                 existingPkg.gia_goi += pkg.gia_goi;
 
-                // Xử lý dich_vu
                 const services = Array.isArray(pkg.dich_vu) ?
                     pkg.dich_vu :
                     (pkg.dich_vu ? [pkg.dich_vu] : []);
@@ -723,7 +707,6 @@
             });
         });
 
-        // Convert Map và Set về dạng Array
         return Array.from(packagesMap.values()).map(pkg => ({
             ...pkg,
             dich_vu: Array.from(pkg.dich_vu).map(s => JSON.parse(s))
@@ -733,7 +716,6 @@
     async function showPackageModal() {
         try {
             if (selectedOutboundFlight) {
-                // Xác định nếu là chuyến bay kết nối hay đơn
                 const flightParam = selectedOutboundFlight.flights
                     ? selectedOutboundFlight.flights
                     : selectedOutboundFlight.ma_chuyen_bay;
@@ -762,17 +744,14 @@
             packageModal.show();
         } catch (error) {
             console.error('Error showing package modal:', error);
-            // Hiển thị thông báo lỗi cho người dùng
             alert('Có lỗi xảy ra khi tải thông tin gói dịch vụ. Vui lòng thử lại sau.');
         }
     }
 
-    // Render thông tin chuyến bay (hỗ trợ cả direct và connecting)
     function renderFlightSummary(flight, isReturn) {
         const container = document.querySelector(`#${isReturn ? 'return' : 'outbound'}-content .flight-summary`);
 
         if (flight.flights) {
-            // Chuyến bay kết nối
             const firstFlight = flight.flights[0];
             const lastFlight = flight.flights[flight.flights.length - 1];
 
@@ -791,7 +770,7 @@
                     <div class="small text-muted">${flight.num_stops} điểm dừng</div>
                 </div>
             </div>
-        `;
+            `;
         } else {
             // Chuyến bay trực tiếp
             container.innerHTML = `
@@ -807,7 +786,7 @@
                     </div>
                 </div>
             </div>
-        `;
+            `;
         }
     }
 
@@ -820,13 +799,11 @@
 
         const selectedFlight = isReturn ? selectedReturnFlight : selectedOutboundFlight;
 
-        // Convert packages to array if it's not already
         const packagesArray = Array.isArray(packages) ? packages : Object.values(packages);
 
         packagesArray.forEach(pack => {
-            if (!pack) return; // Skip if package is null/undefined
+            if (!pack) return;
 
-            // Điều chỉnh giá gói cho chuyến bay kết nối
             const adjustedPackage = {
                 ...pack,
                 gia_goi: selectedFlight.flights ? pack.gia_goi : pack.gia_goi
@@ -836,7 +813,6 @@
             container.appendChild(card);
         });
 
-        // Chọn package đầu tiên mặc định
         const firstRadio = container.querySelector('input[type="radio"]');
         if (firstRadio) {
             firstRadio.checked = true;
@@ -852,49 +828,45 @@
         const selectedFlight = isReturn ? selectedReturnFlight : selectedOutboundFlight;
         const isConnecting = selectedFlight.flights ? true : false;
 
-        // Kiểm tra dữ liệu dịch vụ
         const services = Array.isArray(pack.dich_vu) ? pack.dich_vu : [];
 
         div.innerHTML = `
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h6 class="card-title mb-1">${pack.ten_goi}</h6>
-                        <div class="text-primary fw-bold">${formatPrice(pack.gia_goi)}</div>
-                        ${isConnecting
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h6 class="card-title mb-1">${pack.ten_goi}</h6>
+                    <div class="text-primary fw-bold">${formatPrice(pack.gia_goi)}</div>
+                    ${isConnecting
                 ?
                 `<div class="small text-muted">
-                            (Giá cho ${selectedFlight.flights.length} chặng)
-                        </div>`
+                        (Giá cho ${selectedFlight.flights.length} chặng)
+                    </div>`
                 : ''}
-                    </div>
-                    <div class="form-check">
-                        <input type="radio" class="form-check-input" 
-                        name="${isReturn ? 'return' : 'outbound'}_package" 
-                        value="${pack.ma_goi}">
-                    </div>
                 </div>
-                <div class="package-features small">
-                    ${services.map(service => `
-                        <div class="mb-2">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            ${service.chi_tiet}
-                            ${isConnecting ? '<span class="text-muted">(áp dụng cho mỗi chặng)</span>' : ''}
-                        </div>
-                    `).join('')}
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" name="${isReturn ? 'return' : 'outbound'}_package"
+                        value="${pack.ma_goi}">
                 </div>
             </div>
+            <div class="package-features small">
+                ${services.map(service => `
+                <div class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    ${service.chi_tiet}
+                    ${isConnecting ? '<span class="text-muted">(áp dụng cho mỗi chặng)</span>' : ''}
+                </div>
+                `).join('')}
+            </div>
+        </div>
         `;
 
         const radio = div.querySelector('input[type="radio"]');
         radio.addEventListener('change', () => {
-            // Loại bỏ class 'selected' khỏi các card khác
             const packageContainer = document.querySelector(`#${isReturn ? 'return' : 'outbound'}-content .package-options`);
             packageContainer.querySelectorAll('.package-card').forEach(c =>
                 c.classList.remove('selected'));
             div.classList.add('selected');
 
-            // Lưu toàn bộ thông tin package đã chọn
             const selectedPackage = {
                 ma_goi: pack.ma_goi,
                 ten_goi: pack.ten_goi,
@@ -903,20 +875,17 @@
                 so_chang: isConnecting ? selectedFlight.flights.length : 1
             };
 
-            // Cập nhật package được chọn
             if (isReturn) {
                 selectedReturnPackage = selectedPackage;
             } else {
                 selectedOutboundPackage = selectedPackage;
             }
 
-            // Cập nhật tổng tiền
             updatePackageTotalPrice();
         });
 
         return div;
     }
-    // Hàm cập nhật tổng tiền
     function updatePackageTotalPrice() {
         const outboundPrice = selectedOutboundPackage ? selectedOutboundPackage.gia_goi : 0;
         const returnPrice = selectedReturnPackage ? selectedReturnPackage.gia_goi : 0;
@@ -925,12 +894,10 @@
         document.getElementById('packageTotalPrice').textContent = formatPrice(totalPrice);
     }
 
-    // Khởi tạo modal khi trang load
     document.addEventListener('DOMContentLoaded', function () {
         packageModal = new bootstrap.Modal(document.getElementById('packageSelectionModal'));
     });
 
-    // Thêm các helper functions
     function formatPrice(price) {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -1031,25 +998,15 @@
         }
     }
 
-    // Hàm tính thời gian chờ giữa các chuyến bay
     function calculateLayoverTime(arrivalTime, departureTime) {
         const arrival = new Date(arrivalTime);
         const departure = new Date(departureTime);
         const diffInMinutes = Math.floor((departure - arrival) / (1000 * 60));
 
-        if (diffInMinutes < 60) {
-            return `${diffInMinutes} phút`;
-        }
-
-        const hours = Math.floor(diffInMinutes / 60);
-        const minutes = diffInMinutes % 60;
-
-        if (minutes === 0) {
-            return `${hours} giờ`;
-        }
-
-        return `${hours} giờ ${minutes} phút`;
+        if (diffInMinutes < 60) { return `${diffInMinutes} phút`; } const hours = Math.floor(diffInMinutes / 60); const
+            minutes = diffInMinutes % 60; if (minutes === 0) { return `${hours} giờ`; } return `${hours} giờ ${minutes} phút`;
     }
 </script>
+{% endblock %}
 
 {% endblock %}

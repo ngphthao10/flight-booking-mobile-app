@@ -69,6 +69,148 @@ const validateAge = (birthDate, type) => {
 };
 
 // Validate field
+// const validateField = (input) => {
+//     if (!input) return;
+
+//     const value = input.value.trim();
+//     const id = input.id;
+
+//     // Check if field is in passenger form
+//     const passengerMatch = id.match(/(adult|child|infant)_(\d+)_(\w+)/);
+
+//     if (passengerMatch) {
+//         const [_, type, index, field] = passengerMatch;
+
+//         switch (field) {
+//             case 'title':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng chọn danh xưng');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+
+//             case 'lastname':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng nhập họ');
+//                 } else if (!isValidName(value)) {
+//                     showError(input, 'Họ không được chứa số và dấu');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+
+//             case 'firstname':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng nhập tên');
+//                 } else if (!isValidName(value)) {
+//                     showError(input, 'Tên không được chứa số và dấu');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+
+//             case 'day':
+//             case 'month':
+//             case 'year':
+//                 const parentRow = input.closest('.row');
+//                 const daySelect = parentRow.querySelector(`#${type}_${index}_day`);
+//                 const monthSelect = parentRow.querySelector(`#${type}_${index}_month`);
+//                 const yearSelect = parentRow.querySelector(`#${type}_${index}_year`);
+
+//                 if (daySelect.value && monthSelect.value && yearSelect.value) {
+//                     const birthDate = new Date(
+//                         yearSelect.value,
+//                         monthSelect.value - 1,
+//                         daySelect.value
+//                     );
+
+//                     if (isNaN(birthDate.getTime())) {
+//                         showError(input, 'Ngày không hợp lệ');
+//                         return;
+//                     }
+
+//                     if (!validateAge(birthDate, type)) {
+//                         const ageRanges = {
+//                             adult: 'từ 12 tuổi trở lên',
+//                             child: 'từ 2 đến 11 tuổi',
+//                             infant: 'dưới 2 tuổi'
+//                         };
+//                         showError(input, `Độ tuổi phải ${ageRanges[type]}`);
+//                     } else {
+//                         showSuccess(daySelect);
+//                         showSuccess(monthSelect);
+//                         showSuccess(yearSelect);
+//                     }
+//                 } else if (!value) {
+//                     showError(input, 'Vui lòng chọn đầy đủ ngày sinh');
+//                 }
+//                 break;
+
+//             case 'nationality':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng chọn quốc tịch');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+//         }
+//     } else {
+//         // Validate contact form
+//         switch (id) {
+//             case 'contact_lastname':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng nhập họ');
+//                 } else if (!isValidName(value)) {
+//                     showError(input, 'Họ không được chứa số và dấu');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+
+//             case 'contact_firstname':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng nhập tên');
+//                 } else if (!isValidName(value)) {
+//                     showError(input, 'Tên không được chứa số và dấu');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+
+//             case 'contact_phone':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng nhập số điện thoại');
+//                 } else if (!isValidPhone(value)) {
+//                     showError(input, 'Số điện thoại không hợp lệ (9-10 số)');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+
+//             case 'contact_email':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng nhập email');
+//                 } else if (!isValidEmail(value)) {
+//                     showError(input, 'Email không hợp lệ');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+
+//             case 'CardId':
+//                 if (!value) {
+//                     showError(input, 'Vui lòng nhập số CCCD');
+//                 } else if (!isValidCardId(value)) {
+//                     showError(input, 'CCCD phải có 12 số');
+//                 } else {
+//                     showSuccess(input);
+//                 }
+//                 break;
+//         }
+//     }
+// };
+
 const validateField = (input) => {
     if (!input) return;
 
@@ -154,6 +296,16 @@ const validateField = (input) => {
                     showSuccess(input);
                 }
                 break;
+
+            case 'cccd':
+                if (!value) {
+                    showError(input, 'Vui lòng nhập số CCCD');
+                } else if (!isValidCardId(value)) {
+                    showError(input, 'CCCD phải có 12 số');
+                } else {
+                    showSuccess(input);
+                }
+                break;
         }
     } else {
         // Validate contact form
@@ -210,6 +362,7 @@ const validateField = (input) => {
         }
     }
 };
+
 
 // Set up event listeners using event delegation
 document.addEventListener('DOMContentLoaded', () => {
