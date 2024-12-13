@@ -9,7 +9,6 @@ user_bp = Blueprint('user', __name__)
 @user_bp.route('/api/users', methods=['GET'])
 def get_users():
     try:
-        # 1. Lấy các tham số từ query string
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         search = request.args.get('search', '')
@@ -18,14 +17,11 @@ def get_users():
         sort_by = request.args.get('sort_by', 'MaND')  # Sắp xếp mặc định theo MaND
         sort_order = request.args.get('sort_order', 'asc')  # Thứ tự sắp xếp (asc/desc)
 
-        # 2. Tạo base query với join
         query = db.session.query(NguoiDung, NhomNguoiDung).join(
             NhomNguoiDung, NguoiDung.MaNND == NhomNguoiDung.MaNND
         )
 
-        # 3. Thêm các điều kiện tìm kiếm
         if search:
-            # Tìm kiếm trong cả tên đăng nhập và tên nhóm người dùng
             query = query.filter(or_(
                 NguoiDung.TenDangNhap.like(f'%{search}%'),
                 NhomNguoiDung.TenNhomNguoiDung.like(f'%{search}%')
@@ -37,19 +33,16 @@ def get_users():
         if ma_nhom:
             query = query.filter(NguoiDung.MaNND == ma_nhom)
 
-        # 4. Thêm sắp xếp
         if hasattr(NguoiDung, sort_by):  # Kiểm tra tránh SQL injection
             sort_column = getattr(NguoiDung, sort_by)
             if sort_order == 'desc':
                 sort_column = sort_column.desc()
             query = query.order_by(sort_column)
 
-        # 5. Thực hiện phân trang
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         total_items = pagination.total
         total_pages = pagination.pages
         
-        # 6. Format dữ liệu trả về
         users = []
         for user, group in pagination.items:
             users.append({
@@ -62,7 +55,6 @@ def get_users():
                 }
             })
 
-        # 7. Trả về kết quả với đầy đủ thông tin phân trang
         return jsonify({
             'data': users,
             'pagination': {

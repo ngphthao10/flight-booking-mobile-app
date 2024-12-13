@@ -20,7 +20,6 @@ from flask import jsonify, request
 @chuyenbay.route('/api/flights/<ma_chuyen_bay>', methods=['GET'])
 def get_flight_details(ma_chuyen_bay):
    try:
-       # Tạo alias cho bảng SanBay để phân biệt sân bay đi và đến
        SanBayDi = aliased(SanBay)
        SanBayDen = aliased(SanBay)
 
@@ -195,12 +194,12 @@ def search_connecting_flights(san_bay_di: str, san_bay_den: str,
                 .join(MayBay)\
                 .filter(
                     ChuyenBay.MaSanBayDi == last_flight.MaSanBayDen,
-                    ChuyenBay.MaSanBayDen.notin_(visited_airports),  # Không bay qua sân bay đã đi
+                    ChuyenBay.MaSanBayDen.notin_(visited_airports), 
                     ChuyenBay.TrangThai == 0,
                     ChuyenBay.TrangThaiVe == 0,
                     ChuyenBay.ThoiGianDi > last_flight.ThoiGianDen + min_layover,
                     ChuyenBay.ThoiGianDi < last_flight.ThoiGianDen + max_layover,
-                    MayBay.MaHHK == current_route[0].may_bay.MaHHK  # Cùng hãng với chuyến đầu tiên
+                    MayBay.MaHHK == current_route[0].may_bay.MaHHK  
                 )
             
             if loai_ghe == 'ECO':

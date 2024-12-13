@@ -12,7 +12,6 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config) 
     CORS(app)  
-    # Khởi tạo db và login_manager với ứng dụng Flask
     db.init_app(app)
     login_manager.init_app(app)
 

@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timedelta
-from app.models import ChuyenBay, MayBay, HangHangKhong, DichVu, DichVuVe, GoiDichVu, DichVuHanhLy,\
-    HanhKhach, NguoiLienHe, DatCho, ChiTietDatCho, SanBay, BookingTamThoi, KhuyenMai, CB_KhuyenMai, HHK_KhuyenMai, ThanhToan
+from app.models import ChuyenBay, DichVuHanhLy, HanhKhach, NguoiLienHe, DatCho, ChiTietDatCho, BookingTamThoi, KhuyenMai, ThanhToan
 from app import db
 from typing import List
 from sqlalchemy.orm import aliased
@@ -13,27 +12,22 @@ datcho = Blueprint('datcho', __name__)
 
 @datcho.route('/api/booking', methods=['POST'])
 def create_booking():
-    """API đặt chỗ cho danh sách chuyến bay (bao gồm hành lý)"""
     try:
-        # Dọn dẹp các booking hết hạn
         BookingTamThoi.cleanup_expired()
         
         data = request.get_json()
         
-        # Validate dữ liệu người liên hệ
         required_contact = ['ho_nlh', 'ten_nlh', 'email', 'sdt']
         for field in required_contact:
             if field not in data['nguoi_lien_he']:
                 return jsonify({'error': f'Thiếu thông tin người liên hệ: {field}'}), 400
 
-        # Validate dữ liệu hành khách và hành lý
         required_passenger = ['ho_hk', 'ten_hk', 'danh_xung', 'cccd', 'ngay_sinh', 'quoc_tich', 'loai_hk']
         for passenger in data['hanh_khach']:
             for field in required_passenger:
                 if field not in passenger:
                     return jsonify({'error': f'Thiếu thông tin hành khách: {field}'}), 400
             
-            # Kiểm tra dịch vụ hành lý cho mỗi chuyến bay
             if 'dich_vu_hanh_ly' in passenger:
                 for flight_luggage in passenger['dich_vu_hanh_ly']:
                     ma_chuyen_bay = flight_luggage.get('ma_chuyen_bay')
@@ -63,22 +57,17 @@ def create_booking():
             if flight.SLEcoConLai < so_ghe_eco:
                 return jsonify({'error': f'Không đủ ghế Economy cho chuyến bay {ma_chuyen_bay}'}), 400
                 
-            # Chỉ lưu các giá trị scalar trong flight_updates
             flight_updates[ma_chuyen_bay] = {
-                'ma_hhk': flight.may_bay.MaHHK,  # Thêm mã hãng hàng không
+                'ma_hhk': flight.may_bay.MaHHK,  
                 'SLBusConLai': flight.SLBusConLai - so_ghe_bus,
                 'SLEcoConLai': flight.SLEcoConLai - so_ghe_eco
             }
 
-        # booking_code = f"BK{datetime.now().year % 100}{str(random.randint(1, 999999)).zfill(6)}"
-        # Tạo mã đặt chỗ bằng cách kết hợp mã từ generate_booking_code và thời gian
-        ma_hhk = first_flight.may_bay.MaHHK if first_flight else "unknown" # Lấy mã hãng hàng không từ chuyến bay đầu tiên
+        ma_hhk = first_flight.may_bay.MaHHK if first_flight else "unknown" 
         generated_code = ChuyenBay.generate_flight_code(ma_hhk)
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")  # Định dạng thời gian: YYYYMMDDHHMMSS
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")  
         booking_code = f"{generated_code}-{timestamp}"
 
-        print("flight-update: ", flight_updates)
-        # Chuẩn bị thông tin phản hồi
         response_data = {
             'booking_id': booking_code,
             'expires_in': 600,
@@ -106,7 +95,6 @@ def create_booking():
             }
         }
 
-        # Lưu booking tạm thời vào database
         temp_booking = BookingTamThoi(
             BookingId=booking_code,
             Data=response_data,
@@ -275,7 +263,6 @@ def confirm_booking(booking_id):
             else:
                 return jsonify({'error': 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn'}), 400
 
-        # Xử lý thông tin người liên hệ
         email = thong_tin['nguoi_lien_he']['email']
         nguoi_lien_he = NguoiLienHe.query.filter_by(Email=email).first()
         if nguoi_lien_he:
@@ -292,7 +279,6 @@ def confirm_booking(booking_id):
             db.session.add(nguoi_lien_he)
         db.session.flush()
 
-        # Tạo đặt chỗ gốc
         dat_cho_goc = DatCho(
             MaCB=thong_tin['chuyen_bay'][0]['ma_chuyen_bay'],
             MaNLH=nguoi_lien_he.MaNLH,
@@ -307,7 +293,6 @@ def confirm_booking(booking_id):
 
         danh_sach_dat_cho = [dat_cho_goc]
 
-        # Tạo đặt chỗ cho các chuyến bay khác
         for chuyen_bay in thong_tin['chuyen_bay'][1:]:
             dat_cho = DatCho(
                 MaCB=chuyen_bay['ma_chuyen_bay'],
@@ -317,13 +302,12 @@ def confirm_booking(booking_id):
                 TrangThai='Đã thanh toán',
                 NgayMua=datetime.utcnow(),
                 MaND=2,
-                MaDatChoGoc=dat_cho_goc.MaDatCho  # Liên kết với đặt chỗ gốc
+                MaDatChoGoc=dat_cho_goc.MaDatCho 
             )
             db.session.add(dat_cho)
             db.session.flush()
             danh_sach_dat_cho.append(dat_cho)
 
-        # Xử lý thông tin hành khách
         for hanh_khach_data in thong_tin['hanh_khach']:
             cccd = hanh_khach_data['cccd']
             hanh_khach = HanhKhach.query.filter_by(CCCD=cccd).first()
@@ -347,7 +331,6 @@ def confirm_booking(booking_id):
                 db.session.add(hanh_khach)
             db.session.flush()
 
-            # Thêm chi tiết đặt chỗ cho tất cả các chuyến bay
             for dat_cho in danh_sach_dat_cho:
                 chi_tiet = ChiTietDatCho(
                     MaDatCho=dat_cho.MaDatCho,

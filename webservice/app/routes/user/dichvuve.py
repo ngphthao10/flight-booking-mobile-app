@@ -6,12 +6,10 @@ from app import db
 dichvuve = Blueprint('dichvuve', __name__)
 
 def get_flight_services(flight_dict):
-    """Lấy thông tin các gói dịch vụ cho một chuyến bay"""
     try:
         ma_hhk = flight_dict['ma_hhk']
         loai_ve = 'Business' if flight_dict.get('loai_ghe', '').upper() == 'BUS' else 'Economy'
         
-        # Lấy tất cả các gói dịch vụ có sẵn
         services = db.session.query(
             DichVuVe, DichVu, GoiDichVu
         ).join(
@@ -32,7 +30,6 @@ def get_flight_services(flight_dict):
         packages = {}
         for dv_ve, dv, goi in services:
             if goi.MaGoi not in packages:
-                # Tính giá gói
                 base_price = flight_dict['gia_ve_bus'] if loai_ve == 'Business' else flight_dict['gia_ve_eco']
                 if base_price is None:
                     continue
@@ -47,7 +44,6 @@ def get_flight_services(flight_dict):
                     'dich_vu': []
                 }
             
-            # Thêm chi tiết dịch vụ
             chi_tiet = ''
             if 'xách tay' in dv.TenDichVu.lower():
                 chi_tiet = f'Được phép mang {dv_ve.ThamSo}kg hành lý xách tay'
@@ -75,7 +71,6 @@ def get_flight_services(flight_dict):
         return {}
 
 def flight_to_dict(flight, loai_ghe='ECO'):
-    """Convert flight object to dictionary"""
     try:
         return {
             'ma_chuyen_bay': flight.MaChuyenBay,
@@ -103,7 +98,6 @@ def get_flight_services_api(ma_chuyen_bay):
         data = request.get_json()
         loai_ghe = data.get('loai_ghe', 'ECO').upper()
         
-        # Lấy thông tin chuyến bay
         flight = ChuyenBay.query\
             .join(MayBay)\
             .join(HangHangKhong)\
@@ -113,7 +107,6 @@ def get_flight_services_api(ma_chuyen_bay):
         if not flight:
             return jsonify({'error': 'Flight not found'}), 404
 
-        # Chuẩn bị thông tin chuyến bay để tìm dịch vụ
         flight_info = {
             'ma_hhk': flight.may_bay.MaHHK,
             'loai_ghe': loai_ghe,
@@ -121,7 +114,6 @@ def get_flight_services_api(ma_chuyen_bay):
             'gia_ve_bus': float(flight.GiaVeBus) if flight.GiaVeBus else None
         }
 
-        # Sử dụng hàm get_flight_services đã có
         services = get_flight_services(flight_info)
 
         return jsonify({
@@ -139,26 +131,22 @@ def get_package_luggage(ma_goi):
         hang_hang_khong = request.args.get('hang_hang_khong')
         loai_ve = request.args.get('loai_ve')
 
-        # Validate input
         if not hang_hang_khong or not loai_ve:
             return jsonify({
                 'error': 'Thiếu thông tin hãng hàng không hoặc loại vé'
             }), 400
 
-        # Validate loai_ve
         if loai_ve not in ['ECO', 'BUS']:
             return jsonify({
                 'error': 'Loại vé không hợp lệ. Chỉ chấp nhận ECO hoặc BUS'
             }), 400
 
-        # Map loại vé
         loai_ve_mapping = {
             'ECO': 'Economy',
             'BUS': 'Business'
         }
         loai_ve_query = loai_ve_mapping.get(loai_ve)
 
-        # Lấy mã hãng hàng không từ tên
         hang_hk = HangHangKhong.query.filter(
             (HangHangKhong.TenHHK == hang_hang_khong) | 
             (HangHangKhong.MaHHK == hang_hang_khong)
@@ -169,12 +157,10 @@ def get_package_luggage(ma_goi):
                 'error': f'Không tìm thấy hãng hàng không: {hang_hang_khong}'
             }), 404
 
-        # Get luggage info from database
         goi_dv = GoiDichVu.query.get(ma_goi)
         if not goi_dv:
             return jsonify({'error': f'Không tìm thấy gói dịch vụ với mã {ma_goi}'}), 404
 
-        # Query lấy thông tin hành lý
         luggage_info = db.session.query(
             DichVu.MaDV,
             DichVu.TenDichVu,
@@ -199,7 +185,6 @@ def get_package_luggage(ma_goi):
                         f'hãng {hang_hang_khong}, loại vé {loai_ve}'
             }), 404
 
-        # Format response
         luggage_details = {}
         total_weight = 0
         ten_hang = None
