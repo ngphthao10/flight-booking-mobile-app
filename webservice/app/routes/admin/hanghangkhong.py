@@ -156,6 +156,14 @@ def update_hang_hang_khong(ma_hhk):
         data = request.get_json()
         
         airline = HangHangKhong.query.filter_by(MaHHK=ma_hhk).first()
+
+        air1 = HangHangKhong.query.filter_by(TenHHK=data['TenHHK']).first()
+        print(air1)
+        if air1 and air1.MaHHK != data["MaHHK"]:
+            return jsonify({
+                'status': False,
+                'message': f"Tên hãng hàng không '{data['TenHHK']}' đã tồn tại"
+            }), 400
         
         if not airline:
             return jsonify({
@@ -169,19 +177,7 @@ def update_hang_hang_khong(ma_hhk):
         if 'MaQG' in data:
             airline.MaQG = data['MaQG']
         
-        existing_airline = HangHangKhong.query.filter_by(MaHHK=data['MaHHK']).first()
-        if existing_airline:
-            return jsonify({
-                'status': False,
-                'message': f"Mã hãng hàng không '{data['MaHHK']}' đã tồn tại"
-            }), 400
-
-        existing_airline_name = HangHangKhong.query.filter_by(TenHHK=data['TenHHK']).first()
-        if existing_airline_name:
-            return jsonify({
-                'status': False,
-                'message': f"Tên hãng hàng không '{data['TenHHK']}' đã tồn tại"
-            }), 400
+        
             
         db.session.commit()
         
@@ -207,14 +203,13 @@ def update_hang_hang_khong(ma_hhk):
 def get_hang_hang_khong_detail(ma_hhk):
     try:
         airline = HangHangKhong.query.filter_by(MaHHK=ma_hhk).first()
-        
         if not airline:
             return jsonify({
                 'status': False,
                 'message': f"Không tìm thấy hãng hàng không với mã '{ma_hhk}'"
             }), 404
             
-        return jsonify({
+        return jsonify({    
             'status': True,
             'message': 'Lấy thông tin hãng hàng không thành công',
             'data': {
