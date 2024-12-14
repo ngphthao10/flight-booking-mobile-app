@@ -186,7 +186,7 @@
                 <div class="card mb-3 luggage-card">
                     <div class="card-body p-0">
                         <input type="radio" class="btn-check" name="luggage-p${passengerIndex}-${direction}" 
-                               id="no-extra-p${passengerIndex}-${direction}" value="0" checked>
+                               id="no-extra-p${passengerIndex}-${direction}" value="0" data-weight="0" checked>
                         <label class="btn w-100 text-start p-3" for="no-extra-p${passengerIndex}-${direction}">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -235,7 +235,7 @@
         }
 
         async function updateTotalWeight(input, baseWeight) {
-            const additionalWeight = parseInt(input.value);
+            const additionalWeight = parseInt(input.getAttribute("data-weight"));
             const passengerId = input.name.replace('luggage-', '');
             const totalWeightElement = document.querySelector(`[data-passenger="${passengerId}"]`);
 
@@ -393,7 +393,6 @@
                     input.addEventListener('change', () => {
                         const direction = input.name.includes('-out') ? 'out' : 'return';
                         const baseLuggage = direction === 'out' ? outboundBaseLuggage : returnBaseLuggage;
-
                         updateTotalWeight(input, baseLuggage.baseWeight);
                         updateTotalPrice();
                     });

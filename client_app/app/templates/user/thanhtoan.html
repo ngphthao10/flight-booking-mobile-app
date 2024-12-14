@@ -1,7 +1,24 @@
 {% extends 'user/base.html' %}
+{% block title %}Thanh toán{% endblock %}
 
 {% block content %}
 <div class="container py-4">
+    <!-- Progress bar -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex align-items-center">
+                <div class="step active">
+                    <span class="step-number">1</span>
+                    <span class="step-text">Chi tiết chuyến đi của bạn</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step active">
+                    <span class="step-number">2</span>
+                    <span class="step-text">Thanh toán</span>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <!-- Cột bên trái - Phần thanh toán -->
         <div class="col-lg-8 mb-2">
@@ -141,6 +158,28 @@
                                 <div id="qrCode" class="bg-white p-3 rounded-3" style="width: 250px; height: 250px;">
                                 </div>
                             </div>
+                            <script>
+                                const script = document.createElement('script');
+                                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+                                document.head.appendChild(script);
+
+                                // Tạo QR code sau khi thư viện đã được load
+                                script.onload = function () {
+                                    const qrCode = document.getElementById('qrCode');
+                                    // Xóa nội dung cũ nếu có
+                                    qrCode.innerHTML = '';
+
+                                    // Tạo QR code mới
+                                    new QRCode(qrCode, {
+                                        text: "https://example.com", // Text bạn muốn chuyển thành QR
+                                        width: 210,
+                                        height: 210,
+                                        colorDark: "#000000",
+                                        colorLight: "#ffffff",
+                                        correctLevel: QRCode.CorrectLevel.H
+                                    });
+                                };
+                            </script>
                             <div class="mt-4">
                                 <div class="text-muted mb-2">Số tiền thanh toán</div>
                                 <div class="fs-4 fw-bold text-primary" id="qrAmount">2.566.827 VND</div>
