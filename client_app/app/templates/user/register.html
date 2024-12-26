@@ -1,0 +1,219 @@
+{% extends "user/base.html" %}
+
+{% block title %}Đăng nhập{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: url("{{ url_for('static', filename='images/login.jpg') }}") no-repeat center center fixed;
+        background-size: cover;
+        color: #fff;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .form-control::placeholder {
+        color: #eee;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+    }
+
+    .full-height-container {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 100px;
+    }
+
+    /* Thêm khung mờ mờ phía sau form */
+    .transparent-form-container {
+        max-width: 450px;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        /* Nếu trình duyệt hỗ trợ, có thể thêm backdrop-filter để mờ nền */
+        backdrop-filter: blur(10px);
+    }
+
+    .line {
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-outline-light {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    h2 {
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="full-height-container">
+    <div class="transparent-form-container">
+        <h2 class="mb-4 text-center">Đăng nhập</h2>
+        <form id="login-form" class="mb-3">
+            <div class="row gy-3 gy-md-4 overflow-hidden">
+                <div class="col-12">
+                    <label for="username" class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                    <input type="username" class="form-control" name="username" id="username"
+                        placeholder="Tên đăng nhập của bạn" required>
+                </div>
+                <div class="col-12">
+                    <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" name="password" id="password" value="" required>
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" name="remember_me" id="remember_me">
+                        <label class="form-check-label text-secondary" for="remember_me">
+                            Ghi nhớ cho lần sau
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-grid">
+                        <button class="btn bsb-btn-xl btn-primary" type="submit">Đăng nhập</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end">
+                    <a href="#!" class="link-info text-decoration-none">Tạo tài khoản mới</a>
+                    <a href="#!" class="link-danger text-decoration-none">Quên mật khẩu</a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="mb-4 border-secondary-subtle">
+        <div class="text-center">
+            <p class="mb-2">Hoặc đăng nhập bằng:</p>
+            <button class="btn bsb-btn-xl btn-outline-primary w-100" id="btnGoogleLogin">
+                <i class="bi bi-google me-2"></i> Google
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="pagination-config" data-api-url="{{ api_url }}" style="display: none;"></div>
+
+
+<script>
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+    console.log("API_URL", API_URL)
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginForm = document.getElementById('login-form');
+        const btnGoogleLogin = document.getElementById('btnGoogleLogin');
+
+
+        // Hàm tái sử dụng cho mọi trường hợp đăng nhập thành công
+        async function handleLoginSuccess(userData) {
+            // 1. Lưu vào localStorage
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            // 2. Gửi thông tin user sang server client (Flask) để lưu session
+            await fetch('/auth/handle-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+
+            // 3. Kiểm tra nhóm người dùng để chuyển hướng
+            if (userData && userData.NhomNguoiDung && userData.NhomNguoiDung.MaNND === 1) {
+                // Admin
+                window.location.href = "/hanghangkhong/hang-hang-khong";
+            } else {
+                // Người dùng thường
+                window.location.href = "/";
+            }
+        }
+
+        // 1. Sự kiện login thường
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            try {
+                const response = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+
+                if (response.ok && result.status) {
+                    // Dùng hàm tái sử dụng
+                    await handleLoginSuccess(result.data);
+                } else {
+                    alert(result.message || "Đăng nhập thất bại");
+                }
+            } catch (error) {
+                console.error("Lỗi khi gọi API đăng nhập:", error);
+                alert("Có lỗi xảy ra khi đăng nhập.");
+            }
+        });
+
+        // 2. Sự kiện login bằng Google
+        btnGoogleLogin.addEventListener('click', async function () {
+            try {
+                // Gọi API Google Login từ Server Webservice (Server 1)
+                const response = await fetch(`${API_URL}/login/google`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+
+                if (response.ok && result.authorization_url) {
+                    // Mở popup để đăng nhập bằng Google
+                    const popup = window.open(result.authorization_url, 'Google Login', 'width=600,height=600');
+
+                    // Kiểm tra popup đã mở hay chưa
+                    if (!popup) {
+                        alert("Không thể mở cửa sổ đăng nhập. Vui lòng kiểm tra trình duyệt của bạn.");
+                        return;
+                    }
+
+                    // Lắng nghe thông điệp từ popup
+                    window.addEventListener('message', async function (event) {
+                        // Xác thực origin để bảo mật
+                        if (event.origin !== `${API_URL}`) return;  // Thay bằng domain thực tế của Server 1
+
+                        const userData = event.data;
+                        if (userData && userData.MaND) {
+                            // Đóng popup
+                            popup.close();
+
+                            // Dùng hàm tái sử dụng
+                            await handleLoginSuccess(userData);
+                        }
+                    }, false);
+                } else {
+                    alert(result.message || "Không lấy được URL ủy quyền Google");
+                }
+            } catch (error) {
+                console.error("Lỗi khi gọi API Google Login:", error);
+                alert("Có lỗi xảy ra khi đăng nhập bằng Google.");
+            }
+        });
+    });
+</script>
+{% endblock %}

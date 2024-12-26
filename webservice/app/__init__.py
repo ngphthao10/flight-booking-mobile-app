@@ -1,12 +1,13 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
 from flask_cors import CORS
 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' 
 db = SQLAlchemy()
 login_manager = LoginManager()
-
 def create_app():
 
     app = Flask(__name__)
@@ -23,8 +24,7 @@ def create_app():
    
     from app.models import NguoiDung 
 
-    from app.routes.auth_route import auth_bp 
-    from app.routes.user_routes import user_bp 
+    from app.routes.auth_route import auth_bp, init_oauth 
     from app.routes.user.chuyenbay import chuyenbay
     from app.routes.user.khuyenmai import khuyenmai
     from app.routes.user.dichvuve import dichvuve
@@ -34,8 +34,7 @@ def create_app():
     from app.routes.admin.maybay import maybay
     from app.routes.admin.sanbay import sanbay
     from app.routes.admin.quocgia import quocgia
-    app.register_blueprint(auth_bp)  
-    app.register_blueprint(user_bp) 
+    app.register_blueprint(auth_bp) 
     app.register_blueprint(chuyenbay)
     app.register_blueprint(hanghangkhong)
     app.register_blueprint(maybay)
@@ -45,5 +44,8 @@ def create_app():
     app.register_blueprint(dichvuve)
     app.register_blueprint(dichvuhanhly)
     app.register_blueprint(datcho)
-    
+
+    with app.app_context():
+        db.create_all()
+        init_oauth(app)
     return app

@@ -71,7 +71,6 @@ class HangHangKhong(db.Model):
     MaHHK = db.Column(db.String(5), primary_key=True)
     TenHHK = db.Column(db.String(100), nullable=False, unique=True)
     MaQG = db.Column(db.String(5), db.ForeignKey('QUOCGIA.MaQG', ondelete='CASCADE'), nullable=False)
-    
     ds_may_bay = db.relationship('MayBay', backref='hang_hang_khong', lazy=True)
 
 class DichVu(db.Model):

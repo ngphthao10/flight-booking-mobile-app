@@ -1,5 +1,8 @@
 {% extends "user/base.html" %}
 {% block content %}
+<div class="container">
+    {% include 'user/navbar.html'%}
+</div>
 <div class="container mt-5 mb-5">
     {% if error %}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -185,8 +188,30 @@
         </div>
     </div>
 </div>
-
+<div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;">
+</div>
 <script>
+    async function handleLogout() {
+        try {
+            fetch('/auth/logout', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data.message);
+                    // => 'Đăng xuất thành công'
+                    // Xoá localStorage, chuyển hướng v.v.
+                    window.location.href = '/';
+                });
+        } catch (error) {
+            console.error(error);
+            alert('Có lỗi xảy ra khi đăng xuất!');
+        }
+    }
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+    console.log('api:', API_URL)
     document.addEventListener("DOMContentLoaded", function () {
         const today = new Date();
         const formattedDate = today.toISOString().split('T')[0]; // Lấy định dạng YYYY-MM-DD

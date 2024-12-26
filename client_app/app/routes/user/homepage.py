@@ -1,13 +1,16 @@
-from http import server
 from flask import Blueprint, render_template, flash, url_for, redirect, request, session, jsonify
+from flask_login import login_user, login_required, logout_user, current_user
 import requests
 from datetime import datetime, timedelta
-from flask import current_app
+from flask import current_app 
 
 homepage = Blueprint('homepage', __name__)
-@homepage.route('/home', methods=['GET'])
+@homepage.route('/', methods=['GET'])
 def home():
     try:
+        # Lấy thông tin user từ utils
+        user_info = session.get('user_info')
+
         # Lấy danh sách sân bay từ API
         response = requests.get(f"{current_app.config['API_URL']}/api/sanbay")
         response.raise_for_status()
@@ -34,7 +37,9 @@ def home():
         return render_template(
             'user/homepage.html',
             san_bay=sanbay_list,
-            default_data=default_data
+            default_data=default_data,
+            api_url=current_app.config['API_URL'],
+            user_info=user_info
         )
 
     except requests.exceptions.RequestException as e:
@@ -47,7 +52,8 @@ def home():
             san_bay=[],
             default_data={},
             error=error_message,
-            api_url=current_app.config['API_URL']
+            api_url=current_app.config['API_URL'],
+            user_info=None
         )
     except Exception as e:
         error_message = f"Lỗi hệ thống: {str(e)}"
@@ -59,7 +65,8 @@ def home():
             san_bay=[],
             default_data={},
             error=error_message,
-            api_url=current_app.config['API_URL']
+            api_url=current_app.config['API_URL'],
+            user_info=None
         )
 
 @homepage.route('/search-flights', methods=['GET', 'POST'])
