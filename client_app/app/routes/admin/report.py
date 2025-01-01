@@ -41,14 +41,6 @@ def get_booking_stats():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@report.route('/dashboard/passenger-stats') 
-def get_passenger_stats():
-    """Get passenger statistics"""
-    try:
-        response = requests.get(f"{current_app.config['API_URL']}/api/report/passenger_stats")
-        return jsonify(response.json()), response.status_code
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @report.route('/dashboard/baggage-stats')
 def get_baggage_stats():

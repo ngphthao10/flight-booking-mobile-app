@@ -59,7 +59,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="card-subtitle text-muted">Tổng đơn đặt chỗ</h6>
+                        <h6 class="card-subtitle text-muted">Tổng số đặt chỗ</h6>
                         <i class="fas fa-ticket-alt stats-icon text-success"></i>
                     </div>
                     <h3 class="card-title mb-2" id="totalBookings">0</h3>
@@ -166,7 +166,7 @@
 
     <!-- Additional Charts Row -->
     <div class="row">
-        <!-- Booking Stats -->
+        <!-- Booking Stats
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
@@ -187,30 +187,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
-        <!-- Passenger Stats -->
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title">Phân bố hành khách</h5>
-                        <button class="btn btn-sm btn-outline-primary" onclick="exportPassengerStats()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-box-arrow-down" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z" />
-                                <path fill-rule="evenodd"
-                                    d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="passengerStatsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 </div>
 
@@ -236,7 +215,6 @@
     let marketShareChart = null;
     let monthlySalesChart = null;
     let bookingStatsChart = null;
-    let passengerStatsChart = null;
 
 
     async function loadPassengers() {
@@ -545,52 +523,7 @@
         }
     }
 
-    // Load Passenger Stats
-    async function loadPassengerStats() {
-        try {
-            const response = await fetch('/report/dashboard/passenger-stats');
-            const data = await response.json();
 
-            if (data.status === 'success') {
-                const ctx = document.getElementById('passengerStatsChart').getContext('2d');
-
-                if (passengerStatsChart) {
-                    passengerStatsChart.destroy();
-                }
-
-                // Group data by passenger type
-                const groupedData = {};
-                data.data.forEach(item => {
-                    if (!groupedData[item.passenger_type]) {
-                        groupedData[item.passenger_type] = 0;
-                    }
-                    groupedData[item.passenger_type] += item.total_passengers;
-                });
-
-                passengerStatsChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(groupedData),
-                        datasets: [{
-                            data: Object.values(groupedData),
-                            backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'right'
-                            }
-                        }
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Error loading passenger stats:', error);
-        }
-    }
 
     // Cập nhật phần khởi tạo dashboard
     document.addEventListener('DOMContentLoaded', async function () {
@@ -603,7 +536,6 @@
             loadMarketShare(),
             loadMonthlySales(),
             loadBookingStats(),
-            loadPassengerStats(),
             loadPassengers()
         ]);
     });
@@ -630,7 +562,6 @@
             loadMarketShare(),
             loadMonthlySales(),
             loadBookingStats(),
-            loadPassengerStats(),
             loadPassengers()
         ]);
     }, 300000); // Refresh mỗi 5 phút

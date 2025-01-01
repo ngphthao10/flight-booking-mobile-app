@@ -79,18 +79,6 @@ def get_market_share():
 
 @report.route('/api/report/revenue', methods=['GET'])
 def get_revenue_report():
-    """
-    Endpoint: /api/report/revenue
-    Params:
-        - type: 'monthly' or 'weekly' (mặc định 'monthly')
-        - month: 1-12 hoặc 'all' (mặc định là tháng hiện tại)
-        - year: 4-digit year hoặc 'all' (mặc định là năm hiện tại)
-        - include_growth: true/false (mặc định false)
-    Chức năng:
-        - Tính doanh thu 'monthly': group_by date (theo ngày)
-        - Tính doanh thu 'weekly': group_by (week_number, year)
-        - Tùy chọn tính 'growth_rate' (theo tuần) so sánh tuần hiện tại và tuần trước.
-    """
     try:
         current_date = datetime.now()
 
@@ -291,39 +279,6 @@ def get_booking_stats():
 #     except Exception as e:
 #         return jsonify({"status": "error", "message": str(e)}), 500
 
-@report.route('/api/report/passenger_stats', methods=['GET'])
-def get_passenger_stats():
-    """Gets statistics about passengers."""
-    try:
-        # Thống kê theo loại hành khách
-        passenger_stats = db.session.query(
-            HanhKhach.LoaiHK,
-            HanhKhach.QuocTich,
-            func.count(HanhKhach.MaHanhKhach).label('total_passengers'),
-            func.count(distinct(DatCho.MaDatCho)).label('total_bookings')
-        ).join(
-            ChiTietDatCho, HanhKhach.MaHanhKhach == ChiTietDatCho.MaHK
-        ).join(
-            DatCho, ChiTietDatCho.MaDatCho == DatCho.MaDatCho
-        ).group_by(
-            HanhKhach.LoaiHK,
-            HanhKhach.QuocTich
-        ).all()
-
-        result = [
-            {
-                "passenger_type": stats.LoaiHK,
-                "nationality": stats.QuocTich,
-                "total_passengers": int(stats.total_passengers),
-                "total_bookings": int(stats.total_bookings)
-            }
-            for stats in passenger_stats
-        ]
-
-        return jsonify({"status": "success", "data": result}), 200
-        
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
 
 @report.route('/api/report/baggage_service_stats', methods=['GET'])
 def get_baggage_service_stats():
