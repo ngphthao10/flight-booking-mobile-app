@@ -93,14 +93,14 @@
                 </div>
             </div>
         </form>
-        <div class="row mb-3">
+        <!-- <div class="row mb-3">
             <div class="col-12">
                 <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end">
                     <a href="#!" class="link-info text-decoration-none">Tạo tài khoản mới</a>
                     <a href="#!" class="link-danger text-decoration-none">Quên mật khẩu</a>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <hr class="mb-4 border-secondary-subtle">
         <div class="text-center">
@@ -139,7 +139,7 @@
             // 3. Kiểm tra nhóm người dùng để chuyển hướng
             if (userData && userData.NhomNguoiDung && userData.NhomNguoiDung.MaNND === 1) {
                 // Admin
-                window.location.href = "/hanghangkhong/hang-hang-khong";
+                window.location.href = "/report/";
             } else {
                 // Người dùng thường
                 window.location.href = "/";
@@ -195,7 +195,7 @@
                     // Lắng nghe thông điệp từ popup
                     window.addEventListener('message', async function (event) {
                         // Xác thực origin để bảo mật
-                        if (event.origin !== `${API_URL}`) return;  // Thay bằng domain thực tế của Server 1
+                        if (event.origin !== `${API_URL}`) return;
 
                         const userData = event.data;
                         if (userData && userData.MaND) {

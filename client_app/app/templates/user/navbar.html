@@ -23,19 +23,16 @@
                     <span>{{ session.user_info.TenDangNhap }}</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
-                    <li><a class="dropdown-item" href="#">Đổi mật khẩu</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     <li><a class="dropdown-item" href="" onclick="handleLogout()">Đăng xuất</a></li>
                 </ul>
             </div>
             {% else %}
             <form class="d-flex">
-                <a href="{{url_for('auth.user_register')}}" class="btn btn-outline-success me-2" type="button">Đăng
-                    nhập</a>
-                <button class="btn btn-outline-primary" type="button">Đăng ký</button>
+                <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-success me-2" type="button"
+                    data-bs-toggle="tooltip" title="Đăng nhập / Đăng ký để biết thêm nhiều thông tin ưu đãi">
+                    <i class="bi bi-box-arrow-in-right"></i> Đăng nhập / Đăng ký
+                </a>
+
             </form>
             {% endif %}
         </div>

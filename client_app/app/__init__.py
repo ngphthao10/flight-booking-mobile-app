@@ -11,10 +11,12 @@ def create_app():
     from app.routes.user.datcho import datcho
     from app.routes.admin.hanghangkhong import hanghangkhong
     from app.routes.admin.sanbay import sanbay
+    from app.routes.admin.report import report
     app.register_blueprint(homepage)
     app.register_blueprint(datcho, url_prefix="/datcho")
     app.register_blueprint(hanghangkhong, url_prefix="/hanghangkhong")
     app.register_blueprint(sanbay, url_prefix="/sanbay")
     app.register_blueprint(auth, url_prefix="/auth")
+    app.register_blueprint(report, url_prefix="/report")
         
     return app

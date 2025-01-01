@@ -386,6 +386,8 @@
 
     const config = document.getElementById('pagination-config');
     const API_URL = config.dataset.apiUrl;
+    const userInfo = JSON.parse('{{ user_info | tojson | safe }}');
+
     console.log("THANHTOAN:", API_URL)
     document.getElementById('confirmPayment').addEventListener('click', async function () {
         const button = this;
@@ -396,8 +398,8 @@
             const bookingData = JSON.parse(localStorage.getItem('bookingData'));
 
             const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-
-            const response = await fetch(`${API_URL}/api/bookings/${bookingData.temp.booking_id}/confirm`, {
+            const maND = userInfo && userInfo.MaND ? userInfo.MaND : 1;
+            const response = await fetch(`${API_URL}/api/bookings/${bookingData.temp.booking_id}/${maND}/confirm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

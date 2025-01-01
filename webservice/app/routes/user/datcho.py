@@ -2,10 +2,7 @@ from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timedelta
 from app.models import ChuyenBay, DichVuHanhLy, HanhKhach, NguoiLienHe, DatCho, ChiTietDatCho, BookingTamThoi, KhuyenMai, ThanhToan
 from app import db
-from typing import List
-from sqlalchemy.orm import aliased
-from sqlalchemy import func
-import redis
+from email_utils import send_booking_confirmation_email
 
 datcho = Blueprint('datcho', __name__)
 
@@ -112,134 +109,9 @@ def create_booking():
         return jsonify({'error': str(e)}), 500
 
 
-# @datcho.route('/api/bookings/<booking_id>/confirm', methods=['POST'])
-# def confirm_booking(booking_id):
-#     try:
-#         BookingTamThoi.cleanup_expired()
-#         temp_booking = BookingTamThoi.query.get(booking_id)
-#         if not temp_booking or temp_booking.ExpiresAt < datetime.utcnow():
-#             return jsonify({'error': 'Đặt chỗ đã hết hạn hoặc không tồn tại'}), 404
 
-#         booking_data = temp_booking.Data
-#         thong_tin = booking_data['thong_tin_dat_cho']
-#         flight_updates = thong_tin.get('flight_updates', {})
-#         data = request.get_json()
-       
-#         tien_giam = 0
-#         ma_khuyen_mai = data.get('ma_khuyen_mai')  
-#         tong_tien = data.get('tong_tien', 0) 
-#         phuong_thuc = data.get('phuong_thuc', 0)
-
-#         if ma_khuyen_mai: 
-#             khuyen_mai = KhuyenMai.query.get(ma_khuyen_mai)
-#             if khuyen_mai and khuyen_mai.is_valid():
-#                 tien_giam = khuyen_mai.calculate_discount(tong_tien)
-#                 print("tien_giam: ", tien_giam)
-#             else:
-#                 return jsonify({'error': 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn'}), 400
-
-
-#         email = thong_tin['nguoi_lien_he']['email']
-#         nguoi_lien_he = NguoiLienHe.query.filter_by(Email=email).first()
-#         if nguoi_lien_he:
-#             nguoi_lien_he.HoNLH = " ".join(thong_tin['nguoi_lien_he']['ho_ten'].split()[:-1])
-#             nguoi_lien_he.TenNLH = thong_tin['nguoi_lien_he']['ho_ten'].split()[-1]
-#             nguoi_lien_he.SDT = thong_tin['nguoi_lien_he']['sdt']
-#         else:
-#             nguoi_lien_he = NguoiLienHe(
-#                 HoNLH=" ".join(thong_tin['nguoi_lien_he']['ho_ten'].split()[:-1]),
-#                 TenNLH=thong_tin['nguoi_lien_he']['ho_ten'].split()[-1],
-#                 Email=email,
-#                 SDT=thong_tin['nguoi_lien_he']['sdt']
-#             )
-#             db.session.add(nguoi_lien_he)
-#         db.session.flush()
-
-
-#         danh_sach_dat_cho = []
-#         for i, chuyen_bay in enumerate(thong_tin['chuyen_bay']):
-#             ma_chuyen_bay = chuyen_bay['ma_chuyen_bay']
-#             so_ghe_bus = chuyen_bay['so_ghe_bus']
-#             so_ghe_eco = chuyen_bay['so_ghe_eco']
-
-#             dat_cho = DatCho(
-#                 MaCB=ma_chuyen_bay,
-#                 MaNLH=nguoi_lien_he.MaNLH,
-#                 SoLuongGheBus=so_ghe_bus,
-#                 SoLuongGheEco=so_ghe_eco,
-#                 TrangThai='Đã thanh toán',
-#                 NgayMua=datetime.utcnow(),
-#                 MaND=2
-#             )
-#             db.session.add(dat_cho)
-#             db.session.flush()  
-#             danh_sach_dat_cho.append(dat_cho)
-
-
-#         for hanh_khach_data in thong_tin['hanh_khach']:
-#             cccd = hanh_khach_data['cccd']
-#             hanh_khach = HanhKhach.query.filter_by(CCCD=cccd).first()
-#             if hanh_khach:
-#                 hanh_khach.HoHK = " ".join(hanh_khach_data['ho_ten'].split()[:-1])
-#                 hanh_khach.TenHK = hanh_khach_data['ho_ten'].split()[-1]
-#                 hanh_khach.DanhXung = hanh_khach_data.get('danh_xung', '')
-#                 hanh_khach.NgaySinh = datetime.strptime(hanh_khach_data['ngay_sinh'], '%d-%m-%Y').date()
-#                 hanh_khach.QuocTich = hanh_khach_data.get('quoc_tich', 'Việt Nam')
-#                 hanh_khach.LoaiHK = hanh_khach_data['loai_hk']
-#             else:
-#                 hanh_khach = HanhKhach(
-#                     HoHK=" ".join(hanh_khach_data['ho_ten'].split()[:-1]),
-#                     TenHK=hanh_khach_data['ho_ten'].split()[-1],
-#                     DanhXung=hanh_khach_data.get('danh_xung', ''),
-#                     CCCD=cccd,
-#                     NgaySinh=datetime.strptime(hanh_khach_data['ngay_sinh'], '%d-%m-%Y').date(),
-#                     QuocTich=hanh_khach_data.get('quoc_tich', 'Việt Nam'),
-#                     LoaiHK=hanh_khach_data['loai_hk']
-#                 )
-#                 db.session.add(hanh_khach)
-#             db.session.flush()
-
-#             for dat_cho in danh_sach_dat_cho:
-#                 chi_tiet = ChiTietDatCho(
-#                     MaDatCho=dat_cho.MaDatCho,
-#                     MaHK=hanh_khach.MaHanhKhach
-#                 )
-#                 db.session.add(chi_tiet)
-#         for ma_chuyen_bay, update_data in flight_updates.items():
-#             flight = ChuyenBay.query.get(ma_chuyen_bay)
-#             if flight:
-#                 flight.SLBusConLai = update_data['SLBusConLai']
-#                 flight.SLEcoConLai = update_data['SLEcoConLai']
-#                 db.session.add(flight)
-
-#         thanh_toan = ThanhToan(
-#             MaDatCho=danh_sach_dat_cho[0].MaDatCho,
-#             MaKhuyenMai=ma_khuyen_mai if ma_khuyen_mai else None,
-#             TienGiam=tien_giam,
-#             Thue=0,
-#             SoTien=tong_tien - tien_giam,
-#             NgayThanhToan=datetime.utcnow(),
-#             PhuongThuc=phuong_thuc
-#         )
-#         db.session.add(thanh_toan)
-
-#         db.session.delete(temp_booking)
-#         db.session.commit()
-
-#         return jsonify({
-#             'success': True,
-#             'ma_dat_cho': [dat_cho.MaDatCho for dat_cho in danh_sach_dat_cho],
-#             'tien_giam': tien_giam,
-#             'tong_tien': thanh_toan.SoTien,
-#             'message': 'Đặt chỗ thành công'
-#         })
-
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({'error': str(e)}), 500
-
-@datcho.route('/api/bookings/<booking_id>/confirm', methods=['POST'])
-def confirm_booking(booking_id):
+@datcho.route('/api/bookings/<booking_id>/<user_id>/confirm', methods=['POST'])
+def confirm_booking(booking_id, user_id):
     try:
         BookingTamThoi.cleanup_expired()
         temp_booking = BookingTamThoi.query.get(booking_id)
@@ -286,7 +158,7 @@ def confirm_booking(booking_id):
             SoLuongGheEco=thong_tin['chuyen_bay'][0]['so_ghe_eco'],
             TrangThai='Đã thanh toán',
             NgayMua=datetime.utcnow(),
-            MaND=2
+            MaND=user_id
         )
         db.session.add(dat_cho_goc)
         db.session.flush()
@@ -301,7 +173,7 @@ def confirm_booking(booking_id):
                 SoLuongGheEco=chuyen_bay['so_ghe_eco'],
                 TrangThai='Đã thanh toán',
                 NgayMua=datetime.utcnow(),
-                MaND=2,
+                MaND=user_id,
                 MaDatChoGoc=dat_cho_goc.MaDatCho 
             )
             db.session.add(dat_cho)
@@ -360,6 +232,17 @@ def confirm_booking(booking_id):
 
         db.session.delete(temp_booking)
         db.session.commit()
+
+        booking_info = {
+            'ma_dat_cho_goc': dat_cho_goc.MaDatCho,
+            'ho_ten_lien_he': thong_tin['nguoi_lien_he']['ho_ten'],
+            'email_lien_he': email,
+            'ngay_mua': dat_cho_goc.NgayMua.strftime('%d-%m-%Y %H:%M:%S'), 
+            'tong_tien': f"{tong_tien:,.0f}", 
+            'tien_giam': f"{tien_giam:,.0f}", 
+            'phuong_thuc': phuong_thuc
+        }
+        send_booking_confirmation_email(to_email=email, booking_info=booking_info)
 
         return jsonify({
             'success': True,
