@@ -232,20 +232,6 @@ def google_callback():
             'error': str(e)
         }), 500
 
-
-@auth_bp.route('/api/login/google/user', methods=['GET'])
-@login_required
-def get_google_user():
-    user = current_user
-    return jsonify({
-        'MaND': user.MaND,
-        'TenDangNhap': user.TenDangNhap,
-        'NhomNguoiDung': {
-            'MaNND': user.MaNND,
-            'TenNhomNguoiDung': user.nhom_nguoi_dung.TenNhomNguoiDung
-        }
-    }), 200
-
 @auth_bp.route('/api/user_info', methods=['GET'])
 def get_user_info_api():
     if not current_user.is_authenticated:

@@ -8,10 +8,13 @@
         <div class="collapse navbar-collapse" id="navbarScroll">
             <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="#">Trang chủ</a>
+                    <a class="nav-link" aria-current="page" href="/">Trang chủ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Đặt chỗ của bạn</a>
+                    <a class="nav-link" href="{{url_for('datcho.booking_info')}}">Đặt chỗ của bạn</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('datcho.booking_detailed')}}">Tra cứu</a>
                 </li>
             </ul>
             {% if session.user_info %}
@@ -23,19 +26,15 @@
                     <span>{{ session.user_info.TenDangNhap }}</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
-                    <li><a class="dropdown-item" href="#">Đổi mật khẩu</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     <li><a class="dropdown-item" href="" onclick="handleLogout()">Đăng xuất</a></li>
                 </ul>
             </div>
             {% else %}
             <form class="d-flex">
-                <a href="{{url_for('auth.user_register')}}" class="btn btn-outline-success me-2" type="button">Đăng
-                    nhập</a>
-                <button class="btn btn-outline-primary" type="button">Đăng ký</button>
+                <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-success me-2" type="button"
+                    data-bs-toggle="tooltip" title="Đăng nhập / Đăng ký để biết thêm nhiều thông tin ưu đãi">
+                    Đăng nhập / Đăng ký
+                </a>
             </form>
             {% endif %}
         </div>

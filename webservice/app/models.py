@@ -267,9 +267,8 @@ class DatCho(db.Model):
     SoLuongGheEco = db.Column(db.Integer, nullable=False)
     NgayMua = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     TrangThai = db.Column(db.String(25), nullable=False)
-    MaND = db.Column(db.Integer, db.ForeignKey('NGUOIDUNG.MaND', ondelete='CASCADE'), nullable=False)
-    MaDatChoGoc = db.Column(db.Integer, db.ForeignKey('DATCHO.MaDatCho'), nullable=True)  # New column
-    
+    MaND = db.Column(db.Integer, db.ForeignKey('NGUOIDUNG.MaND', ondelete='CASCADE'), nullable=True)
+    MaDatChoGoc = db.Column(db.Integer, db.ForeignKey('DATCHO.MaDatCho'), nullable=True) 
     # Relationships
     nguoi_lien_he = db.relationship('NguoiLienHe', backref='ds_dat_cho')
     chuyen_bay = db.relationship('ChuyenBay', backref='ds_dat_cho')

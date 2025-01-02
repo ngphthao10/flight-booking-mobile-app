@@ -1,11 +1,10 @@
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timedelta
-from app.models import ChuyenBay, DichVuHanhLy, HanhKhach, NguoiLienHe, DatCho, ChiTietDatCho, BookingTamThoi, KhuyenMai, ThanhToan
+from app.models import *
 from app import db
-from typing import List
+from email_utils import send_booking_confirmation_email
+from sqlalchemy import case, desc, or_
 from sqlalchemy.orm import aliased
-from sqlalchemy import func
-import redis
 
 datcho = Blueprint('datcho', __name__)
 
@@ -112,134 +111,9 @@ def create_booking():
         return jsonify({'error': str(e)}), 500
 
 
-# @datcho.route('/api/bookings/<booking_id>/confirm', methods=['POST'])
-# def confirm_booking(booking_id):
-#     try:
-#         BookingTamThoi.cleanup_expired()
-#         temp_booking = BookingTamThoi.query.get(booking_id)
-#         if not temp_booking or temp_booking.ExpiresAt < datetime.utcnow():
-#             return jsonify({'error': 'Đặt chỗ đã hết hạn hoặc không tồn tại'}), 404
 
-#         booking_data = temp_booking.Data
-#         thong_tin = booking_data['thong_tin_dat_cho']
-#         flight_updates = thong_tin.get('flight_updates', {})
-#         data = request.get_json()
-       
-#         tien_giam = 0
-#         ma_khuyen_mai = data.get('ma_khuyen_mai')  
-#         tong_tien = data.get('tong_tien', 0) 
-#         phuong_thuc = data.get('phuong_thuc', 0)
-
-#         if ma_khuyen_mai: 
-#             khuyen_mai = KhuyenMai.query.get(ma_khuyen_mai)
-#             if khuyen_mai and khuyen_mai.is_valid():
-#                 tien_giam = khuyen_mai.calculate_discount(tong_tien)
-#                 print("tien_giam: ", tien_giam)
-#             else:
-#                 return jsonify({'error': 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn'}), 400
-
-
-#         email = thong_tin['nguoi_lien_he']['email']
-#         nguoi_lien_he = NguoiLienHe.query.filter_by(Email=email).first()
-#         if nguoi_lien_he:
-#             nguoi_lien_he.HoNLH = " ".join(thong_tin['nguoi_lien_he']['ho_ten'].split()[:-1])
-#             nguoi_lien_he.TenNLH = thong_tin['nguoi_lien_he']['ho_ten'].split()[-1]
-#             nguoi_lien_he.SDT = thong_tin['nguoi_lien_he']['sdt']
-#         else:
-#             nguoi_lien_he = NguoiLienHe(
-#                 HoNLH=" ".join(thong_tin['nguoi_lien_he']['ho_ten'].split()[:-1]),
-#                 TenNLH=thong_tin['nguoi_lien_he']['ho_ten'].split()[-1],
-#                 Email=email,
-#                 SDT=thong_tin['nguoi_lien_he']['sdt']
-#             )
-#             db.session.add(nguoi_lien_he)
-#         db.session.flush()
-
-
-#         danh_sach_dat_cho = []
-#         for i, chuyen_bay in enumerate(thong_tin['chuyen_bay']):
-#             ma_chuyen_bay = chuyen_bay['ma_chuyen_bay']
-#             so_ghe_bus = chuyen_bay['so_ghe_bus']
-#             so_ghe_eco = chuyen_bay['so_ghe_eco']
-
-#             dat_cho = DatCho(
-#                 MaCB=ma_chuyen_bay,
-#                 MaNLH=nguoi_lien_he.MaNLH,
-#                 SoLuongGheBus=so_ghe_bus,
-#                 SoLuongGheEco=so_ghe_eco,
-#                 TrangThai='Đã thanh toán',
-#                 NgayMua=datetime.utcnow(),
-#                 MaND=2
-#             )
-#             db.session.add(dat_cho)
-#             db.session.flush()  
-#             danh_sach_dat_cho.append(dat_cho)
-
-
-#         for hanh_khach_data in thong_tin['hanh_khach']:
-#             cccd = hanh_khach_data['cccd']
-#             hanh_khach = HanhKhach.query.filter_by(CCCD=cccd).first()
-#             if hanh_khach:
-#                 hanh_khach.HoHK = " ".join(hanh_khach_data['ho_ten'].split()[:-1])
-#                 hanh_khach.TenHK = hanh_khach_data['ho_ten'].split()[-1]
-#                 hanh_khach.DanhXung = hanh_khach_data.get('danh_xung', '')
-#                 hanh_khach.NgaySinh = datetime.strptime(hanh_khach_data['ngay_sinh'], '%d-%m-%Y').date()
-#                 hanh_khach.QuocTich = hanh_khach_data.get('quoc_tich', 'Việt Nam')
-#                 hanh_khach.LoaiHK = hanh_khach_data['loai_hk']
-#             else:
-#                 hanh_khach = HanhKhach(
-#                     HoHK=" ".join(hanh_khach_data['ho_ten'].split()[:-1]),
-#                     TenHK=hanh_khach_data['ho_ten'].split()[-1],
-#                     DanhXung=hanh_khach_data.get('danh_xung', ''),
-#                     CCCD=cccd,
-#                     NgaySinh=datetime.strptime(hanh_khach_data['ngay_sinh'], '%d-%m-%Y').date(),
-#                     QuocTich=hanh_khach_data.get('quoc_tich', 'Việt Nam'),
-#                     LoaiHK=hanh_khach_data['loai_hk']
-#                 )
-#                 db.session.add(hanh_khach)
-#             db.session.flush()
-
-#             for dat_cho in danh_sach_dat_cho:
-#                 chi_tiet = ChiTietDatCho(
-#                     MaDatCho=dat_cho.MaDatCho,
-#                     MaHK=hanh_khach.MaHanhKhach
-#                 )
-#                 db.session.add(chi_tiet)
-#         for ma_chuyen_bay, update_data in flight_updates.items():
-#             flight = ChuyenBay.query.get(ma_chuyen_bay)
-#             if flight:
-#                 flight.SLBusConLai = update_data['SLBusConLai']
-#                 flight.SLEcoConLai = update_data['SLEcoConLai']
-#                 db.session.add(flight)
-
-#         thanh_toan = ThanhToan(
-#             MaDatCho=danh_sach_dat_cho[0].MaDatCho,
-#             MaKhuyenMai=ma_khuyen_mai if ma_khuyen_mai else None,
-#             TienGiam=tien_giam,
-#             Thue=0,
-#             SoTien=tong_tien - tien_giam,
-#             NgayThanhToan=datetime.utcnow(),
-#             PhuongThuc=phuong_thuc
-#         )
-#         db.session.add(thanh_toan)
-
-#         db.session.delete(temp_booking)
-#         db.session.commit()
-
-#         return jsonify({
-#             'success': True,
-#             'ma_dat_cho': [dat_cho.MaDatCho for dat_cho in danh_sach_dat_cho],
-#             'tien_giam': tien_giam,
-#             'tong_tien': thanh_toan.SoTien,
-#             'message': 'Đặt chỗ thành công'
-#         })
-
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({'error': str(e)}), 500
-
-@datcho.route('/api/bookings/<booking_id>/confirm', methods=['POST'])
-def confirm_booking(booking_id):
+@datcho.route('/api/bookings/<booking_id>/<user_id>/confirm', methods=['POST'])
+def confirm_booking(booking_id, user_id):
     try:
         BookingTamThoi.cleanup_expired()
         temp_booking = BookingTamThoi.query.get(booking_id)
@@ -286,7 +160,7 @@ def confirm_booking(booking_id):
             SoLuongGheEco=thong_tin['chuyen_bay'][0]['so_ghe_eco'],
             TrangThai='Đã thanh toán',
             NgayMua=datetime.utcnow(),
-            MaND=2
+            MaND=user_id
         )
         db.session.add(dat_cho_goc)
         db.session.flush()
@@ -301,7 +175,7 @@ def confirm_booking(booking_id):
                 SoLuongGheEco=chuyen_bay['so_ghe_eco'],
                 TrangThai='Đã thanh toán',
                 NgayMua=datetime.utcnow(),
-                MaND=2,
+                MaND=user_id,
                 MaDatChoGoc=dat_cho_goc.MaDatCho 
             )
             db.session.add(dat_cho)
@@ -361,6 +235,17 @@ def confirm_booking(booking_id):
         db.session.delete(temp_booking)
         db.session.commit()
 
+        booking_info = {
+            'ma_dat_cho_goc': dat_cho_goc.MaDatCho,
+            'ho_ten_lien_he': thong_tin['nguoi_lien_he']['ho_ten'],
+            'email_lien_he': email,
+            'ngay_mua': dat_cho_goc.NgayMua.strftime('%d-%m-%Y %H:%M:%S'), 
+            'tong_tien': f"{tong_tien:,.0f}", 
+            'tien_giam': f"{tien_giam:,.0f}", 
+            'phuong_thuc': phuong_thuc
+        }
+        send_booking_confirmation_email(to_email=email, booking_info=booking_info)
+
         return jsonify({
             'success': True,
             'ma_dat_cho': [dat_cho.MaDatCho for dat_cho in danh_sach_dat_cho],
@@ -374,3 +259,209 @@ def confirm_booking(booking_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@datcho.route('/api/booking/info/<int:mand>', methods=['GET'])
+def get_booking_info(mand):
+    """
+    API Endpoint: /api/booking/info/<mand>
+    Parameters:
+        mand: Mã người dùng (int)
+    Returns:
+        Thông tin đặt chỗ của người dùng, được sắp xếp giảm dần theo Ngày Mua.
+    """
+    try:
+        # Thực hiện truy vấn SQL tương đương
+        query = db.session.query(
+            case(
+                (DatCho.MaDatChoGoc != None, DatCho.MaDatChoGoc),
+                else_=DatCho.MaDatCho
+            ).label("MaDatCho"),
+            DatCho.NgayMua,
+            DatCho.TrangThai,
+            DatCho.SoLuongGheBus,
+            DatCho.SoLuongGheEco
+        ).filter(
+            DatCho.MaND == mand
+        ).distinct(
+            case(
+                (DatCho.MaDatChoGoc != None, DatCho.MaDatChoGoc),
+                else_=DatCho.MaDatCho
+            )
+        ).order_by(
+            desc(DatCho.NgayMua)
+        )
+
+        # Chuyển đổi kết quả truy vấn thành danh sách dict
+        result = [
+            {
+                "MaDatCho": row.MaDatCho,
+                "NgayMua": row.NgayMua.strftime('%Y-%m-%d %H:%M:%S') if row.NgayMua else None,
+                "TrangThai": row.TrangThai,
+                "SoLuongGheBus": row.SoLuongGheBus,
+                "SoLuongGheEco": row.SoLuongGheEco
+            }
+            for row in query.all()
+        ]
+
+        return jsonify({
+            "status": "success",
+            "data": result
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+@datcho.route('/api/get_booking_detailed/<int:madatcho>', methods=['GET'])
+def get_booking_detailed(madatcho):
+    """
+    API Endpoint: /api/booking/info/<madatcho>
+    Parameters:
+        madatcho: Mã đặt chỗ (int)
+    Returns:
+        Thông tin chi tiết của đặt chỗ và các đặt chỗ liên quan.
+    """
+    try:
+        # Tạo alias cho bảng SanBay
+        SanBayDi = aliased(SanBay)
+        SanBayDen = aliased(SanBay)
+
+        # Query chính
+        bookings = db.session.query(
+            DatCho, 
+            ChuyenBay,
+            NguoiLienHe,
+            SanBayDi,
+            SanBayDen,
+            HangHangKhong,
+            MayBay
+        ).join(
+            ChuyenBay, DatCho.MaCB == ChuyenBay.MaChuyenBay
+        ).join(
+            NguoiLienHe, DatCho.MaNLH == NguoiLienHe.MaNLH
+        ).join(
+            SanBayDi, ChuyenBay.MaSanBayDi == SanBayDi.MaSanBay
+        ).join(
+            SanBayDen, ChuyenBay.MaSanBayDen == SanBayDen.MaSanBay
+        ).join(
+            MayBay, ChuyenBay.MaMB == MayBay.MaMayBay
+        ).join(
+            HangHangKhong, MayBay.MaHHK == HangHangKhong.MaHHK
+        ).filter(
+            or_(
+                DatCho.MaDatCho == madatcho,
+                DatCho.MaDatChoGoc == madatcho,
+                DatCho.MaDatCho == db.session.query(DatCho.MaDatChoGoc).filter(
+                    DatCho.MaDatCho == madatcho,
+                    DatCho.MaDatChoGoc != None
+                ).scalar()
+            )
+        ).all()
+
+        if not bookings:
+            return jsonify({
+                "status": "error",
+                "message": "Không tìm thấy thông tin đặt chỗ"
+            }), 404
+
+        result = []
+        for booking, flight, contact, dep_airport, arr_airport, airline, aircraft in bookings:
+            # Query phụ để lấy danh sách hành khách và hành lý
+            passengers_and_luggage = db.session.query(
+                HanhKhach,
+                DichVuHanhLy
+            ).join(
+                ChiTietDatCho, HanhKhach.MaHanhKhach == ChiTietDatCho.MaHK
+            ).outerjoin(
+                DichVuHanhLy, ChiTietDatCho.MaDichVu == DichVuHanhLy.MaDichVu
+            ).filter(
+                ChiTietDatCho.MaDatCho == booking.MaDatCho
+            ).all()
+
+            # Query phụ để lấy thông tin thanh toán
+            payment = db.session.query(ThanhToan).filter(
+                ThanhToan.MaDatCho == booking.MaDatCho
+            ).first()
+
+            booking_info = {
+                "MaChuyenBay": flight.MaChuyenBay,
+                "MaDatCho": booking.MaDatCho,
+                "MaDatChoGoc": booking.MaDatChoGoc,
+                "NgayBay": 1 if flight.ThoiGianDi.date() == datetime.now().date() else 0,
+                "ChuyenBay": {
+                    "ThoiGianDi": flight.ThoiGianDi.strftime('%Y-%m-%d %H:%M:%S'),
+                    "ThoiGianDen": flight.ThoiGianDen.strftime('%Y-%m-%d %H:%M:%S'),
+                    "SanBayDi": {
+                        "MaSanBay": dep_airport.MaSanBay,
+                        "TenSanBay": dep_airport.TenSanBay,
+                        "ThanhPho": dep_airport.ThanhPho
+                    },
+                    "SanBayDen": {
+                        "MaSanBay": arr_airport.MaSanBay,
+                        "TenSanBay": arr_airport.TenSanBay,
+                        "ThanhPho": arr_airport.ThanhPho
+                    },
+                    "HangBay": {
+                        "MaHHK": airline.MaHHK,
+                        "TenHHK": airline.TenHHK
+                    },
+                    "MayBay": {
+                        "MaMayBay": aircraft.MaMayBay,
+                        "TenMayBay": aircraft.TenMayBay,
+                        "LoaiMayBay": aircraft.LoaiMB
+                    },
+                    "LoaiChuyenBay": flight.LoaiChuyenBay,
+                    "GiaVe": {
+                        "Business": float(flight.GiaVeBus) if flight.GiaVeBus else 0,
+                        "Economy": float(flight.GiaVeEco) if flight.GiaVeEco else 0
+                    }
+                },
+                "DatCho": {
+                    "SoLuongGhe": {
+                        "Business": booking.SoLuongGheBus,
+                        "Economy": booking.SoLuongGheEco
+                    },
+                    "NgayMua": booking.NgayMua.strftime('%Y-%m-%d %H:%M:%S'),
+                    "TrangThai": booking.TrangThai
+                },
+                "NguoiLienHe": {
+                    "Ho": contact.HoNLH,
+                    "Ten": contact.TenNLH,
+                    "SDT": contact.SDT,
+                    "Email": contact.Email
+                },
+                "HanhKhach": [{
+                    "DanhXung": passenger.DanhXung,
+                    "Ho": passenger.HoHK,
+                    "Ten": passenger.TenHK,
+                    "CCCD": passenger.CCCD,
+                    "NgaySinh": passenger.NgaySinh.strftime('%Y-%m-%d'),
+                    "QuocTich": passenger.QuocTich,
+                    "LoaiHK": passenger.LoaiHK,
+                    "HanhLy": {
+                        "SoKy": luggage.SoKy if luggage else None,
+                        "Gia": float(luggage.Gia) if luggage else None,
+                        "MoTa": luggage.MoTa if luggage else None
+                    } if luggage else None
+                } for passenger, luggage in passengers_and_luggage],
+                "ThanhToan": {
+                    "NgayThanhToan": payment.NgayThanhToan.strftime('%Y-%m-%d %H:%M:%S') if payment else None,
+                    "PhuongThuc": payment.PhuongThuc if payment else None,
+                    "SoTien": float(payment.SoTien) if payment else None,
+                    "TienGiam": float(payment.TienGiam) if payment else None,
+                    "Thue": float(payment.Thue) if payment else None
+                } if payment else None
+            }
+            result.append(booking_info)
+
+        return jsonify({
+            "status": "success",
+            "data": result
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
