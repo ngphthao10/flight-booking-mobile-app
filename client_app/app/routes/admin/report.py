@@ -34,22 +34,35 @@ def get_market_share():
 
 @report.route('/dashboard/booking-stats')
 def get_booking_stats():
-    """Get booking statistics"""
+    """Get booking statistics based on time period"""
     try:
-        response = requests.get(f"{current_app.config['API_URL']}/api/report/booking_stats")
-        return jsonify(response.json()), response.status_code
+        # Lấy thời gian từ query params, mặc định 7 ngày
+        time_range = request.args.get('time_range', 'last_7_days')
+        
+        # Gọi API với time range
+        api_url = f"{current_app.config['API_URL']}/api/report/booking_stats"
+        response = requests.get(
+            api_url,
+            params={'time_range': time_range}
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data['status'] == 'success':
+                # Format dữ liệu trước khi trả về
+                return jsonify(data), 200
+                
+        return jsonify({
+            "status": "error",
+            "message": "Không thể lấy dữ liệu thống kê"
+        }), response.status_code
+            
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@report.route('/dashboard/baggage-stats')
-def get_baggage_stats():
-    """Get baggage service statistics"""
-    try:
-        response = requests.get(f"{current_app.config['API_URL']}/api/report/baggage_service_stats")
-        return jsonify(response.json()), response.status_code
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        current_app.logger.error(f"Error fetching booking stats: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Lỗi hệ thống, vui lòng thử lại sau"
+        }), 500
 
 @report.route('/dashboard/passengers')
 def get_passengers():
@@ -104,4 +117,29 @@ def get_revenue_dashboard():
         return jsonify({
             "status": "error",
             "message": f"Unexpected error: {str(e)}"
+        }), 500
+
+@report.route('/dashboard/baggage_service_stats')
+def get_baggage_stats():
+    """Get baggage service statistics"""
+    try:
+        time_range = request.args.get('time_range', 'last_7_days')
+        
+        response = requests.get(
+            f"{current_app.config['API_URL']}/api/report/baggage_service_stats",
+            params={'time_range': time_range}
+        )
+        
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+            
+        return jsonify({
+            "status": "error",
+            "message": "Không thể lấy dữ liệu thống kê"
+        }), response.status_code
+            
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": "Lỗi hệ thống"
         }), 500

@@ -166,30 +166,88 @@
 
     <!-- Additional Charts Row -->
     <div class="row">
-        <!-- Booking Stats
+        <!-- Booking Stats -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title">Thống kê đặt chỗ theo trạng thái</h5>
-                        <button class="btn btn-sm btn-outline-primary" onclick="exportBookingStats()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-box-arrow-down" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z" />
-                                <path fill-rule="evenodd"
-                                    d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z" />
-                            </svg>
-                        </button>
+                        <h5 class="card-title">Thống kê đặt chỗ theo thời gian</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="bookingTimeRange" class="form-select form-select-sm me-2" style="width: 150px;">
+                                <option value="last_7_days" selected>7 ngày qua</option>
+                                <option value="last_14_days">14 ngày qua</option>
+                                <option value="last_21_days">21 ngày qua</option>
+                                <option value="last_month">Tháng trước</option>
+                                <option value="last_3_months">3 tháng trước</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportBookingStats()">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="chart-container">
+                    <!-- Thêm thông tin tổng quan -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng đặt chỗ</div>
+                                <div class="h5 mb-0" id="total_bookings">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng vé bán ra</div>
+                                <div class="h5 mb-0" id="total_tickets">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Container cho chart và loading/error states -->
+                    <div id="bookingStatsContainer" class="chart-container position-relative">
                         <canvas id="bookingStatsChart"></canvas>
                     </div>
                 </div>
             </div>
-        </div> -->
-
-
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title">Thống kê dịch vụ hành lý</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="baggageTimeRange" class="form-select form-select-sm me-2">
+                                <option value="today">Hôm nay</option>
+                                <option value="yesterday">Hôm qua</option>
+                                <option value="last_7_days" selected>7 ngày qua</option>
+                                <option value="last_14_days">14 ngày qua</option>
+                                <option value="last_21_days">21 ngày qua</option>
+                                <option value="last_month">Tháng trước</option>
+                                <option value="last_3_months">3 tháng trước</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportBaggageStats()">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Thêm thông tin tổng quan -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng đơn hàng</div>
+                                <div class="h5 mb-0" id="totalBaggageBookings">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng doanh thu</div>
+                                <div class="h5 mb-0" id="totalBaggageRevenue">0 ₫</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="baggageStatsContainer" class="chart-container position-relative">
+                        <canvas id="baggageStatsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -210,12 +268,19 @@
             currency: 'VND'
         }).format(amount);
     }
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit'
+        });
+    }
 
     // Chart Instances
     let marketShareChart = null;
     let monthlySalesChart = null;
     let bookingStatsChart = null;
-
+    let baggageStatsChart = null;
 
     async function loadPassengers() {
         try {
@@ -470,6 +535,107 @@
         }
     }
 
+    async function fetchAndUpdateBaggageStats() {
+        try {
+            showLoading('baggageStatsContainer');
+            const timeRange = document.getElementById('baggageTimeRange').value;
+
+            const response = await fetch(`/report/dashboard/baggage_service_stats?time_range=${timeRange}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                updateBaggageChart(data.data);
+            } else {
+                showError('baggageStatsContainer', 'Không thể tải dữ liệu thống kê');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('baggageStatsContainer', 'Đã có lỗi xảy ra');
+        } finally {
+            hideLoading('baggageStatsContainer');
+        }
+    }
+
+
+    function updateBaggageChart(data) {
+        if (!data?.stats?.length) {
+            showNoData('baggageStatsContainer');
+            return;
+        }
+
+        // Update summary numbers
+        document.getElementById('totalBaggageBookings').textContent =
+            data.total_bookings.toLocaleString('vi-VN');
+        document.getElementById('totalBaggageRevenue').textContent =
+            formatCurrency(data.total_revenue);
+
+        const ctx = document.getElementById('baggageStatsChart').getContext('2d');
+
+        if (baggageStatsChart) {
+            baggageStatsChart.destroy();
+        }
+
+        baggageStatsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.stats.map(item => item.weight),
+                datasets: [{
+                    label: 'Số lượng đơn',
+                    data: data.stats.map(item => item.bookings),
+                    backgroundColor: [
+                        '#4e73df',
+                        '#1cc88a',
+                        '#36b9cc',
+                        '#f6c23e',
+                        '#e74a3b',
+                        '#858796'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const value = context.raw;
+                                const percentage = data.stats[context.dataIndex].percentage;
+                                const revenue = formatCurrency(data.stats[context.dataIndex].revenue);
+                                return [
+                                    `Số lượng: ${value.toLocaleString('vi-VN')} đơn (${percentage}%)`,
+                                    `Doanh thu: ${revenue}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => value.toLocaleString('vi-VN')
+                        },
+                        title: {
+                            display: true,
+                            text: 'Số lượng đơn'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Trọng lượng hành lý'
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     // Ví dụ format tiền VND
     function formatCurrency(value) {
@@ -477,51 +643,6 @@
         return value.toLocaleString('vi-VN') + ' ₫';
     }
 
-
-    // Load Booking Stats
-    async function loadBookingStats() {
-        try {
-            const response = await fetch('/report/dashboard/booking-stats');
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                const ctx = document.getElementById('bookingStatsChart').getContext('2d');
-
-                // Update total bookings stats
-                const totalBookings = data.data.reduce((sum, item) => sum + item.total_bookings, 0);
-                const totalPassengers = data.data.reduce((sum, item) => sum + item.total_passengers, 0);
-                document.getElementById('totalBookings').textContent = totalBookings;
-                document.getElementById('totalPassengers').textContent = `${totalPassengers} vé bán ra`;
-
-                if (bookingStatsChart) {
-                    bookingStatsChart.destroy();
-                }
-
-                bookingStatsChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.data.map(item => item.status),
-                        datasets: [{
-                            label: 'Số đơn đặt chỗ',
-                            data: data.data.map(item => item.total_bookings),
-                            backgroundColor: '#36b9cc'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Error loading booking stats:', error);
-        }
-    }
 
 
 
@@ -535,7 +656,7 @@
         await Promise.all([
             loadMarketShare(),
             loadMonthlySales(),
-            loadBookingStats(),
+            // loadBookingStats(),
             loadPassengers()
         ]);
     });
@@ -561,9 +682,261 @@
         await Promise.all([
             loadMarketShare(),
             loadMonthlySales(),
-            loadBookingStats(),
+            // loadBookingStats(),
             loadPassengers()
         ]);
     }, 300000); // Refresh mỗi 5 phút
+
+
+    // Function chính để lấy và hiển thị dữ liệu
+    async function fetchAndUpdateBookingStats() {
+        try {
+            showLoading('bookingStatsContainer');
+            const timeRange = document.getElementById('bookingTimeRange').value;
+
+            const response = await fetch(`/report/dashboard/booking-stats?time_range=${timeRange}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                updateBookingDisplay(data.data);
+                updateBookingChart(data.data);
+            } else {
+                showError('Không thể tải dữ liệu thống kê');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Đã có lỗi xảy ra');
+        } finally {
+            hideLoading('bookingStatsContainer');
+        }
+    }
+
+    // Cập nhật số liệu tổng quan
+    function updateBookingDisplay(data) {
+        const todayStats = data.find(item => item.period === 'Hôm nay');
+        if (todayStats?.totals) {
+            document.getElementById('totalBookings').textContent =
+                todayStats.totals.total_bookings.toLocaleString('vi-VN');
+            document.getElementById('totalPassengers').textContent =
+                `${todayStats.totals.total_passengers.toLocaleString('vi-VN')} vé bán ra`;
+        }
+    }
+
+    // Cập nhật biểu đồ
+    function updateBookingChart(data) {
+        // Update summary numbers
+
+        const timeRange = document.getElementById('bookingTimeRange').value;
+        // Find the period data with error handling
+        const periodData = data.find(item => item.period === getPeriodLabel(timeRange));
+
+        if (periodData && periodData.data) {
+            // Calculate totals by summing the values
+            const totalBookings = periodData.data.reduce((sum, item) => sum + (item.total_bookings || 0), 0);
+            const totalTickets = periodData.data.reduce((sum, item) => sum + (item.total_passengers || 0), 0);
+
+            const formatNumber = num => num.toLocaleString();
+
+            // Update DOM elements with formatted numbers
+            const bookingsElement = document.getElementById('total_bookings');
+            const ticketsElement = document.getElementById('total_tickets');
+
+            if (bookingsElement) bookingsElement.textContent = formatNumber(totalBookings);
+            if (ticketsElement) ticketsElement.textContent = formatNumber(totalTickets);
+        }
+
+        if (!periodData?.data.length) {
+            showNoData('bookingStatsContainer');
+            return;
+        }
+
+        const ctx = document.getElementById('bookingStatsChart').getContext('2d');
+
+        if (bookingStatsChart) {
+            bookingStatsChart.destroy();
+        }
+
+        bookingStatsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: periodData.data.map(item => formatDate(item.date)),
+                datasets: [
+                    {
+                        label: 'Số đặt chỗ',
+                        data: periodData.data.map(item => item.total_bookings),
+                        borderColor: '#4e73df',
+                        backgroundColor: '#4e73df20',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Số vé bán ra',
+                        data: periodData.data.map(item => item.total_passengers),
+                        borderColor: '#1cc88a',
+                        backgroundColor: '#1cc88a20',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: `Thống kê ${getPeriodLabel(timeRange).toLowerCase()}`
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => value.toLocaleString('vi-VN')
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Helper functions
+    function getPeriodLabel(timeRange) {
+        const labels = {
+            'today': 'Hôm nay',
+            'yesterday': 'Hôm qua',
+            'last_7_days': '7 ngày qua',
+            'last_14_days': '14 ngày qua',
+            'last_21_days': '21 ngày qua',
+            'last_month': 'Tháng trước',
+            'last_3_months': '3 tháng trước'
+        };
+        return labels[timeRange] || timeRange;
+    }
+
+    function showLoading(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        hideError(containerId);
+        hideNoData(containerId);
+
+        const loader = document.createElement('div');
+        loader.className = 'loading-spinner position-absolute top-50 start-50 translate-middle';
+        loader.innerHTML = `
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>`;
+
+        container.appendChild(loader);
+    }
+
+    function hideLoading(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const loader = container.querySelector('.loading-spinner');
+        if (loader) loader.remove();
+    }
+
+    function showError(message, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const error = document.createElement('div');
+        error.className = 'error-message text-center text-danger mt-3';
+        error.textContent = message;
+
+        container.appendChild(error);
+    }
+
+    function hideError(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const error = container.querySelector('.error-message');
+        if (error) error.remove();
+    }
+
+    function showNoData(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const noData = document.createElement('div');
+        noData.className = 'no-data-message text-center text-muted mt-3';
+        noData.textContent = 'Không có dữ liệu';
+
+        container.appendChild(noData);
+    }
+
+    function hideNoData(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const noData = container.querySelector('.no-data-message');
+        if (noData) noData.remove();
+    }
+
+    // Export chart function
+    function exportBookingStats() {
+        if (!bookingStatsChart) return;
+
+        const canvas = bookingStatsChart.canvas;
+        const timeRange = document.getElementById('bookingTimeRange').value;
+        const fileName = `booking-stats-${timeRange}-${new Date().toISOString().split('T')[0]}.png`;
+
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load initial data
+        fetchAndUpdateBookingStats();
+
+        // Add event listeners
+        const timeRangeSelect = document.getElementById('bookingTimeRange');
+        if (timeRangeSelect) {
+            timeRangeSelect.addEventListener('change', fetchAndUpdateBookingStats);
+        }
+
+        // Auto refresh every 5 minutes
+        setInterval(fetchAndUpdateBookingStats, 5 * 60 * 1000);
+    });
+
+    // Handle responsive
+    window.addEventListener('resize', () => {
+        if (bookingStatsChart) {
+            bookingStatsChart.resize();
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchAndUpdateBaggageStats();
+
+        // Thêm event listener cho dropdown
+        const timeRangeSelect = document.getElementById('baggageTimeRange');
+        if (timeRangeSelect) {
+            timeRangeSelect.addEventListener('change', () => {
+                fetchAndUpdateBaggageStats();
+            });
+        }
+
+        setInterval(fetchAndUpdateBaggageStats, 5 * 60 * 1000);
+    });
 </script>
+
+
 {% endblock %}

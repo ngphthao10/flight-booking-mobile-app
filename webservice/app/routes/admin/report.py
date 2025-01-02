@@ -222,33 +222,100 @@ def get_passengers():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
-@report.route('/api/report/booking_stats', methods=['GET']) 
+@report.route('/api/report/booking_stats', methods=['GET'])
 def get_booking_stats():
-    """Gets statistics about bookings."""
-    try:
-        # Lấy thống kê đặt chỗ theo trạng thái
-        booking_stats = db.session.query(
-            DatCho.TrangThai,
-            func.count(DatCho.MaDatCho).label('total_bookings'),
-            func.sum(DatCho.SoLuongGheBus + DatCho.SoLuongGheEco).label('total_passengers')
-        ).group_by(
-            DatCho.TrangThai
-        ).all()
-
-        result = [
-            {
-                "status": stats.TrangThai,
-                "total_bookings": int(stats.total_bookings),
-                "total_passengers": int(stats.total_passengers)
-            }
-            for stats in booking_stats
-        ]
-
-        return jsonify({"status": "success", "data": result}), 200
+    """Gets booking statistics for different time periods."""
+    try:        
+        # Get current date at start of day
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         
+        # Define time periods
+        time_periods = {
+            'today': {
+                'start': today,
+                'end': datetime.now(),
+                'label': 'Hôm nay'
+            },
+            'yesterday': {
+                'start': today - timedelta(days=1),
+                'end': today,
+                'label': 'Hôm qua'
+            },
+            'last_7_days': {
+                'start': today - timedelta(days=7),
+                'end': datetime.now(),
+                'label': '7 ngày qua'
+            },
+            'last_14_days': {
+                'start': today - timedelta(days=14),
+                'end': datetime.now(),
+                'label': '14 ngày qua'
+            },
+            'last_21_days': {
+                'start': today - timedelta(days=21),
+                'end': datetime.now(),
+                'label': '21 ngày qua'
+            },
+            'last_month': {
+                'start': today.replace(day=1) - timedelta(days=1),
+                'end': today,
+                'label': 'Tháng trước'
+            },
+            'last_3_months': {
+                'start': (today.replace(day=1) - timedelta(days=90)),
+                'end': datetime.now(),
+                'label': '3 tháng trước'
+            }
+        }
+
+        # Query for each time period
+        result = []
+        for period_key, period in time_periods.items():
+            # Get daily stats for the period
+            daily_stats = db.session.query(
+                func.date(DatCho.NgayMua).label('date'),
+                func.count(DatCho.MaDatCho).label('total_bookings'),
+                func.sum(DatCho.SoLuongGheBus + DatCho.SoLuongGheEco).label('total_passengers')
+            ).filter(
+                DatCho.NgayMua >= period['start'],
+                DatCho.NgayMua <= period['end']
+            ).group_by(
+                func.date(DatCho.NgayMua)
+            ).order_by(
+                func.date(DatCho.NgayMua)
+            ).all()
+
+            # Format the results
+            period_data = {
+                'period': period['label'],
+                'data': [
+                    {
+                        'date': stats.date.strftime('%Y-%m-%d'),
+                        'total_bookings': int(stats.total_bookings or 0),
+                        'total_passengers': int(stats.total_passengers or 0)
+                    }
+                    for stats in daily_stats
+                ]
+            }
+            
+            # Add cumulative totals for the period
+            period_data['totals'] = {
+                'total_bookings': sum(day['total_bookings'] for day in period_data['data']),
+                'total_passengers': sum(day['total_passengers'] for day in period_data['data'])
+            }
+            
+            result.append(period_data)
+
+        return jsonify({
+            "status": "success",
+            "data": result
+        }), 200
+
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 # @report.route('/api/report/flight_stats', methods=['GET'])
 # def get_flight_stats():
@@ -282,31 +349,82 @@ def get_booking_stats():
 
 @report.route('/api/report/baggage_service_stats', methods=['GET'])
 def get_baggage_service_stats():
-    """Gets statistics about baggage services."""
+    """Gets baggage service statistics for different time periods."""
     try:
-        # Thống kê dịch vụ hành lý
-        baggage_stats = db.session.query(
-            DichVuHanhLy.SoKy,
-            func.count(ChiTietDatCho.MaDatCho).label('total_bookings'),
-            func.avg(DichVuHanhLy.Gia).label('average_price')
+        from sqlalchemy import func
+        from datetime import datetime, timedelta
+        
+        # Get time range from request
+        time_range = request.args.get('time_range', 'last_7_days')
+        
+        # Get current date at start of day
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Define date range based on time_range
+        if time_range == 'today':
+            start_date = today
+            end_date = datetime.now()
+        elif time_range == 'yesterday':
+            start_date = today - timedelta(days=1)
+            end_date = today
+        elif time_range == 'last_7_days':
+            start_date = today - timedelta(days=7)
+            end_date = datetime.now()
+        elif time_range == 'last_14_days':
+            start_date = today - timedelta(days=14)
+            end_date = datetime.now()
+        elif time_range == 'last_21_days':
+            start_date = today - timedelta(days=21)
+            end_date = datetime.now()
+        elif time_range == 'last_month':
+            start_date = today.replace(day=1) - timedelta(days=1)
+            end_date = today
+        else:  # last_3_months
+            start_date = today - timedelta(days=90)
+            end_date = datetime.now()
+
+        # Query statistics
+        stats = db.session.query(
+            DichVuHanhLy.SoKy.label('weight'),
+            func.count(ChiTietDatCho.MaDatCho).label('bookings'),
+            func.sum(DichVuHanhLy.Gia).label('revenue')
         ).join(
             ChiTietDatCho, DichVuHanhLy.MaDichVu == ChiTietDatCho.MaDichVu
+        ).join(
+            DatCho, ChiTietDatCho.MaDatCho == DatCho.MaDatCho
+        ).filter(
+            DatCho.NgayMua.between(start_date, end_date)
         ).group_by(
             DichVuHanhLy.SoKy
         ).order_by(
             DichVuHanhLy.SoKy
         ).all()
 
-        result = [  
-            {
-                "weight": int(stats.SoKy),
-                "total_bookings": int(stats.total_bookings),
-                "average_price": float(stats.average_price)
-            }
-            for stats in baggage_stats
-        ]
+        # Format results
+        result = [{
+            'weight': f'{stat.weight}kg',
+            'bookings': int(stat.bookings),
+            'revenue': float(stat.revenue),
+            'percentage': 0  # Will be calculated below
+        } for stat in stats]
 
-        return jsonify({"status": "success", "data": result}), 200
-        
+        # Calculate percentages
+        total_bookings = sum(item['bookings'] for item in result)
+        if total_bookings > 0:
+            for item in result:
+                item['percentage'] = round(item['bookings'] / total_bookings * 100, 1)
+
+        return jsonify({
+            "status": "success",
+            "data": {
+                "stats": result,
+                "total_bookings": total_bookings,
+                "total_revenue": sum(item['revenue'] for item in result)
+            }
+        }), 200
+
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
