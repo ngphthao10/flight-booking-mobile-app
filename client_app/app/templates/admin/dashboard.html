@@ -59,11 +59,11 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="card-subtitle text-muted">Tổng số đặt chỗ</h6>
+                        <h6 class="card-subtitle text-muted">Tổng số đặt chỗ hôm nay</h6>
                         <i class="fas fa-ticket-alt stats-icon text-success"></i>
                     </div>
                     <h3 class="card-title mb-2" id="totalBookings">0</h3>
-                    <p class="mb-0" id="totalPassengers">0 hành khách</p>
+                    <p class="mb-0" id="totalPassengers"></p>
                 </div>
             </div>
         </div>
@@ -102,11 +102,13 @@
                             </select>
                             <button class="btn btn-sm btn-outline-primary" onclick="exportMarketShare()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-box-arrow-down" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z" />
-                                    <path fill-rule="evenodd"
-                                        d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z" />
+                                    class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                    <path
+                                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                    <path
+                                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
                                 </svg>
                             </button>
                         </div>
@@ -147,11 +149,13 @@
                             </select>
                             <button class="btn btn-sm btn-outline-primary ms-2" onclick="exportMonthlySales()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-box-arrow-down" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z" />
-                                    <path fill-rule="evenodd"
-                                        d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z" />
+                                    class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                    <path
+                                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                    <path
+                                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
                                 </svg>
                             </button>
                         </div>
@@ -171,7 +175,7 @@
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title">Thống kê đặt chỗ theo thời gian</h5>
+                        <h5 class="card-title">Thống kê đặt chỗ</h5>
                         <div class="d-flex align-items-center gap-2">
                             <select id="bookingTimeRange" class="form-select form-select-sm me-2" style="width: 150px;">
                                 <option value="last_7_days" selected>7 ngày qua</option>
@@ -181,7 +185,15 @@
                                 <option value="last_3_months">3 tháng trước</option>
                             </select>
                             <button class="btn btn-sm btn-outline-primary" onclick="exportBookingStats()">
-                                <i class="fas fa-download"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                    <path
+                                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                    <path
+                                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -223,7 +235,15 @@
                                 <option value="last_3_months">3 tháng trước</option>
                             </select>
                             <button class="btn btn-sm btn-outline-primary" onclick="exportBaggageStats()">
-                                <i class="fas fa-download"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                    <path
+                                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                    <path
+                                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -254,28 +274,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Thêm vào phần khai báo hàm tiện ích
-    function getCurrentDateTime() {
-        const now = new Date();
-        return now.toLocaleString('vi-VN');
-    }
-
-
-    // Utility Functions
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(amount);
-    }
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('vi-VN', {
-            day: '2-digit',
-            month: '2-digit'
-        });
-    }
-
     // Chart Instances
     let marketShareChart = null;
     let monthlySalesChart = null;
@@ -312,9 +310,10 @@
         }
     }
 
-    loadPassengers();
     async function loadMarketShare() {
         try {
+            showLoading('marketShareContainer');
+
             // Lấy giá trị từ dropdown
             const timeFilter = document.getElementById('timeFilter').value;
 
@@ -380,11 +379,15 @@
             }
         } catch (error) {
             console.error('Error loading market share:', error);
+        } finally {
+            hideLoading('marketShareContainer');
         }
     }
 
     async function loadMonthlySales(month, year) {
         try {
+            showLoading('monthlySalesContainer');
+
             const url = '/report/dashboard/revenue';
             const params = new URLSearchParams();
 
@@ -509,33 +512,13 @@
             }
         } catch (error) {
             console.error('Error loading monthly sales:', error);
+        } finally {
+            hideLoading('monthlySalesContainer');
         }
+
     }
 
-    function getRevenueChartTitle(month, year) {
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth() + 1;
-        const currentYear = currentDate.getFullYear();
-
-        // Sử dụng giá trị mặc định nếu month hoặc year không được truyền
-        const selectedMonth = month || currentMonth;
-        const selectedYear = year || currentYear;
-
-        const isAllMonth = selectedMonth === 'all';
-        const isAllYear = selectedYear === 'all';
-
-        if (!isAllMonth && !isAllYear) {
-            return `Xu hướng doanh thu Tháng ${selectedMonth}/${selectedYear}`;
-        } else if (isAllMonth && !isAllYear) {
-            return `Xu hướng doanh thu Năm ${selectedYear}`;
-        } else if (!isAllMonth && isAllYear) {
-            return `Xu hướng doanh thu Tháng ${selectedMonth} (tất cả năm)`;
-        } else {
-            return `Xu hướng doanh thu (tất cả thời gian)`;
-        }
-    }
-
-    async function fetchAndUpdateBaggageStats() {
+    async function loadBaggageStats() {
         try {
             showLoading('baggageStatsContainer');
             const timeRange = document.getElementById('baggageTimeRange').value;
@@ -546,7 +529,81 @@
             const data = await response.json();
 
             if (data.status === 'success') {
-                updateBaggageChart(data.data);
+                // Hủy biểu đồ cũ nếu có
+                if (baggageStatsChart) {
+                    baggageStatsChart.destroy();
+                }
+
+                // Update summary numbers
+                document.getElementById('totalBaggageBookings').textContent =
+                    data.data.total_bookings.toLocaleString('vi-VN');
+                document.getElementById('totalBaggageRevenue').textContent =
+                    formatCurrency(data.data.total_revenue);
+
+                const ctx = document.getElementById('baggageStatsChart').getContext('2d');
+
+                if (baggageStatsChart) {
+                    baggageStatsChart.destroy();
+                }
+
+                baggageStatsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.data.stats.map(item => item.weight),
+                        datasets: [{
+                            label: 'Số lượng đơn',
+                            data: data.data.stats.map(item => item.bookings),
+                            backgroundColor: [
+                                '#4e73df',
+                                '#1cc88a',
+                                '#36b9cc',
+                                '#f6c23e',
+                                '#e74a3b',
+                                '#858796'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const value = context.raw;
+                                        const percentage = data.data.stats[context.dataIndex].percentage;
+                                        const revenue = formatCurrency(data.data.stats[context.dataIndex].revenue);
+                                        return [
+                                            `Số lượng: ${value.toLocaleString('vi-VN')} đơn (${percentage}%)`,
+                                            `Doanh thu: ${revenue}`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => value.toLocaleString('vi-VN')
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Số lượng đơn'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Trọng lượng hành lý'
+                                }
+                            }
+                        }
+                    }
+                });
             } else {
                 showError('baggageStatsContainer', 'Không thể tải dữ liệu thống kê');
             }
@@ -558,138 +615,8 @@
         }
     }
 
-
-    function updateBaggageChart(data) {
-        if (!data?.stats?.length) {
-            showNoData('baggageStatsContainer');
-            return;
-        }
-
-        // Update summary numbers
-        document.getElementById('totalBaggageBookings').textContent =
-            data.total_bookings.toLocaleString('vi-VN');
-        document.getElementById('totalBaggageRevenue').textContent =
-            formatCurrency(data.total_revenue);
-
-        const ctx = document.getElementById('baggageStatsChart').getContext('2d');
-
-        if (baggageStatsChart) {
-            baggageStatsChart.destroy();
-        }
-
-        baggageStatsChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.stats.map(item => item.weight),
-                datasets: [{
-                    label: 'Số lượng đơn',
-                    data: data.stats.map(item => item.bookings),
-                    backgroundColor: [
-                        '#4e73df',
-                        '#1cc88a',
-                        '#36b9cc',
-                        '#f6c23e',
-                        '#e74a3b',
-                        '#858796'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const value = context.raw;
-                                const percentage = data.stats[context.dataIndex].percentage;
-                                const revenue = formatCurrency(data.stats[context.dataIndex].revenue);
-                                return [
-                                    `Số lượng: ${value.toLocaleString('vi-VN')} đơn (${percentage}%)`,
-                                    `Doanh thu: ${revenue}`
-                                ];
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: value => value.toLocaleString('vi-VN')
-                        },
-                        title: {
-                            display: true,
-                            text: 'Số lượng đơn'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Trọng lượng hành lý'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Ví dụ format tiền VND
-    function formatCurrency(value) {
-        if (!value) return '0 ₫';
-        return value.toLocaleString('vi-VN') + ' ₫';
-    }
-
-
-
-
-    // Cập nhật phần khởi tạo dashboard
-    document.addEventListener('DOMContentLoaded', async function () {
-        // Set giá trị mặc định cho các select boxes là tháng và năm hiện tại
-        const currentDate = new Date();
-        document.getElementById('monthSelect').value = currentDate.getMonth() + 1;
-        document.getElementById('yearSelect').value = currentDate.getFullYear();
-        // Load tất cả dữ liệu ban đầu
-        await Promise.all([
-            loadMarketShare(),
-            loadMonthlySales(),
-            // loadBookingStats(),
-            loadPassengers()
-        ]);
-    });
-
-    // Thêm event listeners cho các select boxes
-    document.getElementById('monthSelect').addEventListener('change', function () {
-        const month = this.value;
-        const year = document.getElementById('yearSelect').value;
-        loadMonthlySales(parseInt(month), parseInt(year));
-    });
-
-    document.getElementById('yearSelect').addEventListener('change', function () {
-        const month = document.getElementById('monthSelect').value;
-        const year = this.value;
-        loadMonthlySales(parseInt(month), parseInt(year));
-    });
-    document.getElementById('timeFilter').addEventListener('change', async function () {
-        // Lắng nghe thay đổi trên bộ lọc thời gian của thị phần
-        await loadMarketShare();
-    });
-    // Cập nhật lại interval refresh
-    setInterval(async () => {
-        await Promise.all([
-            loadMarketShare(),
-            loadMonthlySales(),
-            // loadBookingStats(),
-            loadPassengers()
-        ]);
-    }, 300000); // Refresh mỗi 5 phút
-
-
     // Function chính để lấy và hiển thị dữ liệu
-    async function fetchAndUpdateBookingStats() {
+    async function loadBookingStats() {
         try {
             showLoading('bookingStatsContainer');
             const timeRange = document.getElementById('bookingTimeRange').value;
@@ -699,8 +626,96 @@
 
             const data = await response.json();
             if (data.status === 'success') {
-                updateBookingDisplay(data.data);
-                updateBookingChart(data.data);
+
+                const todayStats = data.data.find(item => item.period === 'Hôm nay');
+                if (todayStats?.totals) {
+                    document.getElementById('totalBookings').textContent =
+                        todayStats.totals.total_bookings.toLocaleString('vi-VN');
+                    document.getElementById('totalPassengers').textContent =
+                        `${todayStats.totals.total_passengers.toLocaleString('vi-VN')} vé bán ra`;
+                }
+                // updateBookingChart(data.data);
+                const timeRange = document.getElementById('bookingTimeRange').value;
+                // Find the period data with error handling
+                const periodData = data.data.find(item => item.period === getPeriodLabel(timeRange));
+
+                if (periodData && periodData.data) {
+                    // Calculate totals by summing the values
+                    const totalBookings = periodData.data.reduce((sum, item) => sum + (item.total_bookings || 0), 0);
+                    const totalTickets = periodData.data.reduce((sum, item) => sum + (item.total_passengers || 0), 0);
+
+                    const formatNumber = num => num.toLocaleString();
+
+                    // Update DOM elements with formatted numbers
+                    const bookingsElement = document.getElementById('total_bookings');
+                    const ticketsElement = document.getElementById('total_tickets');
+
+                    if (bookingsElement) bookingsElement.textContent = formatNumber(totalBookings);
+                    if (ticketsElement) ticketsElement.textContent = formatNumber(totalTickets);
+                }
+
+                // Hủy biểu đồ cũ nếu có
+                if (bookingStatsChart) {
+                    bookingStatsChart.destroy();
+                    bookingStatsChart = null;
+                }
+
+                const ctx = document.getElementById('bookingStatsChart').getContext('2d');
+
+                if (bookingStatsChart) {
+                    bookingStatsChart.destroy();
+                }
+
+                bookingStatsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: periodData.data.map(item => formatDate(item.date)),
+                        datasets: [
+                            {
+                                label: 'Số đặt chỗ',
+                                data: periodData.data.map(item => item.total_bookings),
+                                borderColor: '#4e73df',
+                                backgroundColor: '#4e73df20',
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Số vé bán ra',
+                                data: periodData.data.map(item => item.total_passengers),
+                                borderColor: '#1cc88a',
+                                backgroundColor: '#1cc88a20',
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: `Thống kê ${getPeriodLabel(timeRange).toLowerCase()}`
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => value.toLocaleString('vi-VN')
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
             } else {
                 showError('Không thể tải dữ liệu thống kê');
             }
@@ -712,231 +727,73 @@
         }
     }
 
-    // Cập nhật số liệu tổng quan
-    function updateBookingDisplay(data) {
-        const todayStats = data.find(item => item.period === 'Hôm nay');
-        if (todayStats?.totals) {
-            document.getElementById('totalBookings').textContent =
-                todayStats.totals.total_bookings.toLocaleString('vi-VN');
-            document.getElementById('totalPassengers').textContent =
-                `${todayStats.totals.total_passengers.toLocaleString('vi-VN')} vé bán ra`;
-        }
-    }
+    // Initialize Dashboard
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Set default values for month and year select boxes
+        const currentDate = new Date();
+        document.getElementById('monthSelect').value = currentDate.getMonth() + 1;
+        document.getElementById('yearSelect').value = currentDate.getFullYear();
 
-    // Cập nhật biểu đồ
-    function updateBookingChart(data) {
-        // Update summary numbers
+        // Load all initial data
+        await Promise.all([
+            loadMarketShare(),
+            loadMonthlySales(),
+            loadPassengers(),
+            loadBookingStats(),
+            loadBaggageStats(),
+        ]);
 
-        const timeRange = document.getElementById('bookingTimeRange').value;
-        // Find the period data with error handling
-        const periodData = data.find(item => item.period === getPeriodLabel(timeRange));
-
-        if (periodData && periodData.data) {
-            // Calculate totals by summing the values
-            const totalBookings = periodData.data.reduce((sum, item) => sum + (item.total_bookings || 0), 0);
-            const totalTickets = periodData.data.reduce((sum, item) => sum + (item.total_passengers || 0), 0);
-
-            const formatNumber = num => num.toLocaleString();
-
-            // Update DOM elements with formatted numbers
-            const bookingsElement = document.getElementById('total_bookings');
-            const ticketsElement = document.getElementById('total_tickets');
-
-            if (bookingsElement) bookingsElement.textContent = formatNumber(totalBookings);
-            if (ticketsElement) ticketsElement.textContent = formatNumber(totalTickets);
-        }
-
-        if (!periodData?.data.length) {
-            showNoData('bookingStatsContainer');
-            return;
-        }
-
-        const ctx = document.getElementById('bookingStatsChart').getContext('2d');
-
-        if (bookingStatsChart) {
-            bookingStatsChart.destroy();
-        }
-
-        bookingStatsChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: periodData.data.map(item => formatDate(item.date)),
-                datasets: [
-                    {
-                        label: 'Số đặt chỗ',
-                        data: periodData.data.map(item => item.total_bookings),
-                        borderColor: '#4e73df',
-                        backgroundColor: '#4e73df20',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Số vé bán ra',
-                        data: periodData.data.map(item => item.total_passengers),
-                        borderColor: '#1cc88a',
-                        backgroundColor: '#1cc88a20',
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: `Thống kê ${getPeriodLabel(timeRange).toLowerCase()}`
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: value => value.toLocaleString('vi-VN')
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
+        // Add event listeners for monthly sales filters
+        document.getElementById('monthSelect').addEventListener('change', () => {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            loadMonthlySales(month, year);
         });
-    }
 
-    // Helper functions
-    function getPeriodLabel(timeRange) {
-        const labels = {
-            'today': 'Hôm nay',
-            'yesterday': 'Hôm qua',
-            'last_7_days': '7 ngày qua',
-            'last_14_days': '14 ngày qua',
-            'last_21_days': '21 ngày qua',
-            'last_month': 'Tháng trước',
-            'last_3_months': '3 tháng trước'
-        };
-        return labels[timeRange] || timeRange;
-    }
+        document.getElementById('yearSelect').addEventListener('change', () => {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            loadMonthlySales(month, year);
+        });
 
-    function showLoading(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+        // Add event listener for market share time filter
+        document.getElementById('timeFilter').addEventListener('change', loadMarketShare);
 
-        hideError(containerId);
-        hideNoData(containerId);
+        // Add event listeners for booking stats
+        const bookingTimeRangeSelect = document.getElementById('bookingTimeRange');
+        if (bookingTimeRangeSelect) {
+            bookingTimeRangeSelect.addEventListener('change', loadBookingStats);
+        }
 
-        const loader = document.createElement('div');
-        loader.className = 'loading-spinner position-absolute top-50 start-50 translate-middle';
-        loader.innerHTML = `
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>`;
-
-        container.appendChild(loader);
-    }
-
-    function hideLoading(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        const loader = container.querySelector('.loading-spinner');
-        if (loader) loader.remove();
-    }
-
-    function showError(message, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        const error = document.createElement('div');
-        error.className = 'error-message text-center text-danger mt-3';
-        error.textContent = message;
-
-        container.appendChild(error);
-    }
-
-    function hideError(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        const error = container.querySelector('.error-message');
-        if (error) error.remove();
-    }
-
-    function showNoData(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        const noData = document.createElement('div');
-        noData.className = 'no-data-message text-center text-muted mt-3';
-        noData.textContent = 'Không có dữ liệu';
-
-        container.appendChild(noData);
-    }
-
-    function hideNoData(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        const noData = container.querySelector('.no-data-message');
-        if (noData) noData.remove();
-    }
-
-    // Export chart function
-    function exportBookingStats() {
-        if (!bookingStatsChart) return;
-
-        const canvas = bookingStatsChart.canvas;
-        const timeRange = document.getElementById('bookingTimeRange').value;
-        const fileName = `booking-stats-${timeRange}-${new Date().toISOString().split('T')[0]}.png`;
-
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        // Load initial data
-        fetchAndUpdateBookingStats();
-
-        // Add event listeners
-        const timeRangeSelect = document.getElementById('bookingTimeRange');
-        if (timeRangeSelect) {
-            timeRangeSelect.addEventListener('change', fetchAndUpdateBookingStats);
+        // Add event listeners for baggage stats
+        const baggageTimeRangeSelect = document.getElementById('baggageTimeRange');
+        if (baggageTimeRangeSelect) {
+            baggageTimeRangeSelect.addEventListener('change', loadBaggageStats);
         }
 
         // Auto refresh every 5 minutes
-        setInterval(fetchAndUpdateBookingStats, 5 * 60 * 1000);
+        setInterval(async () => {
+            await Promise.all([
+                loadMarketShare(),
+                loadMonthlySales(),
+                loadPassengers(),
+                loadBookingStats(),
+                loadBaggageStats(),
+            ]);
+        }, 300000); // Refresh every 5 minutes
     });
 
-    // Handle responsive
+    // Handle responsive resizing for charts
     window.addEventListener('resize', () => {
         if (bookingStatsChart) {
             bookingStatsChart.resize();
         }
-    });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchAndUpdateBaggageStats();
-
-        // Thêm event listener cho dropdown
-        const timeRangeSelect = document.getElementById('baggageTimeRange');
-        if (timeRangeSelect) {
-            timeRangeSelect.addEventListener('change', () => {
-                fetchAndUpdateBaggageStats();
-            });
+        if (baggageStatsChart) {
+            baggageStatsChart.resize();
         }
-
-        setInterval(fetchAndUpdateBaggageStats, 5 * 60 * 1000);
     });
-</script>
 
+</script>
+<script src="{{url_for('static', filename='js/showloading.js')}}"></script>
 
 {% endblock %}
