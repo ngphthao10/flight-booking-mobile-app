@@ -868,7 +868,7 @@
         event.preventDefault();
         const promotionCode = document.getElementById('flightPromotionCode').value || ma_khuyen_mai;
         if (!promotionCode) return;
-
+        console.log(promotionCode)
         try {
             const bookingData = JSON.parse(localStorage.getItem('bookingData'));
             if (!bookingData) return;
@@ -890,8 +890,8 @@
                     tong_tien: bookingData.finalPrice
                 })
             });
-
             const promotionData = await response.json();
+            console.log(promotionData)
             const flightPromoCB = promotionData.khuyen_mai.CHUYEN_BAY.find(p => p.ma_khuyen_mai === promotionCode);
             const flightPromoHHK = promotionData.khuyen_mai.HANG_HANG_KHONG.find(p => p.ma_khuyen_mai === promotionCode);
 

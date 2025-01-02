@@ -16,8 +16,8 @@ def get_temp_booking_promotions():
         list_ma_chuyen_bay = data.get('ma_chuyen_bay', [])
         tong_tien = data.get('tong_tien', 0)
         
-        if not list_hang_hang_khong or not list_ma_chuyen_bay or not tong_tien:
-            return jsonify({'error': 'Thiếu thông tin cần thiết'}), 400
+        # if not list_hang_hang_khong or not list_ma_chuyen_bay or not tong_tien:
+        #     return jsonify({'error': 'Thiếu thông tin cần thiết'}), 400
             
         hang_hang_khong_info = HangHangKhong.query.filter(
             HangHangKhong.TenHHK.in_(list_hang_hang_khong)

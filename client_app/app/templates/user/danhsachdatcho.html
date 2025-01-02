@@ -1,0 +1,374 @@
+{% extends 'user/base.html' %}
+{% block title %}Đặt chỗ của tôi{% endblock %}
+{% block content %}
+<div class="container">
+    {% include 'user/navbar.html'%}
+</div>
+<div class="container mt-3 mb-5">
+    <!-- Header -->
+    <div class="row mb-3">
+        <div class="col">
+            <h4 class="mb-2">Danh sách đặt chỗ</h4>
+        </div>
+    </div>
+    {% if session.user_info %}
+    <!-- Stats Cards -->
+    <div class="row mb-3">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Tổng đặt chỗ</h6>
+                            <h2 class="mt-2 mb-0" id="totalBookings">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Số vé hạng thương gia</h6>
+                            <h2 class="mt-2 mb-0" id="totalBusSeats">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Số vé hạng phổ thông</h6>
+                            <h2 class="mt-2 mb-0" id="totalEcoSeats">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Table -->
+    <div class="card">
+        <div class="card-body">
+            <div id="pagination-config" data-api-url="{{ api_url }}" style="display: none;"></div>
+            <div class="table-responsive">
+                <table id="bookingTable" class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã đặt chỗ</th>
+                            <th>Ngày mua</th>
+                            <th>Ghế thương gia</th>
+                            <th>Ghế phổ thông</th>
+                            <th>Trạng thái</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="ma_nguoi_dung" style="display: none;" value="{{ session.user_info.MaND }}"></div>
+    <div class="modal fade" id="bookingDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết đặt chỗ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Loading spinner -->
+                    <div id="loading" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <!-- Thông báo lỗi -->
+                    <div id="error" class="alert alert-danger d-none"></div>
+
+                    <!-- Kết quả -->
+                    <div id="bookingResult" class="d-none">
+                        <!-- Thông tin chung -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">Thông tin đặt chỗ #<span id="bookingId"></span></h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Ngày đặt:</strong> <span id="bookingDate"></span></p>
+                                        <p><strong>Trạng thái:</strong> <span id="bookingStatus"></span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Người liên hệ:</strong> <span id="contactName"></span></p>
+                                        <p><strong>SĐT:</strong> <span id="contactPhone"></span></p>
+                                        <p><strong>Email:</strong> <span id="contactEmail"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chuyến bay -->
+                        <div class="mb-3">
+                            <div id="flightsList"></div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Thông tin hành khách -->
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Danh sách hành khách</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="passengersList"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thông tin thanh toán -->
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Thông tin thanh toán</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="paymentInfo"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="no-bookings-message">
+        <i class="fas fa-info-circle"></i> Bạn cần đăng nhập để xem thông tin đặt chỗ
+    </div>
+    {% endif %}
+</div>
+<style>
+    .no-bookings-message {
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #6c757d;
+        /* Màu xám nhạt */
+        background-color: #f8f9fa;
+        /* Màu nền nhạt */
+        border: 1px solid #dee2e6;
+        /* Viền xám nhạt */
+        border-radius: 8px;
+        /* Góc bo tròn */
+        padding: 15px;
+        margin: 20px 0;
+        /* Khoảng cách trên và dưới */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        /* Khoảng cách giữa icon và text */
+    }
+
+    .no-bookings-message i {
+        color: #17a2b8;
+        /* Màu xanh nhạt cho icon */
+        font-size: 1.5rem;
+        /* Kích thước icon */
+    }
+
+    .flight-card {
+        border-left: 4px solid #0d6efd;
+        margin-bottom: 20px;
+    }
+
+    .connecting-line {
+        border-left: 2px dashed #6c757d;
+        height: 50px;
+        margin-left: 20px;
+    }
+</style>
+
+<script>
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+
+    async function loadBookingInfo(mand) {
+        try {
+            const response = await fetch(`${API_URL}/api/booking/info/${mand}`);
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const bookingTableBody = document.getElementById('bookingTableBody');
+                bookingTableBody.innerHTML = '';
+
+                if (data.data.length > 0) {
+                    // Update stats
+                    document.getElementById('totalBookings').textContent = data.data.length;
+                    const totalBusSeats = data.data.reduce((sum, booking) => sum + booking.SoLuongGheBus, 0);
+                    const totalEcoSeats = data.data.reduce((sum, booking) => sum + booking.SoLuongGheEco, 0);
+                    document.getElementById('totalBusSeats').textContent = totalBusSeats;
+                    document.getElementById('totalEcoSeats').textContent = totalEcoSeats;
+
+                    // Populate table
+                    data.data.forEach(booking => {
+                        const row = document.createElement('tr');
+                        const badgeClass = getStatusBadgeClass(booking.TrangThai);
+
+                        row.innerHTML = `
+                        <td>${booking.MaDatCho}</td>
+                        <td>${new Date(booking.NgayMua).toLocaleString('vi-VN')}</td>
+                        <td>${booking.SoLuongGheBus}</td>
+                        <td>${booking.SoLuongGheEco}</td>
+                        <td><span class="badge ${badgeClass}">${booking.TrangThai}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-dark" onclick="viewBooking('${booking.MaDatCho}')">
+                                <i class="bi bi-info-square"></i>
+                            </button>
+                        </td>
+                    `;
+
+                        bookingTableBody.appendChild(row);
+                    });
+
+                    // Initialize DataTable
+                    if ($.fn.DataTable.isDataTable('#bookingTable')) {
+                        $('#bookingTable').DataTable().destroy();
+                    }
+                    $('#bookingTable').DataTable({
+                        language: {
+                            search: "Tìm kiếm:",
+                            lengthMenu: "Hiển thị _MENU_ bản ghi",
+                            info: "Hiển thị _START_ đến _END_ trong _TOTAL_ bản ghi",
+                            paginate: {
+                                first: "Đầu",
+                                last: "Cuối",
+                                next: "Tiếp",
+                                previous: "Trước"
+                            },
+                            zeroRecords: "Không tìm thấy bản ghi nào",
+                            infoEmpty: "Không có dữ liệu",
+                            infoFiltered: "(lọc từ _MAX_ bản ghi)"
+                        },
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50],
+                        ordering: true,
+                        order: [[1, 'desc']]
+                    });
+
+                } else {
+                    showEmptyState();
+                }
+            } else {
+                console.error('Error loading booking info:', data.message);
+                showErrorState();
+            }
+        } catch (error) {
+            console.error('Error fetching booking info:', error);
+            showErrorState();
+        }
+    }
+
+    function getStatusBadgeClass(status) {
+        switch (status.toLowerCase()) {
+            case 'đã thanh toán':
+                return 'bg-success';
+            case 'đang thanh toán':
+                return 'bg-warning text-dark';
+            case 'đã hủy':
+                return 'bg-danger';
+            default:
+                return 'bg-secondary';
+        }
+    }
+
+    function showEmptyState() {
+        const bookingTableBody = document.getElementById('bookingTableBody');
+        bookingTableBody.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center py-4">
+                <div class="text-muted">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p class="mb-0">Không có dữ liệu đặt chỗ</p>
+                </div>
+            </td>
+        </tr>
+    `;
+
+        // Reset stats
+        document.getElementById('totalBookings').textContent = '0';
+        document.getElementById('totalBusSeats').textContent = '0';
+        document.getElementById('totalEcoSeats').textContent = '0';
+
+        // Destroy DataTable if exists
+        if ($.fn.DataTable.isDataTable('#bookingTable')) {
+            $('#bookingTable').DataTable().destroy();
+        }
+    }
+
+    function showErrorState() {
+        const bookingTableBody = document.getElementById('bookingTableBody');
+        bookingTableBody.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center py-4">
+                <div class="text-danger">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <p class="mb-0">Đã có lỗi xảy ra. Vui lòng thử lại sau.</p>
+                </div>
+            </td>
+        </tr>
+    `;
+    }
+    const maNguoiDung = document.getElementById('ma_nguoi_dung').getAttribute('value');
+    console.log(maNguoiDung); // Hiển thị giá trị
+
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBookingInfo(maNguoiDung); // Replace with actual user ID
+    });
+
+    async function viewBooking(madatcho) {
+        // Hiển thị modal
+        const modal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
+        modal.show();
+
+        // Reset và hiển thị loading
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('bookingResult');
+
+        loading.classList.remove('d-none');
+        error.classList.add('d-none');
+        result.classList.add('d-none');
+
+        try {
+            const response = await fetch(`${API_URL}/api/get_booking_detailed/${madatcho}`);
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                displayBookingInfo(data.data);
+            } else {
+                error.textContent = data.message;
+                error.classList.remove('d-none');
+            }
+        } catch (err) {
+            error.textContent = 'Có lỗi xảy ra khi tải thông tin đặt chỗ';
+            error.classList.remove('d-none');
+        } finally {
+            loading.classList.add('d-none');
+        }
+    }
+
+</script>
+<script src="{{url_for('static', filename='js/signout.js')}}"></script>
+<script src="{{url_for('static', filename='js/thongtindatcho.js')}}"></script>
+{% endblock %}

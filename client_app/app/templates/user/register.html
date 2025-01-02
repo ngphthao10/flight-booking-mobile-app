@@ -126,7 +126,6 @@
 
         // Hàm tái sử dụng cho mọi trường hợp đăng nhập thành công
         async function handleLoginSuccess(userData) {
-            // 1. Lưu vào localStorage
             localStorage.setItem('user', JSON.stringify(userData));
 
             // 2. Gửi thông tin user sang server client (Flask) để lưu session
