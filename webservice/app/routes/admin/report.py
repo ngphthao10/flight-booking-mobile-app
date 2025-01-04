@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 from app import db
 from app.models import *
-from sqlalchemy import func, distinct
+from sqlalchemy import func
 from datetime import datetime, timedelta
+from sqlalchemy.sql import or_, and_
 
 report = Blueprint('report', __name__)
 
@@ -31,9 +32,8 @@ def get_market_share():
             start_date = (now - timedelta(days=21)).date()
             end_date = now.date() + timedelta(days=1)
         elif time_filter == 'last_month':
-            first_day_of_this_month = now.replace(day=1)
-            start_date = (first_day_of_this_month - timedelta(days=1)).replace(day=1).date()
-            end_date = first_day_of_this_month.date()
+            start_date = (now - timedelta(days=30)).date()
+            end_date = now.date() + timedelta(days=1)
         else:
             return jsonify({"status": "error", "message": "Invalid time filter"}), 400
 
@@ -125,7 +125,6 @@ def get_revenue_report():
             ]
 
         elif report_type == 'weekly':
-            # === TÍNH DOANH THU THEO TUẦN ===
             base_query = db.session.query(
                 func.week(DatCho.NgayMua).label('week_number'),
                 func.year(DatCho.NgayMua).label('year'),
@@ -137,6 +136,7 @@ def get_revenue_report():
                 DatCho.TrangThai == 'Đã thanh toán'
             )
 
+            # Lọc theo tháng và năm (nếu có)
             if month != 'all':
                 base_query = base_query.filter(func.month(DatCho.NgayMua) == int(month))
             if year != 'all':
@@ -162,19 +162,56 @@ def get_revenue_report():
                 for week in weekly_data
             ]
 
+            # Nếu có yêu cầu tính tăng trưởng
             if include_growth:
-                result_sorted = sorted(result, key=lambda x: (x['year'], x['week_number']))
-                prev_revenue = None
-                for i, row in enumerate(result_sorted):
-                    current_revenue = row["total_revenue"]
-                    if prev_revenue and prev_revenue != 0:
-                        row["growth_rate"] = round((current_revenue - prev_revenue) / prev_revenue * 100, 2)
+                # Lấy tất cả các tuần từ database (bao gồm cả năm trước nếu cần)
+                full_query = db.session.query(
+                    func.week(DatCho.NgayMua).label('week_number'),
+                    func.year(DatCho.NgayMua).label('year'),
+                    func.count(DatCho.MaDatCho).label('total_orders'),
+                    func.coalesce(func.sum(ThanhToan.SoTien), 0).label('total_revenue')
+                ).join(
+                    ThanhToan, DatCho.MaDatCho == ThanhToan.MaDatCho
+                ).filter(
+                    DatCho.TrangThai == 'Đã thanh toán'
+                ).group_by(
+                    func.week(DatCho.NgayMua),
+                    func.year(DatCho.NgayMua)
+                ).order_by(
+                    func.year(DatCho.NgayMua),
+                    func.week(DatCho.NgayMua)
+                )
+
+                full_data = full_query.all()
+                full_result = [
+                    {
+                        "week_number": int(week.week_number),
+                        "year": int(week.year),
+                        "total_orders": int(week.total_orders),
+                        "total_revenue": float(week.total_revenue)
+                    }
+                    for week in full_data
+                ]
+
+                # Tạo dictionary để tra cứu tuần trước
+                full_result_sorted = sorted(full_result, key=lambda x: (x['year'], x['week_number']))
+                prev_week_map = {}
+                for i, row in enumerate(full_result_sorted):
+                    if i > 0:  # Bắt đầu từ tuần thứ hai
+                        prev_week_map[(row['year'], row['week_number'])] = full_result_sorted[i - 1]
+
+                # Tính tăng trưởng
+                for row in result:
+                    key = (row['year'], row['week_number'])
+                    if key in prev_week_map:
+                        prev_revenue = prev_week_map[key]["total_revenue"]
+                        current_revenue = row["total_revenue"]
+                        if prev_revenue != 0:
+                            row["growth_rate"] = round((current_revenue - prev_revenue) / prev_revenue * 100, 2)
+                        else:
+                            row["growth_rate"] = 0
                     else:
                         row["growth_rate"] = 0
-                    prev_revenue = current_revenue
-                
-                # Cuối cùng, gán result = result_sorted
-                result = result_sorted
 
         else:
             # Nếu type không hợp lệ, trả về lỗi
@@ -222,93 +259,71 @@ def get_passengers():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 @report.route('/api/report/booking_stats', methods=['GET'])
 def get_booking_stats():
     """Gets booking statistics for different time periods."""
-    try:        
+    try:
+        # Get time range from request
+        time_range = request.args.get('time_range', 'last_7_days')
+        
         # Get current date at start of day
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         
-        # Define time periods
-        time_periods = {
-            'today': {
-                'start': today,
-                'end': datetime.now(),
-                'label': 'Hôm nay'
-            },
-            'yesterday': {
-                'start': today - timedelta(days=1),
-                'end': today,
-                'label': 'Hôm qua'
-            },
-            'last_7_days': {
-                'start': today - timedelta(days=7),
-                'end': datetime.now(),
-                'label': '7 ngày qua'
-            },
-            'last_14_days': {
-                'start': today - timedelta(days=14),
-                'end': datetime.now(),
-                'label': '14 ngày qua'
-            },
-            'last_21_days': {
-                'start': today - timedelta(days=21),
-                'end': datetime.now(),
-                'label': '21 ngày qua'
-            },
-            'last_month': {
-                'start': today.replace(day=1) - timedelta(days=1),
-                'end': today,
-                'label': 'Tháng trước'
-            },
-            'last_3_months': {
-                'start': (today.replace(day=1) - timedelta(days=90)),
-                'end': datetime.now(),
-                'label': '3 tháng trước'
-            }
-        }
+        # Define date range based on time_range
+        if time_range == 'today':
+            start_date = today
+            end_date = datetime.now()
+        elif time_range == 'yesterday':
+            start_date = today - timedelta(days=1)
+            end_date = today
+        elif time_range == 'last_7_days':
+            start_date = today - timedelta(days=7)
+            end_date = datetime.now()
+        elif time_range == 'last_14_days':
+            start_date = today - timedelta(days=14)
+            end_date = datetime.now()
+        elif time_range == 'last_21_days':
+            start_date = today - timedelta(days=21)
+            end_date = datetime.now()
+        elif time_range == 'last_month':
+            start_date = today - timedelta(days=30)
+            end_date = today
+        else:  # last_3_months
+            start_date = today - timedelta(days=90)
+            end_date = datetime.now()
 
-        # Query for each time period
-        result = []
-        for period_key, period in time_periods.items():
-            # Get daily stats for the period
-            daily_stats = db.session.query(
-                func.date(DatCho.NgayMua).label('date'),
-                func.count(DatCho.MaDatCho).label('total_bookings'),
-                func.sum(DatCho.SoLuongGheBus + DatCho.SoLuongGheEco).label('total_passengers')
-            ).filter(
-                DatCho.NgayMua >= period['start'],
-                DatCho.NgayMua <= period['end']
-            ).group_by(
-                func.date(DatCho.NgayMua)
-            ).order_by(
-                func.date(DatCho.NgayMua)
-            ).all()
+        # Query daily booking stats for the specified period
+        stats = db.session.query(
+            func.date(DatCho.NgayMua).label('date'),
+            func.count(DatCho.MaDatCho).label('total_bookings'),
+            func.sum(DatCho.SoLuongGheBus + DatCho.SoLuongGheEco).label('total_passengers')
+        ).filter(
+            DatCho.NgayMua.between(start_date, end_date)
+        ).group_by(
+            func.date(DatCho.NgayMua)
+        ).order_by(
+            func.date(DatCho.NgayMua)
+        ).all()
 
-            # Format the results
-            period_data = {
-                'period': period['label'],
-                'data': [
-                    {
-                        'date': stats.date.strftime('%Y-%m-%d'),
-                        'total_bookings': int(stats.total_bookings or 0),
-                        'total_passengers': int(stats.total_passengers or 0)
-                    }
-                    for stats in daily_stats
-                ]
-            }
-            
-            # Add cumulative totals for the period
-            period_data['totals'] = {
-                'total_bookings': sum(day['total_bookings'] for day in period_data['data']),
-                'total_passengers': sum(day['total_passengers'] for day in period_data['data'])
-            }
-            
-            result.append(period_data)
+        # Format results
+        result = [{
+            'date': stat.date.strftime('%Y-%m-%d'),
+            'total_bookings': int(stat.total_bookings or 0),
+            'total_passengers': int(stat.total_passengers or 0)
+        } for stat in stats]
+
+        # Calculate cumulative totals
+        total_bookings = sum(item['total_bookings'] for item in result)
+        total_passengers = sum(item['total_passengers'] for item in result)
 
         return jsonify({
             "status": "success",
-            "data": result
+            "data": {
+                "stats": result,
+                "total_bookings": total_bookings,
+                "total_passengers": total_passengers
+            }
         }), 200
 
     except Exception as e:
@@ -317,42 +332,11 @@ def get_booking_stats():
             "message": str(e)
         }), 500
 
-# @report.route('/api/report/flight_stats', methods=['GET'])
-# def get_flight_stats():
-#     """Gets statistics about flights."""
-#     try:
-#         # Lấy thống kê chuyến bay the o loại (quốc tế/nội địa)
-#         flight_stats = db.session.query(
-#             ChuyenBay.LoaiChuyenBay,
-#             func.count(ChuyenBay.MaChuyenBay).label('total_flights'),
-#             func.avg(ChuyenBay.GiaVeBus).label('avg_business_price'),
-#             func.avg(ChuyenBay.GiaVeEco).label('avg_economy_price')
-#         ).group_by(
-#             ChuyenBay.LoaiChuyenBay
-#         ).all()
-
-#         result = [
-#             {
-#                 "flight_type": stats.LoaiChuyenBay,
-#                 "total_flights": int(stats.total_flights),
-#                 "avg_business_price": float(stats.avg_business_price),
-#                 "avg_economy_price": float(stats.avg_economy_price)
-#             }
-#             for stats in flight_stats
-#         ]
-
-#         return jsonify({"status": "success", "data": result}), 200
-        
-#     except Exception as e:
-#         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 @report.route('/api/report/baggage_service_stats', methods=['GET'])
 def get_baggage_service_stats():
     """Gets baggage service statistics for different time periods."""
     try:
-        from sqlalchemy import func
-        from datetime import datetime, timedelta
         
         # Get time range from request
         time_range = request.args.get('time_range', 'last_7_days')
@@ -377,11 +361,12 @@ def get_baggage_service_stats():
             start_date = today - timedelta(days=21)
             end_date = datetime.now()
         elif time_range == 'last_month':
-            start_date = today.replace(day=1) - timedelta(days=1)
-            end_date = today
-        else:  # last_3_months
-            start_date = today - timedelta(days=90)
+            start_date = today - timedelta(days=31)
             end_date = datetime.now()
+        else:  # last_3_months
+            start_date = today - timedelta(days=93)
+            end_date = datetime.now()
+        print(start_date, "-", end_date)
 
         # Query statistics
         stats = db.session.query(

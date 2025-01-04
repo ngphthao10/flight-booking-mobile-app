@@ -14,18 +14,9 @@ def get_gravatar_url(email, size=200, default='identicon'):
     return f"https://www.gravatar.com/avatar/{hash_md5}?d={default}&s={size}"
 
 
-# @auth.route('/register/admin')
-# def index():
-#     return render_template('index.html', api_url=current_app.config['API_URL'], current_user=current_user)
-
 @auth.route('/register/user')
 def user_register():
     return render_template('user/register.html', api_url=current_app.config['API_URL'])
-
-# @auth.route("/logout")
-# def logout():
-#     logout_user()
-#     return redirect(url_for('auth.login'))
 
 @auth.route('/home')
 def homepage():
@@ -73,17 +64,6 @@ def get_user_info():
         'status': False,
         'message': 'Chưa đăng nhập'
     }), 401
-
-# from functools import wraps
-# from flask import redirect, url_for
-
-# def login_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if 'user_info' not in session:
-#             return redirect(url_for('auth_client.login'))
-#         return f(*args, **kwargs)
-#     return decorated_function
 
 @auth.route('/logout', methods=['GET'])
 def logout_client():

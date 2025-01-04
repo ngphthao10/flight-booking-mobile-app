@@ -112,7 +112,7 @@ function getPeriodLabel(timeRange) {
         'last_7_days': '7 ngày qua',
         'last_14_days': '14 ngày qua',
         'last_21_days': '21 ngày qua',
-        'last_month': 'Tháng trước',
+        'last_month': '1 tháng trước',
         'last_3_months': '3 tháng trước'
     };
     return labels[timeRange] || timeRange;
