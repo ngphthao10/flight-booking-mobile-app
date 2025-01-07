@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, redirect
+from flask import Blueprint, request, jsonify, current_app, session
 from app import db
 from app.models import NguoiDung, NhomNguoiDung
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -66,6 +66,7 @@ def login():
 @auth_bp.route('/api/logout', methods=['GET'])
 @login_required
 def logout():
+    session.clear()
     logout_user()  
     return jsonify({'status': True, 'message': 'Đăng xuất thành công'}), 200
 

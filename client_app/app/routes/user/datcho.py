@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, session, current_app, url_for
-from datetime import datetime, timedelta
+from flask import Blueprint, render_template, session, current_app
+from app.decorators import login_required
 
 datcho = Blueprint('datcho', __name__)
 
@@ -18,6 +18,7 @@ def booking_success():
     return render_template('user/thanhToanThanhCong.html')
 
 @datcho.route('/booking-info', methods=['GET'])
+@login_required
 def booking_info():
     return render_template('user/danhsachdatcho.html', api_url=current_app.config['API_URL'])
 

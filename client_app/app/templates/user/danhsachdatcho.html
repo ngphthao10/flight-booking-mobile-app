@@ -62,6 +62,7 @@
                         <tr>
                             <th>Mã đặt chỗ</th>
                             <th>Ngày mua</th>
+                            <th>Thông tin đặt chỗ</th>
                             <th>Ghế thương gia</th>
                             <th>Ghế phổ thông</th>
                             <th>Trạng thái</th>
@@ -204,35 +205,46 @@
                 bookingTableBody.innerHTML = '';
 
                 if (data.data.length > 0) {
-                    // Update stats
+
                     document.getElementById('totalBookings').textContent = data.data.length;
                     const totalBusSeats = data.data.reduce((sum, booking) => sum + booking.SoLuongGheBus, 0);
                     const totalEcoSeats = data.data.reduce((sum, booking) => sum + booking.SoLuongGheEco, 0);
                     document.getElementById('totalBusSeats').textContent = totalBusSeats;
                     document.getElementById('totalEcoSeats').textContent = totalEcoSeats;
 
-                    // Populate table
                     data.data.forEach(booking => {
                         const row = document.createElement('tr');
-                        const badgeClass = getStatusBadgeClass(booking.TrangThai);
+                        const statusBadgeClass = getStatusBadgeClass(booking.TrangThai);
+
+                        let routeInfo = '';
+                        booking.ChuyenBay.forEach((flight, index) => {
+                            routeInfo += `${flight.ThanhPhoDi} → ${flight.ThanhPhoDen}`;
+                            if (index < booking.ChuyenBay.length - 1) {
+                                routeInfo += '<br/>';
+                            }
+                        });
+
+                        const tripTypeBadgeClass = booking.LoaiVe === "Khứ hồi" ? "bg-info" : "bg-primary";
 
                         row.innerHTML = `
-                        <td>${booking.MaDatCho}</td>
-                        <td>${new Date(booking.NgayMua).toLocaleString('vi-VN')}</td>
-                        <td>${booking.SoLuongGheBus}</td>
-                        <td>${booking.SoLuongGheEco}</td>
-                        <td><span class="badge ${badgeClass}">${booking.TrangThai}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-dark" onclick="viewBooking('${booking.MaDatCho}')">
-                                <i class="bi bi-info-square"></i>
-                            </button>
-                        </td>
-                    `;
+                            <td>${booking.MaDatCho}</td>
+                            <td>${new Date(booking.NgayMua).toLocaleString('vi-VN')}</td>
+                            <td>${routeInfo}</td>
+                            <td>${booking.SoLuongGheBus}</td>
+                            <td>${booking.SoLuongGheEco}</td>
+                            <td>
+                                <span class="badge ${statusBadgeClass} me-1">${booking.TrangThai}</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-dark" onclick="viewBooking('${booking.MaDatCho}')">
+                                    <i class="bi bi-info-square"></i>
+                                </button>
+                            </td>
+                        `;
 
                         bookingTableBody.appendChild(row);
                     });
 
-                    // Initialize DataTable
                     if ($.fn.DataTable.isDataTable('#bookingTable')) {
                         $('#bookingTable').DataTable().destroy();
                     }
@@ -251,7 +263,7 @@
                             infoEmpty: "Không có dữ liệu",
                             infoFiltered: "(lọc từ _MAX_ bản ghi)"
                         },
-                        pageLength: 10,
+                        pageLength: 5,
                         lengthMenu: [5, 10, 25, 50],
                         ordering: true,
                         order: [[0, 'desc']]
@@ -286,22 +298,20 @@
     function showEmptyState() {
         const bookingTableBody = document.getElementById('bookingTableBody');
         bookingTableBody.innerHTML = `
-        <tr>
-            <td colspan="6" class="text-center py-4">
-                <div class="text-muted">
-                    <i class="fas fa-inbox fa-3x mb-3"></i>
-                    <p class="mb-0">Không có dữ liệu đặt chỗ</p>
-                </div>
-            </td>
-        </tr>
-    `;
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p class="mb-0">Không có dữ liệu đặt chỗ</p>
+                    </div>
+                </td>
+            </tr>
+        `;
 
-        // Reset stats
         document.getElementById('totalBookings').textContent = '0';
         document.getElementById('totalBusSeats').textContent = '0';
         document.getElementById('totalEcoSeats').textContent = '0';
 
-        // Destroy DataTable if exists
         if ($.fn.DataTable.isDataTable('#bookingTable')) {
             $('#bookingTable').DataTable().destroy();
         }
@@ -310,29 +320,27 @@
     function showErrorState() {
         const bookingTableBody = document.getElementById('bookingTableBody');
         bookingTableBody.innerHTML = `
-        <tr>
-            <td colspan="6" class="text-center py-4">
-                <div class="text-danger">
-                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-                    <p class="mb-0">Đã có lỗi xảy ra. Vui lòng thử lại sau.</p>
-                </div>
-            </td>
-        </tr>
-    `;
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <div class="text-danger">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p class="mb-0">Đã có lỗi xảy ra. Vui lòng thử lại sau.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
     }
     const maNguoiDung = document.getElementById('ma_nguoi_dung').getAttribute('value');
 
-    // Load data when page loads
     document.addEventListener('DOMContentLoaded', () => {
-        loadBookingInfo(maNguoiDung); // Replace with actual user ID
+        loadBookingInfo(maNguoiDung);
     });
 
     async function viewBooking(madatcho) {
-        // Hiển thị modal
+
         const modal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
         modal.show();
 
-        // Reset và hiển thị loading
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
         const result = document.getElementById('bookingResult');

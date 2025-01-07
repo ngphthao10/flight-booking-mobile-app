@@ -16,7 +16,8 @@ def get_report_title(time_filter):
         'last_7_days': '7 NGÀY QUA',
         'last_14_days': '14 NGÀY QUA', 
         'last_21_days': '21 NGÀY QUA',
-        'last_month': '1 THÁNG QUA'
+        'last_month': '1 THÁNG QUA',
+        'last_3_month': '3 THÁNG QUA'
     }
     return f"BÁO CÁO THỊ PHẦN HÀNG HÀNG KHÔNG TRONG {titles.get(time_filter, '')}"
 

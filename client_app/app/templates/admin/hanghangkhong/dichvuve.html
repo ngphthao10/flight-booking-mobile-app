@@ -1,0 +1,447 @@
+{% extends "admin/base.html" %}
+{% block title %}Dịch vụ vé{% endblock %}
+{% block content %}
+<div class="container py-4">
+    {% if error_message %}
+    <div class="alert alert-danger" role="alert">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+    {% if airline %}
+    <!-- Thông tin cơ bản hãng hàng không -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Thông tin hãng hàng không</h5>
+            <div>
+                <button class="btn btn-outline-primary btn-sm me-2" id="editBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-pencil-square me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                        <path fill-rule="evenodd"
+                            d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                    </svg>
+                    Chỉnh sửa
+                </button>
+                <a href="{{ url_for('hanghangkhong.get_hang_hang_khong') }}" class="btn btn-outline-secondary btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-arrow-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+                    </svg>
+                    Quay lại
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <strong>Mã hãng:</strong> {{ airline.MaHHK }}
+                </div>
+                <div class="col-md-4">
+                    <strong>Tên hãng:</strong> {{ airline.TenHHK }}
+                </div>
+                <div class="col-md-4">
+                    <strong>Quốc gia:</strong> {{ airline.MaQG }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav tabs cho các loại vé -->
+    <ul class="nav nav-tabs mb-4" id="ticketTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="economy-tab" data-bs-toggle="tab" data-bs-target="#economy"
+                type="button" role="tab" aria-controls="economy" aria-selected="true">
+                Hạng Phổ thông
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="business-tab" data-bs-toggle="tab" data-bs-target="#business" type="button"
+                role="tab" aria-controls="business" aria-selected="false">
+                Hạng Thương gia
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab content -->
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="economy" role="tabpanel" aria-labelledby="economy-tab">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">Gói Economy Class</h5>
+                    <div class="row economy-standard-container"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-3">Gói Economy Plus</h5>
+                    <div class="row economy-plus-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="business" role="tabpanel" aria-labelledby="business-tab">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">Gói Business Class</h5>
+                    <div class="row business-standard-container"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-3">Gói Business Plus</h5>
+                    <div class="row business-plus-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center">
+        <div class="alert alert-warning" role="alert">
+            Không tìm thấy thông tin hãng hàng không
+        </div>
+        <a href="{{ url_for('hanghangkhong.get_hang_hang_khong') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+    {% endif %}
+</div>
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+{% include 'admin/hanghangkhong/formUpdateHHK.html' %}
+<div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;"></div>
+
+<input type="hidden" id="airline-data"
+    data-services='{{ airline.dich_vu | tojson | safe if airline and airline.dich_vu else "[]" }}'>
+<script src="{{url_for('static', filename='js/showMessage.js')}}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const config = document.getElementById('pagination-config');
+        const API_URL = config.dataset.apiUrl;
+        const servicesData = document.getElementById('airline-data').dataset.services;
+        const editBtn = document.getElementById('editBtn');
+        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+        let allServices = [];
+
+        async function loadServices() {
+            try {
+                const response = await fetch(`${API_URL}/api/dich-vu`);
+                const data = await response.json();
+                if (data.status) {
+                    allServices = data.data;
+                }
+            } catch (error) {
+                console.error('Error loading services:', error);
+            }
+        }
+
+        async function loadCountries() {
+            try {
+                const response = await fetch(`${API_URL}/api/quoc-gia`);
+                const data = await response.json();
+                if (data.status) {
+                    const select = document.getElementById('maQG');
+                    data.data.forEach(country => {
+                        const option = new Option(country.TenQG, country.MaQG);
+                        select.add(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading countries:', error);
+            }
+        }
+
+        function createServiceFormItem(service, loaiVe, maGoi) {
+            return `
+            <div class="card mb-3 service-item">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-select service-select" required>
+                                <option value="">Chọn dịch vụ</option>
+                                ${allServices.map(s => `
+                                <option value="${s.MaDV}" 
+                                    ${service?.dich_vu.MaDV === s.MaDV ? 'selected' : ''}>
+                                    ${s.TenDichVu}
+                                </option>
+                            `).join('')}
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="number" class="form-control service-param" 
+                                value="${service?.dich_vu_ve.ThamSo || ''}" step="1" min="0" required>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeService(this)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        }
+
+        window.saveChanges = async function () {
+            const form = document.getElementById('editForm');
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            try {
+                // 1. Lấy thông tin cơ bản
+                const basicInfo = {
+                    TenHHK: document.getElementById('tenHHK').value,
+                    MaQG: document.getElementById('maQG').value
+                };
+
+                // 2. Lấy thông tin dịch vụ từ các container
+                const services = [];
+
+                // Economy Standard Services
+                const economyStandardItems = document.querySelector('#economyStandardServices .service-list')
+                    ?.querySelectorAll('.service-item') || [];
+                economyStandardItems.forEach(item => {
+                    const select = item.querySelector('.service-select');
+                    const param = item.querySelector('.service-param');
+                    if (select?.value && param?.value) {
+                        services.push({
+                            MaDV: parseInt(select.value),
+                            MaGoi: 1,  // Economy Standard
+                            LoaiVeApDung: 'Economy',
+                            ThamSo: parseFloat(param.value)
+                        });
+                    }
+                });
+
+                // Economy Plus Services
+                const economyPlusItems = document.querySelector('#economyPlusServices .service-list')
+                    ?.querySelectorAll('.service-item') || [];
+                economyPlusItems.forEach(item => {
+                    const select = item.querySelector('.service-select');
+                    const param = item.querySelector('.service-param');
+                    if (select?.value && param?.value) {
+                        services.push({
+                            MaDV: parseInt(select.value),
+                            MaGoi: 3,  // Economy Plus
+                            LoaiVeApDung: 'Economy',
+                            ThamSo: parseFloat(param.value)
+                        });
+                    }
+                });
+
+                // Business Standard Services
+                const businessStandardItems = document.querySelector('#businessStandardServices .service-list')
+                    ?.querySelectorAll('.service-item') || [];
+                businessStandardItems.forEach(item => {
+                    const select = item.querySelector('.service-select');
+                    const param = item.querySelector('.service-param');
+                    if (select?.value && param?.value) {
+                        services.push({
+                            MaDV: parseInt(select.value),
+                            MaGoi: 2,  // Business Standard
+                            LoaiVeApDung: 'Business',
+                            ThamSo: parseFloat(param.value)
+                        });
+                    }
+                });
+
+                // Business Plus Services
+                const businessPlusItems = document.querySelector('#businessPlusServices .service-list')
+                    ?.querySelectorAll('.service-item') || [];
+                businessPlusItems.forEach(item => {
+                    const select = item.querySelector('.service-select');
+                    const param = item.querySelector('.service-param');
+                    if (select?.value && param?.value) {
+                        services.push({
+                            MaDV: parseInt(select.value),
+                            MaGoi: 4,  // Business Plus
+                            LoaiVeApDung: 'Business',
+                            ThamSo: parseFloat(param.value)
+                        });
+                    }
+                });
+
+                // 3. Validate dịch vụ
+                if (services.length === 0) {
+                    throw new Error('Phải có ít nhất một dịch vụ');
+                }
+
+                const economyServices = services.filter(s => s.LoaiVeApDung === 'Economy');
+                const businessServices = services.filter(s => s.LoaiVeApDung === 'Business');
+
+                if (economyServices.length === 0) {
+                    throw new Error('Phải có ít nhất một dịch vụ cho hạng Economy');
+                }
+                if (businessServices.length === 0) {
+                    throw new Error('Phải có ít nhất một dịch vụ cho hạng Business');
+                }
+
+                const data = {
+                    ...basicInfo,
+                    dich_vu_ve: services
+                };
+
+                const response = await fetch(`${API_URL}/api/hang-hang-khong/{{ airline.MaHHK }}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.status) {
+                    showMessage('success', 'Cập nhật thành công');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showMessage('danger', result.message);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('danger', error.message || 'Có lỗi xảy ra khi cập nhật');
+            }
+        };
+
+        editBtn.addEventListener('click', function () {
+            // Clear existing services first
+            document.querySelectorAll('.service-list').forEach(list => list.innerHTML = '');
+
+            document.getElementById('tenHHK').value = '{{ airline.TenHHK }}';
+            document.getElementById('maQG').value = '{{ airline.MaQG }}';
+
+            // Parse servicesData from string to JSON
+            const services = JSON.parse(servicesData);
+
+            // Load existing services
+            services.forEach(service => {
+                const loaiVe = service.dich_vu_ve.LoaiVeApDung.toLowerCase();
+                const maGoi = service.goi_dich_vu.MaGoi;
+                const containerSelector = `#${loaiVe}${maGoi === 1 || maGoi === 2 ? 'Standard' : 'Plus'}Services .service-list`;
+                const container = document.querySelector(containerSelector);
+
+                if (container) {
+                    container.insertAdjacentHTML(
+                        'beforeend',
+                        createServiceFormItem(service)
+                    );
+                }
+            });
+
+            editModal.show();
+        });
+
+        loadServices();
+        loadCountries();
+
+        // load thông tin
+        try {
+            const services = JSON.parse(servicesData);
+
+            // Phân loại dịch vụ theo loại vé và gói
+            const economyStandard = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Economy' && s.goi_dich_vu.TenGoi === 'Economy Class');
+            const economyPlus = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Economy' && s.goi_dich_vu.TenGoi === 'Economy Plus');
+            const businessStandard = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Business' && s.goi_dich_vu.TenGoi === 'Business Class');
+            const businessPlus = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Business' && s.goi_dich_vu.TenGoi === 'Business Plus');
+
+            // Hàm tạo card dịch vụ
+            function createServiceCard(service) {
+                return `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0">${service.dich_vu.TenDichVu}</h6>
+                        </div>
+                        <div class="card-body">
+                            ${service.dich_vu.MoTa ?
+                        `<p class="text-muted small mb-3">${service.dich_vu.MoTa}</p>` : ''}
+                            <div class="">
+                                <p class="mb-2">
+                                    <strong>Tham số:</strong>
+                                    ${service.dich_vu_ve.ThamSo !== null ?
+                        `<span class="badge bg-info">${service.dich_vu_ve.ThamSo.toFixed(0)}</span>` :
+                        '<span class="text-muted">Không có</span>'}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Hệ số giá:</strong>
+                                    <span class="badge bg-primary">${service.goi_dich_vu.HeSoGia.toFixed(2)}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small class="${service.dich_vu.TrangThai === 0 ? 'text-success' : 'text-danger'}">
+                                ${service.dich_vu.TrangThai === 0 ? 'Đang hoạt động' : 'Không hoạt động'}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }
+
+            // Render các dịch vụ theo từng container
+            function renderServices(services, containerId) {
+                const container = document.querySelector(containerId);
+                if (services.length > 0) {
+                    container.innerHTML = services.map(service => createServiceCard(service)).join('');
+                } else {
+                    container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            Không có dịch vụ nào trong gói này
+                        </div>
+                    </div>
+                `;
+                }
+            }
+
+            renderServices(economyStandard, '.economy-standard-container');
+            renderServices(economyPlus, '.economy-plus-container');
+            renderServices(businessStandard, '.business-standard-container');
+            renderServices(businessPlus, '.business-plus-container');
+
+        } catch (e) {
+            console.error('Error parsing services:', e);
+        }
+        // Đưa ra ngoài phạm vi DOMContentLoaded để có thể gọi từ onclick HTML
+        window.addService = function (loaiVe, maGoi) {
+            const container = document.querySelector(`#${loaiVe.toLowerCase()}${maGoi === 1 || maGoi === 2 ? 'Standard' : 'Plus'}Services .service-list`);
+
+            // Tạo một service object rỗng với cấu trúc giống data gốc
+            const emptyService = {
+                dich_vu: { MaDV: null },
+                dich_vu_ve: {
+                    LoaiVeApDung: loaiVe,
+                    ThamSo: null
+                },
+                goi_dich_vu: {
+                    MaGoi: maGoi
+                }
+            };
+
+            container.insertAdjacentHTML('beforeend', createServiceFormItem(emptyService));
+        }
+
+        window.removeService = function (button) {
+            // Tìm và xóa card cha gần nhất
+            const serviceCard = button.closest('.service-item');
+            if (serviceCard) {
+                serviceCard.remove();
+            }
+        }
+    });
+
+</script>
+{% endblock %}

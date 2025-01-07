@@ -1,0 +1,89 @@
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa thông tin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" class="needs-validation" novalidate>
+                    <!-- Thông tin cơ bản -->
+                    <div class="mb-3">
+                        <label class="form-label">Tên hãng</label>
+                        <input type="text" class="form-control" id="tenHHK" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quốc gia</label>
+                        <select class="form-select" id="maQG" required></select>
+                    </div>
+
+                    <!-- Tabs cho các loại dịch vụ -->
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#economyServices">Economy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#businessServices">Business</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Economy Services -->
+                        <div class="tab-pane fade show active" id="economyServices">
+                            <!-- Economy Standard -->
+                            <div id="economyStandardServices">
+                                <h6 class="mb-3">Economy Class
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addService('Economy', 1)">
+                                        + Thêm dịch vụ
+                                    </button>
+                                </h6>
+                                <div class="service-list mb-4"></div>
+                            </div>
+
+                            <!-- Economy Plus -->
+                            <div id="economyPlusServices">
+                                <h6 class="mb-3">Economy Plus
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addService('Economy', 3)">
+                                        + Thêm dịch vụ
+                                    </button>
+                                </h6>
+                                <div class="service-list"></div>
+                            </div>
+                        </div>
+
+                        <!-- Business Services -->
+                        <div class="tab-pane fade" id="businessServices">
+                            <!-- Business Standard -->
+                            <div id="businessStandardServices">
+                                <h6 class="mb-3">Business Class
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addService('Business', 2)">
+                                        + Thêm dịch vụ
+                                    </button>
+                                </h6>
+                                <div class="service-list mb-4"></div>
+                            </div>
+
+                            <!-- Business Plus -->
+                            <div id="businessPlusServices">
+                                <h6 class="mb-3">Business Plus
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addService('Business', 4)">
+                                        + Thêm dịch vụ
+                                    </button>
+                                </h6>
+                                <div class="service-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveChanges()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>

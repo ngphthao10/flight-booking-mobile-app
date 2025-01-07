@@ -238,14 +238,12 @@ def get_revenue_report():
 @report.route('/api/report/passengers', methods=['GET']) 
 def get_passengers():
     try:
-        # Count total users and passengers
         total_users = NguoiDung.query.filter_by(MaNND=2).count()
         total_passengers = HanhKhach.query.count()
         
-        # Calculate percentage of users compared to passengers
         user_passenger_ratio = 0
         if total_passengers > 0:
-            user_passenger_ratio = round((total_passengers / total_users) * 100, 2)
+            user_passenger_ratio = round(( total_users / total_passengers) * 100, 2)
         
         # Prepare response
         result = {
