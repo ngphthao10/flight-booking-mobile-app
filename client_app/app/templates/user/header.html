@@ -1,0 +1,53 @@
+<!-- Footer -->
+<footer class="footer mt-auto py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5 class="mb-3">Flight Booking</h5>
+                <p class="text-white-50 mb-3">Hệ thống đặt vé máy bay trực tuyến hàng đầu</p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-white"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h5 class="mb-3">Thông tin thành viên</h5>
+                <p><i class="bi bi-geo-alt me-2"></i>Học viện công nghệ bưu chính viễn thông</p>
+                <p><i class="bi bi-telephone me-2"></i></p>
+                <p><i class="bi bi-envelope me-2"></i>ngphthao031028@gmail.com</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="mb-3">Đồ án môn học</h5>
+                <img src="{{url_for('static', filename='images/ptit.jpg')}}" width="120" height="120" alt="Chứng nhận"
+                    class="img-fluid mb-2">
+                <p>GVHD: Ths. Nguyễn Thị Thùy An</p>
+                <p class="text-white-50">Môn: Phát triển phần mềm hướng dịch vụ</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .footer {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+
+    .footer a:hover {
+        opacity: 0.8;
+    }
+
+    .footer i {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+        .footer .col-md-4 {
+            margin-bottom: 2rem;
+        }
+
+        .footer .col-md-4:last-child {
+            margin-bottom: 0;
+        }
+    }
+</style>
