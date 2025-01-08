@@ -1,14 +1,16 @@
-from flask import Blueprint, render_template, current_app, flash, request
+from flask import Blueprint, render_template, current_app, flash, request, redirect, url_for
 import requests
+from app.decorators import admin_required
 
 hanghangkhong = Blueprint('hanghangkhong', __name__)
 
 @hanghangkhong.route('/hang-hang-khong', methods=['GET'])
+@admin_required
 def get_hang_hang_khong():
     try:
         # Lấy tất cả các tham số query từ request
         page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
+        per_page = request.args.get('per_page', 5, type=int)
         ma_hhk = request.args.get('ma_hhk', '')
         ten_hhk = request.args.get('ten_hhk', '')
         ma_qg = request.args.get('ma_qg', '')
@@ -65,7 +67,7 @@ def get_hang_hang_khong():
         return render_template(
             'admin/hanghangkhong/hanghangkhong.html',
             hang_hang_khong=[],
-            pagination={'page': 1, 'pages': 1, 'total': 0, 'per_page': 10},
+            pagination={'page': 1, 'pages': 1, 'total': 0, 'per_page': 5},
             filters={  # Trả về filters rỗng trong trường hợp lỗi
                 'ma_hhk': '',
                 'ten_hhk': '',
@@ -76,4 +78,36 @@ def get_hang_hang_khong():
             api_url=current_app.config['API_URL']
         )
 
+@hanghangkhong.route('/hang-hang-khong/<string:id>', methods=['GET'])
+@admin_required
+def view_detailed(id):
+    try:
+        response = requests.get(
+            f"{current_app.config['API_URL']}/api/hang-hang-khong/{id}"
+        )
         
+        if response.status_code == 200:
+            response_data = response.json()
+            # Lấy phần data từ response
+            airline_data = response_data.get('data', {})
+            return render_template(
+                'admin/hanghangkhong/dichvuve.html',
+                airline=airline_data,
+                api_url=current_app.config['API_URL']
+            )
+            
+        return render_template(
+            'admin/hanghangkhong/dichvuve.html',
+            airline={},
+            error_message="Không thể lấy thông tin hãng hàng không",
+            api_url=current_app.config['API_URL']
+        )
+        
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return render_template(
+            'admin/hanghangkhong/dichvuve.html',
+            airline={},
+            error_message=f"Có lỗi xảy ra: {str(e)}",
+            api_url=current_app.config['API_URL']
+        )

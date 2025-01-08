@@ -7,8 +7,6 @@ async function handleLogout() {
             .then(res => res.json())
             .then(data => {
                 console.log(data.message);
-                // => 'Đăng xuất thành công'
-                // Xoá localStorage, chuyển hướng v.v.
                 window.location.href = '/';
             });
     } catch (error) {

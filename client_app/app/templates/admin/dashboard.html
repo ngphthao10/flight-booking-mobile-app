@@ -25,9 +25,14 @@
     }
 </style>
 
-<div class="container-fluid py-4">
-    <!-- Stats Row -->
-    <div class="row mb-4">
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h3 class=" fw-bold"> Dashboard </h3>
+        </div>
+    </div>
+
+    <div class="row mb-3">
         <!-- Weekly Revenue -->
         <div class="col-md-6 col-lg-3 mb-4">
             <div class="card">
@@ -59,11 +64,11 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="card-subtitle text-muted">Tổng số đặt chỗ</h6>
+                        <h6 class="card-subtitle text-muted">Tổng số đặt chỗ hôm nay</h6>
                         <i class="fas fa-ticket-alt stats-icon text-success"></i>
                     </div>
                     <h3 class="card-title mb-2" id="totalBookings">0</h3>
-                    <p class="mb-0" id="totalPassengers">0 hành khách</p>
+                    <p class="mb-0" id="totalPassengers">0 vé bán ra</p>
                 </div>
             </div>
         </div>
@@ -74,11 +79,11 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="card-subtitle text-muted">Thống kê hành khách</h6>
+                        <h6 class="card-subtitle text-muted">Thống kê người dùng</h6>
                         <i class="fas fa-users stats-icon text-warning"></i>
                     </div>
                     <h3 class="card-title mb-2" id="passengerCount">0</h3>
-                    <p class="mb-0" id="ratio"></p>
+                    <p class="mb-0" id="ratio">0</p>
                 </div>
             </div>
         </div>
@@ -95,19 +100,25 @@
                             <select id="timeFilter" class="form-select form-select-sm me-2" style="width: 150px;">
                                 <option value="today">Hôm nay</option>
                                 <option value="yesterday">Hôm qua</option>
-                                <option value="last_7_days">7 ngày trước</option>
-                                <option value="last_14_days">14 ngày trước</option>
-                                <option value="last_21_days">21 ngày trước</option>
-                                <option value="last_month">Tháng trước</option>
+                                <option value="last_7_days" selected>7 ngày qua</option>
+                                <option value="last_14_days">14 ngày qua</option>
+                                <option value="last_21_days">21 ngày qua</option>
+                                <option value="last_month">1 tháng qua</option>
                             </select>
-                            <button class="btn btn-sm btn-outline-primary" onclick="exportMarketShare()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-box-arrow-down" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z" />
-                                    <path fill-rule="evenodd"
-                                        d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z" />
-                                </svg>
+                            <button class="btn btn-sm btn-outline-primary d-flex align-items-center"
+                                onclick="exportMarketShare()" id="exportBtn">
+                                <span class="d-flex align-items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                        <path
+                                            d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                        <path
+                                            d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                        <path
+                                            d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
+                                    </svg>
+                                    <span class="ms-1">Export</span>
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -147,13 +158,17 @@
                             </select>
                             <button class="btn btn-sm btn-outline-primary ms-2" onclick="exportMonthlySales()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-box-arrow-down" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z" />
-                                    <path fill-rule="evenodd"
-                                        d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z" />
+                                    class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                    <path
+                                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                    <path
+                                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
                                 </svg>
+                                <span class="ms-1">Export</span>
                             </button>
+
                         </div>
                     </div>
                     <div id="monthlySalesContainer" class="chart-container">
@@ -166,60 +181,141 @@
 
     <!-- Additional Charts Row -->
     <div class="row">
-        <!-- Booking Stats
+        <!-- Booking Stats -->
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title">Thống kê đặt chỗ theo trạng thái</h5>
-                        <button class="btn btn-sm btn-outline-primary" onclick="exportBookingStats()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-box-arrow-down" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z" />
-                                <path fill-rule="evenodd"
-                                    d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z" />
-                            </svg>
-                        </button>
+                        <h5 class="card-title">Thống kê đặt chỗ</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="bookingTimeRange" class="form-select form-select-sm me-2" style="width: 150px;">
+                                <option value="last_7_days" selected>7 ngày qua</option>
+                                <option value="last_14_days">14 ngày qua</option>
+                                <option value="last_21_days">21 ngày qua</option>
+                                <option value="last_month">1 tháng trước</option>
+                                <option value="last_3_months">3 tháng trước</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportBookingStats()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                    <path
+                                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                    <path
+                                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="chart-container">
+                    <!-- Thêm thông tin tổng quan -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng đặt chỗ</div>
+                                <div class="h5 mb-0" id="total_bookings">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng vé bán ra</div>
+                                <div class="h5 mb-0" id="total_tickets">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Container cho chart và loading/error states -->
+                    <div id="bookingStatsContainer" class="chart-container position-relative">
                         <canvas id="bookingStatsChart"></canvas>
                     </div>
                 </div>
             </div>
-        </div> -->
-
-
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title">Thống kê dịch vụ hành lý</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="baggageTimeRange" class="form-select form-select-sm me-2">
+                                <option value="today">Hôm nay</option>
+                                <option value="yesterday">Hôm qua</option>
+                                <option value="last_7_days" selected>7 ngày qua</option>
+                                <option value="last_14_days">14 ngày qua</option>
+                                <option value="last_21_days">21 ngày qua</option>
+                                <option value="last_month">1 tháng trước</option>
+                                <option value="last_3_months">3 tháng trước</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary" onclick="exportBaggageStats()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-clipboard-data" viewBox="0 0 16 16">
+                                    <path
+                                        d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z" />
+                                    <path
+                                        d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                    <path
+                                        d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Thêm thông tin tổng quan -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng đơn hàng</div>
+                                <div class="h5 mb-0" id="totalBaggageBookings">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted small">Tổng doanh thu</div>
+                                <div class="h5 mb-0" id="totalBaggageRevenue">0 ₫</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="baggageStatsContainer" class="chart-container position-relative">
+                        <canvas id="baggageStatsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
+{% if session.user_info %}
+<div id="tendangnhap" style="display: none;" value="{{ session.user_info.TenDangNhap }}"></div>
+{% endif %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Thêm vào phần khai báo hàm tiện ích
-    function getCurrentDateTime() {
-        const now = new Date();
-        return now.toLocaleString('vi-VN');
-    }
+    const tendangnhap = document.getElementById('tendangnhap').getAttribute('value');
 
-
-    // Utility Functions
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(amount);
-    }
-
-    // Chart Instances
     let marketShareChart = null;
     let monthlySalesChart = null;
     let bookingStatsChart = null;
+    let baggageStatsChart = null;
 
+    async function loadTodayBookingStats() {
+        try {
+
+            // Fetch data from the API
+            const response = await fetch(`/dashboard/booking-stats?time_range=today`);
+            const data = await response.json();
+            // Check if the response is successful
+            if (data.status === 'success') {
+                document.getElementById('totalBookings').textContent = data.data.total_bookings;
+                document.getElementById('totalPassengers').textContent = `${data.data.total_passengers || 0} vé bán ra`;
+
+            } else {
+                console.error('Error fetching booking stats:', data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
 
     async function loadPassengers() {
         try {
-            const response = await fetch('/report/dashboard/passengers');
+            const response = await fetch('/dashboard/passengers');
             const data = await response.json();
 
             if (data.status === 'success') {
@@ -227,11 +323,11 @@
                 const ratioElement = document.getElementById('ratio');
 
                 // Hiển thị tổng số hành khách
-                passengerCountElement.textContent = `${data.data.total_passengers}`;
+                passengerCountElement.textContent = `${data.data.total_users}`;
 
                 // Kiểm tra giá trị user_passenger_ratio
                 const userPassengerRatio = data.data.user_passenger_ratio;
-                ratioElement.textContent = `${userPassengerRatio}% tổng số người dùng`;
+                ratioElement.textContent = `${data.data.total_passengers} hành khách (chiếm ${userPassengerRatio}%)`;
 
                 // Thay đổi màu sắc dựa trên điều kiện
                 if (userPassengerRatio < 0) {
@@ -247,14 +343,15 @@
         }
     }
 
-    loadPassengers();
     async function loadMarketShare() {
         try {
+            showLoading('marketShareContainer');
+
             // Lấy giá trị từ dropdown
             const timeFilter = document.getElementById('timeFilter').value;
 
             // Gửi request với time filter
-            const response = await fetch(`/report/dashboard/market-share?time=${timeFilter}`);
+            const response = await fetch(`/dashboard/market-share?time=${timeFilter}`);
             const data = await response.json();
 
             const ctx = document.getElementById('marketShareChart').getContext('2d');
@@ -315,12 +412,16 @@
             }
         } catch (error) {
             console.error('Error loading market share:', error);
+        } finally {
+            hideLoading('marketShareContainer');
         }
     }
 
     async function loadMonthlySales(month, year) {
         try {
-            const url = '/report/dashboard/revenue';
+            showLoading('monthlySalesContainer');
+
+            const url = '/dashboard/revenue';
             const params = new URLSearchParams();
 
             // Lấy ngày hiện tại nếu không có giá trị month/year
@@ -346,11 +447,9 @@
             // ---------------- Xử lý weekly ----------------
             const weeklyContainer = document.getElementById('weeklyContainer');
 
-            console.log(weeklyContainer)
             if (weeklyContainer) {
                 // Xóa thông báo cũ (nếu có)
                 weeklyContainer.querySelector('.no-data-message')?.remove();
-                console.log(weeklyData)
                 if (weeklyData.status === 'success' && weeklyData.data.length > 0) {
                     const weeklyItems = weeklyData.data;
                     const latestWeek = weeklyItems[weeklyItems.length - 1];
@@ -411,7 +510,11 @@
                                 y: {
                                     beginAtZero: true,
                                     ticks: {
-                                        callback: value => formatCurrency(value)
+                                        callback: value => (value / 1000000)
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Doanh thu (triệu đồng)'
                                     }
                                 }
                             },
@@ -444,126 +547,288 @@
             }
         } catch (error) {
             console.error('Error loading monthly sales:', error);
+        } finally {
+            hideLoading('monthlySalesContainer');
         }
+
     }
 
-    function getRevenueChartTitle(month, year) {
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth() + 1;
-        const currentYear = currentDate.getFullYear();
-
-        // Sử dụng giá trị mặc định nếu month hoặc year không được truyền
-        const selectedMonth = month || currentMonth;
-        const selectedYear = year || currentYear;
-
-        const isAllMonth = selectedMonth === 'all';
-        const isAllYear = selectedYear === 'all';
-
-        if (!isAllMonth && !isAllYear) {
-            return `Xu hướng doanh thu Tháng ${selectedMonth}/${selectedYear}`;
-        } else if (isAllMonth && !isAllYear) {
-            return `Xu hướng doanh thu Năm ${selectedYear}`;
-        } else if (!isAllMonth && isAllYear) {
-            return `Xu hướng doanh thu Tháng ${selectedMonth} (tất cả năm)`;
-        } else {
-            return `Xu hướng doanh thu (tất cả thời gian)`;
-        }
-    }
-
-
-    // Ví dụ format tiền VND
-    function formatCurrency(value) {
-        if (!value) return '0 ₫';
-        return value.toLocaleString('vi-VN') + ' ₫';
-    }
-
-
-    // Load Booking Stats
-    async function loadBookingStats() {
+    async function loadBaggageStats() {
         try {
-            const response = await fetch('/report/dashboard/booking-stats');
+            showLoading('baggageStatsContainer');
+            const timeRange = document.getElementById('baggageTimeRange').value;
+            const response = await fetch(`/dashboard/baggage_service_stats?time_range=${timeRange}`);
             const data = await response.json();
 
-            if (data.status === 'success') {
-                const ctx = document.getElementById('bookingStatsChart').getContext('2d');
+            const baggageContainer = document.getElementById('baggageStatsContainer');
+            if (baggageContainer) {
+                // Xóa thông báo cũ (nếu có)
+                baggageContainer.querySelector('.no-data-message')?.remove();
+                if (data.status === 'success' && data.data.stats.length > 0) {
+                    document.getElementById('totalBaggageBookings').textContent =
+                        data.data.total_bookings.toLocaleString('vi-VN');
+                    document.getElementById('totalBaggageRevenue').textContent =
+                        formatCurrency(data.data.total_revenue);
 
-                // Update total bookings stats
-                const totalBookings = data.data.reduce((sum, item) => sum + item.total_bookings, 0);
-                const totalPassengers = data.data.reduce((sum, item) => sum + item.total_passengers, 0);
-                document.getElementById('totalBookings').textContent = totalBookings;
-                document.getElementById('totalPassengers').textContent = `${totalPassengers} vé bán ra`;
+                    const ctx = document.getElementById('baggageStatsChart').getContext('2d');
 
-                if (bookingStatsChart) {
-                    bookingStatsChart.destroy();
-                }
-
-                bookingStatsChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.data.map(item => item.status),
-                        datasets: [{
-                            label: 'Số đơn đặt chỗ',
-                            data: data.data.map(item => item.total_bookings),
-                            backgroundColor: '#36b9cc'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true
+                    baggageStatsChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.data.stats.map(item => item.weight),
+                            datasets: [{
+                                label: 'Số lượng đơn',
+                                data: data.data.stats.map(item => item.bookings),
+                                backgroundColor: [
+                                    '#4e73df', '#1cc88a', '#36b9cc',
+                                    '#f6c23e', '#e74a3b', '#858796'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            const value = context.raw;
+                                            const percentage = data.data.stats[context.dataIndex].percentage;
+                                            const revenue = formatCurrency(data.data.stats[context.dataIndex].revenue);
+                                            return [
+                                                `Số lượng: ${value.toLocaleString('vi-VN')} đơn (${percentage}%)`,
+                                                `Doanh thu: ${revenue}`
+                                            ];
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: value => value.toLocaleString('vi-VN')
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Số lượng đơn'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Trọng lượng hành lý'
+                                    }
+                                }
                             }
                         }
+                    });
+                } else {
+                    const noDataMessage = document.createElement('p');
+                    noDataMessage.classList.add('no-data-message', 'text-center', 'text-muted');
+                    noDataMessage.textContent = 'Không có dữ liệu';
+                    baggageContainer.appendChild(noDataMessage);
+
+                    // Hủy biểu đồ nếu có
+                    if (baggageStatsChart) {
+                        baggageStatsChart.destroy();
+                        baggageStatsChart = null;
                     }
-                });
+                }
+            }
+            else {
+                showError('baggageStatsContainer', 'Không thể tải dữ liệu thống kê');
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            showError('baggageStatsContainer', 'Đã có lỗi xảy ra');
+        } finally {
+            hideLoading('baggageStatsContainer');
+        }
+    }
+
+    async function loadBookingStats() {
+        try {
+            showLoading('bookingStatsContainer');
+            const timeRange = document.getElementById('bookingTimeRange').value;
+            const response = await fetch(`/dashboard/booking-stats?time_range=${timeRange}`);
+            const data = await response.json();
+            const bookingStatsContainer = document.getElementById('bookingStatsContainer');
+            if (bookingStatsContainer) {
+                // Remove previous messages
+                bookingStatsContainer.querySelector('.no-data-message')?.remove();
+
+                if (data.status === 'success' && data.data.stats.length > 0) {
+                    const stats = data.data.stats;
+                    // Update total bookings and passengers
+                    document.getElementById('total_bookings').textContent = data.data.total_bookings;
+                    document.getElementById('total_tickets').textContent = `${data.data.total_passengers} vé bán ra`;
+
+                    const ctx = document.getElementById('bookingStatsChart').getContext('2d');
+
+                    // Destroy old chart if it exists
+                    if (bookingStatsChart) {
+                        bookingStatsChart.destroy();
+                    }
+
+                    // Create new chart
+                    bookingStatsChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: stats.map(item => formatDate(item.date)),
+                            datasets: [
+                                {
+                                    label: 'Số đặt chỗ',
+                                    data: stats.map(item => item.total_bookings),
+                                    borderColor: '#4e73df',
+                                    backgroundColor: '#4e73df20',
+                                    fill: true,
+                                    tension: 0.4,
+                                },
+                                {
+                                    label: 'Số vé bán ra',
+                                    data: stats.map(item => item.total_passengers),
+                                    borderColor: '#1cc88a',
+                                    backgroundColor: '#1cc88a20',
+                                    fill: true,
+                                    tension: 0.4,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: `Thống kê ${getPeriodLabel(timeRange).toLowerCase()}`,
+                                },
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: value => value.toLocaleString('vi-VN'),
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Số lượng',
+                                    },
+                                },
+                                x: {
+                                    grid: {
+                                        display: false,
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Ngày',
+                                    },
+                                },
+                            },
+                        },
+                    });
+                } else {
+                    // Show no data message
+                    const noDataMessage = document.createElement('p');
+                    noDataMessage.classList.add('no-data-message', 'text-center', 'text-muted');
+                    noDataMessage.textContent = 'Không có dữ liệu';
+                    bookingStatsContainer.appendChild(noDataMessage);
+
+                    // Destroy old chart if it exists
+                    if (bookingStatsChart) {
+                        bookingStatsChart.destroy();
+                        bookingStatsChart = null;
+                    }
+                }
+            } else {
+                showError('bookingStatsContainer', 'Không thể tải dữ liệu thống kê');
             }
         } catch (error) {
-            console.error('Error loading booking stats:', error);
+            console.error('Error:', error);
+            showError('bookingStatsContainer', 'Đã có lỗi xảy ra');
+        } finally {
+            hideLoading('bookingStatsContainer');
         }
     }
 
 
-
-    // Cập nhật phần khởi tạo dashboard
-    document.addEventListener('DOMContentLoaded', async function () {
-        // Set giá trị mặc định cho các select boxes là tháng và năm hiện tại
+    // Initialize Dashboard
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Set default values for month and year select boxes
         const currentDate = new Date();
         document.getElementById('monthSelect').value = currentDate.getMonth() + 1;
         document.getElementById('yearSelect').value = currentDate.getFullYear();
-        // Load tất cả dữ liệu ban đầu
+
+        // Load all initial data
         await Promise.all([
             loadMarketShare(),
             loadMonthlySales(),
+            loadPassengers(),
             loadBookingStats(),
-            loadPassengers()
+            loadBaggageStats(),
+            loadTodayBookingStats()
         ]);
+
+        // Add event listeners for monthly sales filters
+        document.getElementById('monthSelect').addEventListener('change', () => {
+            const month = parseInt(document.getElementById('monthSelect').value) || 'all';
+            const year = parseInt(document.getElementById('yearSelect').value) || 'all';
+            loadMonthlySales(month, year);
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', () => {
+            const month = parseInt(document.getElementById('monthSelect').value) || 'all';
+            const year = parseInt(document.getElementById('yearSelect').value) || 'all';
+            loadMonthlySales(month, year);
+        });
+
+        // Add event listener for market share time filter
+        document.getElementById('timeFilter').addEventListener('change', loadMarketShare);
+
+        // Add event listeners for booking stats
+        const bookingTimeRangeSelect = document.getElementById('bookingTimeRange');
+        if (bookingTimeRangeSelect) {
+            bookingTimeRangeSelect.addEventListener('change', loadBookingStats);
+        }
+
+        // Add event listeners for baggage stats
+        const baggageTimeRangeSelect = document.getElementById('baggageTimeRange');
+        if (baggageTimeRangeSelect) {
+            baggageTimeRangeSelect.addEventListener('change', loadBaggageStats);
+        }
+
+        // Auto refresh every 5 minutes
+        setInterval(async () => {
+            await Promise.all([
+                loadMarketShare(),
+                loadMonthlySales(),
+                loadPassengers(),
+                loadBookingStats(),
+                loadBaggageStats(),
+                loadTodayBookingStats()
+            ]);
+        }, 300000); // Refresh every 5 minutes
     });
 
-    // Thêm event listeners cho các select boxes
-    document.getElementById('monthSelect').addEventListener('change', function () {
-        const month = this.value;
-        const year = document.getElementById('yearSelect').value;
-        loadMonthlySales(parseInt(month), parseInt(year));
+    // Handle responsive resizing for charts
+    window.addEventListener('resize', () => {
+        if (bookingStatsChart) {
+            bookingStatsChart.resize();
+        }
+        if (baggageStatsChart) {
+            baggageStatsChart.resize();
+        }
     });
 
-    document.getElementById('yearSelect').addEventListener('change', function () {
-        const month = document.getElementById('monthSelect').value;
-        const year = this.value;
-        loadMonthlySales(parseInt(month), parseInt(year));
-    });
-    document.getElementById('timeFilter').addEventListener('change', async function () {
-        // Lắng nghe thay đổi trên bộ lọc thời gian của thị phần
-        await loadMarketShare();
-    });
-    // Cập nhật lại interval refresh
-    setInterval(async () => {
-        await Promise.all([
-            loadMarketShare(),
-            loadMonthlySales(),
-            loadBookingStats(),
-            loadPassengers()
-        ]);
-    }, 300000); // Refresh mỗi 5 phút
 </script>
+<script src="{{url_for('static', filename='js/showloading.js')}}"></script>
+<script src="{{url_for('static', filename='js/export_report.js')}}"></script>
+
 {% endblock %}

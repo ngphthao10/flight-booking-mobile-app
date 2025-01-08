@@ -1,0 +1,384 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Thông tin khuyến mãi{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% include 'user/navbar.html'%}
+</div>
+<div class="container py-4">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h4 class="text-center">Thông tin khuyến mãi</h4>
+        </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div id="loadingSpinner" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Error alert -->
+    <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+    </div>
+
+    <!-- Promotions container -->
+    <div class="row g-4" id="promotionsContainer">
+        <!-- Cards will be inserted here -->
+    </div>
+
+    <!-- No promotions message -->
+    <div id="noPromotions" class="text-center py-5 d-none">
+        <p class="text-muted">Không có khuyến mãi nào</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    class PromotionManager {
+        constructor() {
+            this.promotionsContainer = document.getElementById('promotionsContainer');
+            this.loadingSpinner = document.getElementById('loadingSpinner');
+            this.errorAlert = document.getElementById('errorAlert');
+            this.noPromotions = document.getElementById('noPromotions');
+
+            this.cardGradients = [
+                'linear-gradient(120deg, #f6d365 0%, #fda085 100%)',
+                'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
+                'linear-gradient(120deg, #a6c0fe 0%, #f68084 100%)',
+                'linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)',
+                'linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)'
+            ];
+            // Load promotions when initialized
+            this.loadPromotions();
+        }
+
+        showLoading(show = true) {
+            this.loadingSpinner.classList.toggle('d-none', !show);
+        }
+
+        showError(message) {
+            this.errorAlert.textContent = message;
+            this.errorAlert.classList.remove('d-none');
+        }
+
+        hideError() {
+            this.errorAlert.classList.add('d-none');
+        }
+
+        showNoPromotions(show = true) {
+            this.noPromotions.classList.toggle('d-none', !show);
+        }
+
+        getRandomImage() {
+            return this.promoImages[Math.floor(Math.random() * this.promoImages.length)];
+        }
+
+        formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        getRandomGradient() {
+            return this.cardGradients[Math.floor(Math.random() * this.cardGradients.length)];
+        }
+
+        createPromotionCard(promotion) {
+            const discountText = promotion.loai_khuyen_mai === 'Phần trăm'
+                ? `${promotion.gia_tri}%`
+                : this.formatCurrency(promotion.gia_tri);
+
+            const airlinesBadges = promotion.hang_hang_khong
+                .map(hhk => `
+                <div class="airline-chip">  
+                    ${hhk.ten_hhk}
+                </div>
+            `).join('');
+            const chuyenBayBadges = promotion.chuyen_bay
+                .map(cb => `
+                <div class="airline-chip">
+                    Áp dụng cho chuyến bay
+                    ${cb.ma_cb}
+                </div>
+            `).join('');
+
+            return `
+        <div class="col-md-6 col-lg-3 mb-2">
+            <div class="modern-promo-card">
+                <div class="card-header" style="background: ${this.getRandomGradient()}">
+                    <div class="discount-bubble">
+                        <div class="discount-label">Giảm</div>
+                        <div class="discount-amount">${discountText}</div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <h3 class="promo-title">${promotion.ten_khuyen_mai}</h3>
+                    <p class="promo-desc">${promotion.mo_ta || 'Không có mô tả'}</p>
+                    
+                    <div class="date-container">
+                        <div class="date-item">
+                            <div class="date-label">Bắt đầu</div>
+                            <div class="date-value">${this.formatDate(promotion.ngay_bat_dau)}</div>
+                        </div>
+                        <div class="date-separator"></div>
+                        <div class="date-item">
+                            <div class="date-label">Kết thúc</div>
+                            <div class="date-value">${this.formatDate(promotion.ngay_ket_thuc)}</div>
+                        </div>
+                    </div>
+                    
+                    ${promotion.ma_khuyen_mai ? `
+                        <div class="promo-code-box">
+                            <div class="code-label">Mã khuyến mãi</div>
+                            <div class="code-container">
+                                <code class="promo-code">${promotion.ma_khuyen_mai}</code>
+                                <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${promotion.ma_khuyen_mai}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="airlines-container">
+                        ${airlinesBadges}
+                        ${chuyenBayBadges}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        }
+
+        async loadPromotions() {
+            try {
+                this.showLoading(true);
+                this.hideError();
+                this.promotionsContainer.innerHTML = '';
+
+                const response = await fetch('/promotion/get-promotions');
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    if (data.data.length > 0) {
+                        const cardsHtml = data.data
+                            .map(promo => this.createPromotionCard(promo))
+                            .join('');
+                        this.promotionsContainer.innerHTML = cardsHtml;
+                        this.showNoPromotions(false);
+                    } else {
+                        this.showNoPromotions(true);
+                    }
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.showError('Không thể tải danh sách khuyến mãi');
+            } finally {
+                this.showLoading(false);
+            }
+        }
+        formatDate(date) {
+            return date.split('-').reverse().join('/');
+        }
+    }
+
+    // Sử dụng trong template:
+    // Initialize when document is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        new PromotionManager();
+    });
+</script>
+<style>
+    .modern-promo-card {
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .card-header {
+        height: 120px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .discount-bubble {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 10px 20px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .discount-amount {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1a1a1a;
+        line-height: 1.2;
+    }
+
+    .discount-label {
+        font-size: 13px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    .promo-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+
+    .promo-desc {
+        color: #666;
+        font-size: 15px;
+    }
+
+    .date-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 14px;
+        margin-bottom: 14px;
+    }
+
+    .date-item {
+        text-align: center;
+        flex: 1;
+    }
+
+    .date-label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+    }
+
+    .date-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .date-separator {
+        width: 1px;
+        height: 30px;
+        background: #dee2e6;
+        margin: 0 16px;
+    }
+
+    .promo-code-box {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .code-label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .code-container {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .promo-code {
+        flex: 1;
+        background: #ffffff;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+        border: 1px dashed #dee2e6;
+    }
+
+    .copy-btn {
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+        background: #333;
+        transform: translateY(-2px);
+    }
+
+    .airlines-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .airline-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #dee2e6;
+        padding: 8px 16px;
+        border-radius: 80px;
+        font-size: 12px;
+        color: #1a1a1a;
+        transition: all 0.2s ease;
+    }
+
+    .airline-chip:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .airline-chip svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .card-header {
+            height: 150px;
+        }
+
+        .discount-bubble {
+            padding: 12px 20px;
+        }
+
+        .discount-amount {
+            font-size: 24px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+    }
+</style>
+<script src="{{url_for('static', filename='js/signout.js')}}"></script>
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, redirect
+from flask import Blueprint, request, jsonify, current_app, session
 from app import db
 from app.models import NguoiDung, NhomNguoiDung
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -66,6 +66,7 @@ def login():
 @auth_bp.route('/api/logout', methods=['GET'])
 @login_required
 def logout():
+    session.clear()
     logout_user()  
     return jsonify({'status': True, 'message': 'Đăng xuất thành công'}), 200
 
@@ -81,62 +82,6 @@ def google_login():
     )
     return jsonify({"authorization_url": request_uri})
 
-# @auth_bp.route('/login/google/callback')
-# def google_callback():
-    
-#     code = request.args.get("code")
-#     google_provider_cfg = requests.get(current_app.config['GOOGLE_DISCOVERY_URL']).json()
-#     token_endpoint = google_provider_cfg["token_endpoint"]
-
-#     token_url, headers, body = google_client.prepare_token_request(
-#         token_endpoint,
-#         authorization_response=request.url,
-#         redirect_url=request.base_url,
-#         code=code,
-#     )
-#     token_response = requests.post(
-#         token_url,
-#         headers=headers,
-#         data=body,
-#         auth=(current_app.config['GOOGLE_CLIENT_ID'], current_app.config['GOOGLE_CLIENT_SECRET']),
-#     )
-
-#     google_client.parse_request_body_response(token_response.text)
-    
-#     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-#     uri, headers, body = google_client.add_token(userinfo_endpoint)
-#     userinfo_response = requests.get(uri, headers=headers, data=body)
-    
-#     if userinfo_response.json().get("email_verified"):
-#         email = userinfo_response.json()["email"]
-        
-#         user = NguoiDung.query.filter_by(TenDangNhap=email).first()
-        
-#         if not user:
-#             username = email
-#             password = generate_password_hash(secrets.token_hex(10))
-            
-#             user = NguoiDung(
-#                 TenDangNhap=username,
-#                 MatKhau=password, 
-#                 TrangThai=0,
-#                 MaNND=2 
-#             )
-#             db.session.add(user)
-#             db.session.commit()
-        
-#         return jsonify({
-#             'status': True,
-#             'message': 'Đăng nhập thành công',
-#             'data': {
-#                 'MaND': user.MaND,
-#                 'TenDangNhap': user.TenDangNhap,
-#                 'NhomNguoiDung': {
-#                     'MaNND': user.MaNND,
-#                     'TenNhomNguoiDung': user.nhom_nguoi_dung.TenNhomNguoiDung
-#                 } 
-#             }
-#         })
 
 @auth_bp.route('/login/google/callback')
 def google_callback():

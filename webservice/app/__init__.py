@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
@@ -16,6 +16,7 @@ def create_app():
 
     app = Flask(__name__)
     app.config.from_object(Config) 
+
     CORS(app)  
     db.init_app(app)
     login_manager.init_app(app)
@@ -24,7 +25,9 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return NguoiDung.query.get(int(user_id))  
+        if 'user_id' not in session:
+            return None
+        return NguoiDung.query.get(int(user_id))
         
     app.config['MAIL_DEBUG'] = True
 

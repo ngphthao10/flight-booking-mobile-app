@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timedelta
-from app.models import HangHangKhong, KhuyenMai
+from app.models import HangHangKhong, KhuyenMai, HHK_KhuyenMai, CB_KhuyenMai
 from app import db
+from sqlalchemy import or_
+
 
 khuyenmai = Blueprint('khuyenmai', __name__)
 
@@ -78,3 +80,76 @@ def get_temp_booking_promotions():
     except Exception as e:
         print(f"Error getting promotions: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@khuyenmai.route('/api/promotions', methods=['GET','POST'])
+def get_valid_promotions():
+    try:
+        # Lấy thông tin từ request body
+        data = request.get_json()
+        ma_hhk = data.get('ma_hhk', None)
+        ma_cb = data.get('ma_cb', None)
+        current_date = datetime.now().date()
+        current_datetime = datetime.now()
+
+        # Query cơ bản với điều kiện ngày hiệu lực và phải có chuyến bay hoặc hãng hàng không
+        query = KhuyenMai.query.filter(
+            KhuyenMai.NgayBatDau <= current_date,
+            KhuyenMai.NgayKetThuc >= current_date
+        ).filter(or_(
+            KhuyenMai.ds_hang_hang_khong.any(),
+            KhuyenMai.ds_chuyen_bay.any()
+        ))
+
+        # Nếu có lọc theo hãng hàng không
+        if ma_hhk:
+            query = query.filter(KhuyenMai.ds_hang_hang_khong.any(MaHHK=ma_hhk))
+
+        # Nếu có lọc theo chuyến bay
+        if ma_cb:
+            query = query.filter(KhuyenMai.ds_chuyen_bay.any(MaChuyenBay=ma_cb))
+
+        # Thực hiện query và chuyển đổi kết quả
+        promotions = query.all()
+        result = []
+        
+        for km in promotions:
+            valid_flights = []
+            if km.ds_chuyen_bay:
+                for cb in km.ds_chuyen_bay:
+                    # Kiểm tra chuyến bay còn hiệu lực
+                    if (cb.TrangThai == 0 and  # Chuyến bay không bị hủy
+                        cb.ThoiGianDi > current_datetime):  # Chuyến bay chưa khởi hành
+                        valid_flights.append({
+                            'ma_cb': cb.MaChuyenBay,
+                            'thoi_gian_di': cb.ThoiGianDi.strftime('%Y-%m-%d %H:%M:%S'),
+                            'thoi_gian_den': cb.ThoiGianDen.strftime('%Y-%m-%d %H:%M:%S')
+                        })
+            
+            # Chỉ thêm khuyến mãi vào kết quả nếu có hãng hàng không hoặc có chuyến bay hợp lệ
+            if km.ds_hang_hang_khong or valid_flights:
+                promotion_data = {
+                    'ma_khuyen_mai': km.MaKhuyenMai,
+                    'ten_khuyen_mai': km.TenKhuyenMai,
+                    'mo_ta': km.MoTa,
+                    'loai_khuyen_mai': km.LoaiKhuyenMai,
+                    'gia_tri': float(km.GiaTri),
+                    'ngay_bat_dau': km.NgayBatDau.strftime('%Y-%m-%d'),
+                    'ngay_ket_thuc': km.NgayKetThuc.strftime('%Y-%m-%d'),
+                    'hang_hang_khong': [{'ma_hhk': hhk.MaHHK, 'ten_hhk': hhk.TenHHK} 
+                                      for hhk in km.ds_hang_hang_khong] if km.ds_hang_hang_khong else [],
+                    'chuyen_bay': valid_flights
+                }
+                result.append(promotion_data)
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Lấy danh sách khuyến mãi thành công',
+            'data': result
+        }), 200
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Đã có lỗi xảy ra khi lấy danh sách khuyến mãi'
+        }), 500

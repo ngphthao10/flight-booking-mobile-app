@@ -8,6 +8,7 @@ from sqlalchemy.orm import aliased
 
 datcho = Blueprint('datcho', __name__)
 
+now = datetime.utcnow() + timedelta(hours=7)
 
 @datcho.route('/api/booking', methods=['POST'])
 def create_booking():
@@ -97,8 +98,8 @@ def create_booking():
         temp_booking = BookingTamThoi(
             BookingId=booking_code,
             Data=response_data,
-            CreatedAt=datetime.utcnow(),
-            ExpiresAt=datetime.utcnow() + timedelta(minutes=10)
+            CreatedAt=now,
+            ExpiresAt=now + timedelta(minutes=10)
         )
 
         db.session.add(temp_booking)
@@ -117,7 +118,7 @@ def confirm_booking(booking_id, user_id):
     try:
         BookingTamThoi.cleanup_expired()
         temp_booking = BookingTamThoi.query.get(booking_id)
-        if not temp_booking or temp_booking.ExpiresAt < datetime.utcnow():
+        if not temp_booking or temp_booking.ExpiresAt < now:
             return jsonify({'error': 'Đặt chỗ đã hết hạn hoặc không tồn tại'}), 404
 
         booking_data = temp_booking.Data
@@ -159,7 +160,7 @@ def confirm_booking(booking_id, user_id):
             SoLuongGheBus=thong_tin['chuyen_bay'][0]['so_ghe_bus'],
             SoLuongGheEco=thong_tin['chuyen_bay'][0]['so_ghe_eco'],
             TrangThai='Đã thanh toán',
-            NgayMua=datetime.utcnow(),
+            NgayMua=now,
             MaND=user_id
         )
         db.session.add(dat_cho_goc)
@@ -174,7 +175,7 @@ def confirm_booking(booking_id, user_id):
                 SoLuongGheBus=chuyen_bay['so_ghe_bus'],
                 SoLuongGheEco=chuyen_bay['so_ghe_eco'],
                 TrangThai='Đã thanh toán',
-                NgayMua=datetime.utcnow(),
+                NgayMua=now,
                 MaND=user_id,
                 MaDatChoGoc=dat_cho_goc.MaDatCho 
             )
@@ -204,15 +205,17 @@ def confirm_booking(booking_id, user_id):
                 )
                 db.session.add(hanh_khach)
             db.session.flush()
+            dich_vu_hanh_ly = hanh_khach_data.get('dich_vu_hanh_ly', [])
+            dich_vu_map = {item['ma_chuyen_bay']: item['ma_dich_vu_hanh_ly'] for item in dich_vu_hanh_ly}
 
             for dat_cho in danh_sach_dat_cho:
                 chi_tiet = ChiTietDatCho(
                     MaDatCho=dat_cho.MaDatCho,
-                    MaHK=hanh_khach.MaHanhKhach
+                    MaHK=hanh_khach.MaHanhKhach,
+                    MaDichVu=dich_vu_map.get(dat_cho.MaCB) 
                 )
                 db.session.add(chi_tiet)
 
-        # Cập nhật số lượng ghế còn lại
         for ma_chuyen_bay, update_data in flight_updates.items():
             flight = ChuyenBay.query.get(ma_chuyen_bay)
             if flight:
@@ -220,14 +223,13 @@ def confirm_booking(booking_id, user_id):
                 flight.SLEcoConLai = update_data['SLEcoConLai']
                 db.session.add(flight)
 
-        # Tạo thanh toán cho đặt chỗ gốc
         thanh_toan = ThanhToan(
-            MaDatCho=dat_cho_goc.MaDatCho,  # Chỉ lưu thanh toán cho đặt chỗ gốc
+            MaDatCho=dat_cho_goc.MaDatCho,  
             MaKhuyenMai=ma_khuyen_mai if ma_khuyen_mai else None,
             TienGiam=tien_giam,
             Thue=0,
             SoTien=tong_tien - tien_giam,
-            NgayThanhToan=datetime.utcnow(),
+            NgayThanhToan=now,
             PhuongThuc=phuong_thuc
         )
         db.session.add(thanh_toan)
@@ -261,46 +263,67 @@ def confirm_booking(booking_id, user_id):
 
 @datcho.route('/api/booking/info/<int:mand>', methods=['GET'])
 def get_booking_info(mand):
-    """
-    API Endpoint: /api/booking/info/<mand>
-    Parameters:
-        mand: Mã người dùng (int)
-    Returns:
-        Thông tin đặt chỗ của người dùng, được sắp xếp giảm dần theo Ngày Mua.
-    """
     try:
-        # Thực hiện truy vấn SQL tương đương
-        query = db.session.query(
+        booking_ids = db.session.query(
             case(
                 (DatCho.MaDatChoGoc != None, DatCho.MaDatChoGoc),
                 else_=DatCho.MaDatCho
-            ).label("MaDatCho"),
-            DatCho.NgayMua,
-            DatCho.TrangThai,
-            DatCho.SoLuongGheBus,
-            DatCho.SoLuongGheEco
+            ).label("MaDatCho")
         ).filter(
             DatCho.MaND == mand
-        ).distinct(
-            case(
-                (DatCho.MaDatChoGoc != None, DatCho.MaDatChoGoc),
-                else_=DatCho.MaDatCho
-            )
-        ).order_by(
-            desc(DatCho.NgayMua)
-        )
+        ).distinct().all()
 
-        # Chuyển đổi kết quả truy vấn thành danh sách dict
-        result = [
-            {
-                "MaDatCho": row.MaDatCho,
-                "NgayMua": row.NgayMua.strftime('%Y-%m-%d %H:%M:%S') if row.NgayMua else None,
-                "TrangThai": row.TrangThai,
-                "SoLuongGheBus": row.SoLuongGheBus,
-                "SoLuongGheEco": row.SoLuongGheEco
-            }
-            for row in query.all()
-        ]
+        result = []
+        SanBayDen = db.aliased(SanBay)
+        
+        for booking_id in booking_ids:
+            flights = db.session.query(
+                DatCho.MaDatCho,
+                DatCho.NgayMua,
+                DatCho.TrangThai,
+                DatCho.SoLuongGheBus,
+                DatCho.SoLuongGheEco,
+                DatCho.MaCB,
+                SanBay.ThanhPho.label('ThanhPhoDi'),
+                SanBayDen.ThanhPho.label('ThanhPhoDen')
+            ).join(
+                ChuyenBay, DatCho.MaCB == ChuyenBay.MaChuyenBay
+            ).join(
+                SanBay, ChuyenBay.MaSanBayDi == SanBay.MaSanBay
+            ).join(
+                SanBayDen, ChuyenBay.MaSanBayDen == SanBayDen.MaSanBay
+            ).filter(
+                or_(
+                    DatCho.MaDatCho == booking_id.MaDatCho,
+                    DatCho.MaDatChoGoc == booking_id.MaDatCho
+                )
+            ).all()
+
+            is_round_trip = False
+            if len(flights) == 2:
+                if flights[0].ThanhPhoDi == flights[1].ThanhPhoDen and flights[0].ThanhPhoDen == flights[1].ThanhPhoDi:
+                    is_round_trip = True
+
+            first_flight = flights[0]
+            flight_list = []
+            
+            # Tạo danh sách chuyến bay
+            for flight in flights:
+                flight_list.append({
+                    "MaChuyenBay": flight.MaCB,
+                    "ThanhPhoDi": flight.ThanhPhoDi,
+                    "ThanhPhoDen": flight.ThanhPhoDen
+                })
+
+            result.append({
+                "MaDatCho": first_flight.MaDatCho,
+                "NgayMua": first_flight.NgayMua.strftime('%Y-%m-%d %H:%M:%S') if first_flight.NgayMua else None,
+                "TrangThai": first_flight.TrangThai,
+                "SoLuongGheBus": first_flight.SoLuongGheBus,
+                "SoLuongGheEco": first_flight.SoLuongGheEco,
+                "LoaiVe": "Khứ hồi" if is_round_trip else "Một chiều",
+                "ChuyenBay": flight_list
+            })
 
         return jsonify({
             "status": "success",
@@ -315,13 +338,7 @@ def get_booking_info(mand):
 
 @datcho.route('/api/get_booking_detailed/<int:madatcho>', methods=['GET'])
 def get_booking_detailed(madatcho):
-    """
-    API Endpoint: /api/booking/info/<madatcho>
-    Parameters:
-        madatcho: Mã đặt chỗ (int)
-    Returns:
-        Thông tin chi tiết của đặt chỗ và các đặt chỗ liên quan.
-    """
+
     try:
         # Tạo alias cho bảng SanBay
         SanBayDi = aliased(SanBay)

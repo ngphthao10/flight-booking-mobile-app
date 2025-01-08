@@ -123,24 +123,18 @@
         const loginForm = document.getElementById('login-form');
         const btnGoogleLogin = document.getElementById('btnGoogleLogin');
 
-
-        // Hàm tái sử dụng cho mọi trường hợp đăng nhập thành công
         async function handleLoginSuccess(userData) {
             localStorage.setItem('user', JSON.stringify(userData));
 
-            // 2. Gửi thông tin user sang server client (Flask) để lưu session
             await fetch('/auth/handle-login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
             });
 
-            // 3. Kiểm tra nhóm người dùng để chuyển hướng
             if (userData && userData.NhomNguoiDung && userData.NhomNguoiDung.MaNND === 1) {
-                // Admin
-                window.location.href = "/report/";
+                window.location.href = "/dashboard";
             } else {
-                // Người dùng thường
                 window.location.href = "/";
             }
         }

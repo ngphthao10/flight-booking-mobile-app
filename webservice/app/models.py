@@ -92,7 +92,7 @@ class GoiDichVu(db.Model):
     HeSoGia = db.Column(db.Numeric(3,2), default=1.00)
     TrangThai = db.Column(db.Integer, default=0)
 
-    dich_vu_ve = db.relationship('DichVuVe', backref='goi_dich_vu', lazy='dynamic')
+    dich_vu_ve = db.relationship('DichVuVe', backref='goi_dich_vu', lazy='dynamic', cascade='all, delete-orphan')
 
 class DichVuVe(db.Model):
     __tablename__ = 'DICHVUVE'
