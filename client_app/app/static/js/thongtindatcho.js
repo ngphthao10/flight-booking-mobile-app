@@ -10,38 +10,76 @@ function displayBookingInfo(bookings) {
     document.getElementById('contactPhone').textContent = firstBooking.NguoiLienHe.SDT;
     document.getElementById('contactEmail').textContent = firstBooking.NguoiLienHe.Email;
 
-    // Hiển thị danh sách chuyến bay
     const flightsList = document.getElementById('flightsList');
-    flightsList.innerHTML = bookings.map(booking => `
-            <div class="card flight-card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h6>${booking.ChuyenBay.HangBay.TenHHK}</h6>
-                            <small class="text-muted">${booking.MaChuyenBay}</small>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-md-5 text-center">
-                                    <h6>${booking.ChuyenBay.SanBayDi.ThanhPho}</h6>
-                                    <p class="mb-0">${formatDateTime(booking.ChuyenBay.ThoiGianDi)}</p>
-                                    <small>${booking.ChuyenBay.SanBayDi.TenSanBay}</small>
-                                </div>
-                                <div class="col-md-2 text-center">
-                                    <i class="fas fa-plane"></i>
-                                </div>
-                                <div class="col-md-5 text-center">
-                                    <h6>${booking.ChuyenBay.SanBayDen.ThanhPho}</h6>
-                                    <p class="mb-0">${formatDateTime(booking.ChuyenBay.ThoiGianDen)}</p>
-                                    <small>${booking.ChuyenBay.SanBayDen.TenSanBay}</small>
-                                </div>
+    flightsList.innerHTML = bookings.map((booking, index) => {
+        const goidv = booking.DatCho.GoiDichVu;
+        return `
+        <div class="card flight-card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>${booking.ChuyenBay.HangBay.TenHHK}</h6>
+                        <small class="text-muted">${booking.MaChuyenBay}</small>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-5 text-center">
+                                <h6>${booking.ChuyenBay.SanBayDi.ThanhPho}</h6>
+                                <p class="mb-0">${formatDateTime(booking.ChuyenBay.ThoiGianDi)}</p>
+                                <small>${booking.ChuyenBay.SanBayDi.TenSanBay}</small>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                            <div class="col-md-5 text-center">
+                                <h6>${booking.ChuyenBay.SanBayDen.ThanhPho}</h6>
+                                <p class="mb-0">${formatDateTime(booking.ChuyenBay.ThoiGianDen)}</p>
+                                <small>${booking.ChuyenBay.SanBayDen.TenSanBay}</small>
                             </div>
                         </div>
                     </div>
                 </div>
+                ${goidv ? `
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button class="btn btn-link text-decoration-none" 
+                                    type="button"
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#serviceDetails${index}" 
+                                    aria-expanded="false"
+                                    aria-controls="serviceDetails${index}">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Gói dịch vụ: ${goidv.TenGoi}
+                            </button>
+                            <div class="collapse" id="serviceDetails${index}">
+                                <div class="card card-body">
+                                    <p class="text-muted">${goidv.MoTa}</p>
+                                    <div class="row">
+                                        ${goidv.DichVu.map(dv => `
+                                            <div class="col-md-6 mb-3">
+                                                <h6>${dv.TenDichVu}</h6>
+                                                <p class="mb-1"><small>${dv.MoTa}</small></p>
+                                                <p class="mb-0">
+                                                    <small class="text-muted">
+                                                        Áp dụng cho hạng ${dv.LoaiVeApDung} | 
+                                                        ${dv.TenDichVu.toLowerCase().includes('bảo hiểm') ?
+                `${dv.ThamSo === 1 ? 'Có' : 'Không'}` :
+                `Giá trị: ${dv.ThamSo}${dv.TenDichVu.includes('Phí') || dv.TenDichVu.includes('Hoàn') ? '%' : ' kg'}`
+            }
+                                                    </small>
+                                                </p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
             </div>
-        `).join('');
-
+        </div>
+    `;
+    }).join('');
     // Hiển thị danh sách hành khách
     const passengersList = document.getElementById('passengersList');
     passengersList.innerHTML = firstBooking.HanhKhach.map(passenger => `

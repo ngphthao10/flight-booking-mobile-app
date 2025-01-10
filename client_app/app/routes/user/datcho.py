@@ -178,19 +178,16 @@ def create_e_ticket(booking_data, output_path):
 
         elements = []
 
-        # Xử lý dữ liệu đầu vào
         bookings = booking_data.get('data', [])
         if not isinstance(bookings, list):
-            bookings = [bookings]  # Chuyển đổi booking đơn lẻ thành list
+            bookings = [bookings]  
 
-        # Tạo vé cho từng chuyến bay
         for idx, booking in enumerate(bookings):
-            # Xác định loại vé (một chiều/khứ hồi)
+    
             trip_type = ""
             if len(bookings) > 1:
                 trip_type = "CHIỀU ĐI" if idx == 0 else "CHIỀU VỀ"
             
-            # Header
             title = f"VÉ ĐIỆN TỬ - {booking['ChuyenBay']['HangBay']['TenHHK']}"
             if trip_type:
                 title += f" ({trip_type})"
@@ -199,7 +196,6 @@ def create_e_ticket(booking_data, output_path):
             # Thông tin chuyến bay
             flight_info = [
                 ['THÔNG TIN CHUYẾN BAY', ''],
-                # ['Mã đặt :', str(booking['MaDatCho'])],
                 ['Chuyến bay:', str(booking['MaChuyenBay'])],
                 ['Từ:', f"{booking['ChuyenBay']['SanBayDi']['TenSanBay']} ({booking['ChuyenBay']['SanBayDi']['ThanhPho']})"],
                 ['Đến:', f"{booking['ChuyenBay']['SanBayDen']['TenSanBay']} ({booking['ChuyenBay']['SanBayDen']['ThanhPho']})"],
@@ -224,7 +220,44 @@ def create_e_ticket(booking_data, output_path):
             ]))
             elements.append(flight_table)
             elements.append(Spacer(1, 20))
-            
+
+            # Thông tin gói dịch vụ
+            if booking['DatCho'].get('GoiDichVu'):
+                goi_dv = booking['DatCho']['GoiDichVu']
+                service_info = [
+                    ['THÔNG TIN GÓI DỊCH VỤ ĐI KÈM', ''],
+                    ['Tên gói:', goi_dv['TenGoi']],
+                    ['Mô tả:', goi_dv['MoTa']]
+                ]
+                
+                for dv in goi_dv['DichVu']:
+                    gia_tri = dv['ThamSo']
+                    if 'bảo hiểm' in dv['TenDichVu'].lower():
+                        gia_tri = "Có" if dv['ThamSo'] == 1 else "Không"
+                    else:
+                        gia_tri = f"{dv['ThamSo']}{' kg' if 'hành lý' in dv['TenDichVu'].lower() else '%'}"
+                        
+                    service_info.append([
+                        f"{dv['TenDichVu']}:", 
+                        f"{gia_tri}"
+                    ])
+                
+                service_table = Table(service_info, colWidths=[4*cm, 12*cm])
+                service_table.setStyle(TableStyle([
+                    ('FONTNAME', (0, 0), (-1, -1), 'DejaVuSerif'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'DejaVuSerif-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 11),
+                    ('FONTSIZE', (0, 1), (-1, -1), 10),
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                    ('BOX', (0, 0), (-1, -1), 2, colors.black),
+                    ('SPAN', (0, 0), (1, 0)),
+                ]))
+                elements.append(service_table)
+                elements.append(Spacer(1, 20))
+
             # Thông tin hành khách
             for passenger in booking['HanhKhach']:
                 passenger_info = [
