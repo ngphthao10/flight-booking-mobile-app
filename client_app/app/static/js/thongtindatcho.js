@@ -69,8 +69,58 @@ function displayBookingInfo(bookings) {
         paymentInfo.innerHTML = '<p>Chưa thanh toán</p>';
     }
 
+    try {
+        const printTicketBtn = document.getElementById('printTicketBtn');
+
+        if (firstBooking.ThanhToan && firstBooking.DatCho.TrangThai !== 'Đã hủy') {
+            printTicketBtn.style.display = 'block';
+        } else {
+            printTicketBtn.style.display = 'none';
+        }
+    } catch { }
+    // Hiển thị kết quả
     result.classList.remove('d-none');
+
 }
+
+async function printTicket() {
+    const bookingId = document.getElementById('bookingId').textContent;
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+
+    try {
+        loading.classList.remove('d-none');
+        error.classList.add('d-none');
+
+        const response = await fetch(`generate_eticket/${bookingId}`);
+
+        if (!response.ok) {
+            if (response.headers.get('content-type')?.includes('application/json')) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Không thể tạo vé điện tử');
+            }
+            throw new Error('Không thể tạo vé điện tử');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `e-ticket_${bookingId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+    } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove('d-none');
+    } finally {
+        loading.classList.add('d-none');
+    }
+}
+
 function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',

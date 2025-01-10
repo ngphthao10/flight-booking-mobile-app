@@ -384,7 +384,6 @@ def get_booking_detailed(madatcho):
 
         result = []
         for booking, flight, contact, dep_airport, arr_airport, airline, aircraft in bookings:
-            # Query phụ để lấy danh sách hành khách và hành lý
             passengers_and_luggage = db.session.query(
                 HanhKhach,
                 DichVuHanhLy
@@ -396,7 +395,6 @@ def get_booking_detailed(madatcho):
                 ChiTietDatCho.MaDatCho == booking.MaDatCho
             ).all()
 
-            # Query phụ để lấy thông tin thanh toán
             payment = db.session.query(ThanhToan).filter(
                 ThanhToan.MaDatCho == booking.MaDatCho
             ).first()
