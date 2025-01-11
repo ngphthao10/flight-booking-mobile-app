@@ -11,11 +11,9 @@ report = Blueprint('report', __name__)
 def get_market_share():
     """Gets market share by airlines with time filters."""
     try:
-        # Lấy tham số thời gian từ query string
-        time_filter = request.args.get('time', 'today')  # Mặc định là 'today'
+        time_filter = request.args.get('time', 'today')
         now = datetime.now()
 
-        # Tính khoảng thời gian filter
         if time_filter == 'today':
             start_date = now.date()
             end_date = start_date + timedelta(days=1)
@@ -37,7 +35,6 @@ def get_market_share():
         else:
             return jsonify({"status": "error", "message": "Invalid time filter"}), 400
 
-        # Tính tổng số đặt chỗ và thị phần
         total_bookings = db.session.query(
             HangHangKhong.MaHHK,
             HangHangKhong.TenHHK,
@@ -57,10 +54,8 @@ def get_market_share():
             HangHangKhong.TenHHK
         ).all()
 
-        # Tính tổng số lượng đặt chỗ
         total = sum(booking.booking_count for booking in total_bookings)
 
-        # Tạo kết quả trả về
         result = [
             {
                 "airline_code": booking.MaHHK,

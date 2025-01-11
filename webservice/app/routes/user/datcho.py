@@ -17,11 +17,13 @@ def create_booking():
         
         data = request.get_json()
         
+        # Kiểm tra thông tin người liên hệ
         required_contact = ['ho_nlh', 'ten_nlh', 'email', 'sdt']
         for field in required_contact:
             if field not in data['nguoi_lien_he']:
                 return jsonify({'error': f'Thiếu thông tin người liên hệ: {field}'}), 400
 
+        # Kiểm tra thông tin hành khách và dịch vụ hành lý
         required_passenger = ['ho_hk', 'ten_hk', 'danh_xung', 'cccd', 'ngay_sinh', 'quoc_tich', 'loai_hk']
         for passenger in data['hanh_khach']:
             for field in required_passenger:
@@ -38,16 +40,27 @@ def create_booking():
                         if not dich_vu or dich_vu.MaCB != ma_chuyen_bay:
                             return jsonify({'error': f'Dịch vụ hành lý không hợp lệ cho chuyến bay {ma_chuyen_bay}'}), 400
 
+        # Kiểm tra thông tin chuyến bay và gói dịch vụ
         flight_updates = {}
         first_flight = None
         for flight_info in data['chuyen_bay']:
             ma_chuyen_bay = flight_info['ma_chuyen_bay']
             so_ghe_bus = flight_info.get('so_ghe_bus', 0) 
             so_ghe_eco = flight_info.get('so_ghe_eco', 0)
+            ma_goi = flight_info.get('ma_goi')
             
+            # Kiểm tra chuyến bay
             flight = ChuyenBay.query.get(ma_chuyen_bay)
             if not flight:
                 return jsonify({'error': f'Không tìm thấy chuyến bay {ma_chuyen_bay}'}), 404
+            
+            # Kiểm tra gói dịch vụ
+            if ma_goi:
+                goi_dv = GoiDichVu.query.get(ma_goi)
+                if not goi_dv:
+                    return jsonify({'error': f'Không tìm thấy gói dịch vụ {ma_goi}'}), 404
+                if goi_dv.TrangThai != 0:  # Giả sử 0 là trạng thái hoạt động
+                    return jsonify({'error': f'Gói dịch vụ {ma_goi} không khả dụng'}), 400
             
             if first_flight is None:
                 first_flight = flight
@@ -89,7 +102,8 @@ def create_booking():
                 'chuyen_bay': [{
                     'ma_chuyen_bay': flight['ma_chuyen_bay'],
                     'so_ghe_bus': flight.get('so_ghe_bus', 0),
-                    'so_ghe_eco': flight.get('so_ghe_eco', 0)
+                    'so_ghe_eco': flight.get('so_ghe_eco', 0),
+                    'ma_goi': flight.get('ma_goi')  # Thêm ma_goi vào response
                 } for flight in data['chuyen_bay']],
                 'flight_updates': flight_updates
             }
@@ -110,8 +124,6 @@ def create_booking():
         db.session.rollback()
         print(f"Booking error: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
-
 
 @datcho.route('/api/bookings/<booking_id>/<user_id>/confirm', methods=['POST'])
 def confirm_booking(booking_id, user_id):
@@ -154,11 +166,13 @@ def confirm_booking(booking_id, user_id):
             db.session.add(nguoi_lien_he)
         db.session.flush()
 
+                # Tạo đặt chỗ gốc với thông tin gói dịch vụ
         dat_cho_goc = DatCho(
             MaCB=thong_tin['chuyen_bay'][0]['ma_chuyen_bay'],
             MaNLH=nguoi_lien_he.MaNLH,
             SoLuongGheBus=thong_tin['chuyen_bay'][0]['so_ghe_bus'],
             SoLuongGheEco=thong_tin['chuyen_bay'][0]['so_ghe_eco'],
+            MaGoi=thong_tin['chuyen_bay'][0].get('ma_goi'),  # Thêm MaGoi
             TrangThai='Đã thanh toán',
             NgayMua=now,
             MaND=user_id
@@ -168,12 +182,14 @@ def confirm_booking(booking_id, user_id):
 
         danh_sach_dat_cho = [dat_cho_goc]
 
+        # Tạo đặt chỗ cho các chuyến bay khác
         for chuyen_bay in thong_tin['chuyen_bay'][1:]:
             dat_cho = DatCho(
                 MaCB=chuyen_bay['ma_chuyen_bay'],
                 MaNLH=nguoi_lien_he.MaNLH,
                 SoLuongGheBus=chuyen_bay['so_ghe_bus'],
                 SoLuongGheEco=chuyen_bay['so_ghe_eco'],
+                MaGoi=chuyen_bay.get('ma_goi'),  # Thêm MaGoi
                 TrangThai='Đã thanh toán',
                 NgayMua=now,
                 MaND=user_id,
@@ -338,13 +354,10 @@ def get_booking_info(mand):
 
 @datcho.route('/api/get_booking_detailed/<int:madatcho>', methods=['GET'])
 def get_booking_detailed(madatcho):
-
     try:
-        # Tạo alias cho bảng SanBay
         SanBayDi = aliased(SanBay)
         SanBayDen = aliased(SanBay)
 
-        # Query chính
         bookings = db.session.query(
             DatCho, 
             ChuyenBay,
@@ -352,7 +365,8 @@ def get_booking_detailed(madatcho):
             SanBayDi,
             SanBayDen,
             HangHangKhong,
-            MayBay
+            MayBay,
+            GoiDichVu 
         ).join(
             ChuyenBay, DatCho.MaCB == ChuyenBay.MaChuyenBay
         ).join(
@@ -365,6 +379,8 @@ def get_booking_detailed(madatcho):
             MayBay, ChuyenBay.MaMB == MayBay.MaMayBay
         ).join(
             HangHangKhong, MayBay.MaHHK == HangHangKhong.MaHHK
+        ).outerjoin(  
+            GoiDichVu, DatCho.MaGoi == GoiDichVu.MaGoi
         ).filter(
             or_(
                 DatCho.MaDatCho == madatcho,
@@ -376,15 +392,23 @@ def get_booking_detailed(madatcho):
             )
         ).all()
 
-        if not bookings:
-            return jsonify({
-                "status": "error",
-                "message": "Không tìm thấy thông tin đặt chỗ"
-            }), 404
-
         result = []
-        for booking, flight, contact, dep_airport, arr_airport, airline, aircraft in bookings:
-            # Query phụ để lấy danh sách hành khách và hành lý
+        for booking, flight, contact, dep_airport, arr_airport, airline, aircraft, goi_dv in bookings:
+            dich_vu_ve = []
+            if goi_dv:
+                dich_vu_ve = db.session.query(
+                    DichVuVe, 
+                    DichVu
+                ).join(
+                    DichVu, DichVuVe.MaDV == DichVu.MaDV
+                ).filter(
+                    DichVuVe.MaGoi == goi_dv.MaGoi,
+                    DichVuVe.MaHHK == airline.MaHHK
+                ).all()
+            payment = db.session.query(ThanhToan).filter(
+                ThanhToan.MaDatCho == booking.MaDatCho
+            ).first()
+
             passengers_and_luggage = db.session.query(
                 HanhKhach,
                 DichVuHanhLy
@@ -396,11 +420,7 @@ def get_booking_detailed(madatcho):
                 ChiTietDatCho.MaDatCho == booking.MaDatCho
             ).all()
 
-            # Query phụ để lấy thông tin thanh toán
-            payment = db.session.query(ThanhToan).filter(
-                ThanhToan.MaDatCho == booking.MaDatCho
-            ).first()
-
+            # Phần booking_info hiện tại
             booking_info = {
                 "MaChuyenBay": flight.MaChuyenBay,
                 "MaDatCho": booking.MaDatCho,
@@ -440,7 +460,19 @@ def get_booking_detailed(madatcho):
                         "Economy": booking.SoLuongGheEco
                     },
                     "NgayMua": booking.NgayMua.strftime('%Y-%m-%d %H:%M:%S'),
-                    "TrangThai": booking.TrangThai
+                    "TrangThai": booking.TrangThai,
+                    "GoiDichVu": {
+                        "MaGoi": goi_dv.MaGoi if goi_dv else None,
+                        "TenGoi": goi_dv.TenGoi if goi_dv else None,
+                        "MoTa": goi_dv.MoTa if goi_dv else None,
+                        "HeSoGia": float(goi_dv.HeSoGia) if goi_dv else None,
+                        "DichVu": [{
+                            "TenDichVu": dv.TenDichVu,
+                            "MoTa": dv.MoTa,
+                            "LoaiVeApDung": dv_ve.LoaiVeApDung,
+                            "ThamSo": float(dv_ve.ThamSo) if dv_ve.ThamSo else None
+                        } for dv_ve, dv in dich_vu_ve] if dich_vu_ve else []
+                    } if goi_dv else None
                 },
                 "NguoiLienHe": {
                     "Ho": contact.HoNLH,

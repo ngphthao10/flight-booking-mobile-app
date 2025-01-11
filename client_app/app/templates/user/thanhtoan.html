@@ -702,7 +702,7 @@
 
     function calculateDuration(start, end) {
         const diff = new Date(end) - new Date(start);
-        return diff / (1000 * 60 * 60); // Convert to hours
+        return diff / (1000 * 60 * 60);
     }
 
     async function loadPromotions() {
@@ -772,7 +772,6 @@
         }
     }
 
-    // Function để hiển thị khuyến mãi
     function displayPromotions(promotionData) {
         const voucherContainer = document.querySelector('.available-vouchers');
         if (!voucherContainer) return;
@@ -781,7 +780,6 @@
         const bookingData = JSON.parse(localStorage.getItem('bookingData') || '{}');
         const hasActivePromotion = bookingData.appliedPromotion != null;
 
-        // Form nhập mã cho CHUYẾN BAY
         if (!hasActivePromotion) {
             vouchersHTML += `
             <form class="d-flex gap-2 mt-3 mb-2" onsubmit="checkFlightPromotion(event, '', 0)">
@@ -795,7 +793,6 @@
         `;
         }
 
-        // Hiển thị khuyến mãi HÃNG HÀNG KHÔNG
         if (!hasActivePromotion && promotionData.khuyen_mai.HANG_HANG_KHONG.length > 0) {
             promotionData.khuyen_mai.HANG_HANG_KHONG.forEach(promo => {
                 vouchersHTML += `
@@ -817,7 +814,6 @@
             });
         }
 
-        // Hiển thị mã đã áp dụng
         if (hasActivePromotion) {
             vouchersHTML += `
             <div class="alert alert-success d-flex justify-content-between align-items-center mb-0">
@@ -839,25 +835,21 @@
     }
 
 
-    // Function để áp dụng khuyến mãi
     function applyPromotion(promotionCode, discountAmount, type, airline = null) {
         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
         if (!bookingData) return;
 
-        // Áp dụng promotion mới
         bookingData.appliedPromotion = {
             code: promotionCode,
             discount: discountAmount,
             type: type,
-            airline: airline // thêm thông tin hãng bay nếu là mã của hãng
+            airline: airline
         };
 
-        // Cập nhật finalPrice
         bookingData.finalPrice = (bookingData.basePrice || 0) +
             (bookingData.luggagePrice || 0) -
             discountAmount;
 
-        // Lưu lại vào localStorage
         localStorage.setItem('bookingData', JSON.stringify(bookingData));
 
         updateTotalPrice(bookingData);
@@ -914,26 +906,20 @@
             alert('Có lỗi xảy ra khi kiểm tra mã khuyến mãi');
         }
     }
-    // Function để xóa khuyến mãi
     function removePromotion() {
         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
         if (!bookingData || !bookingData.appliedPromotion) return;
 
-        // Khôi phục giá gốc
-        // Khôi phục giá gốc
         bookingData.finalPrice = (bookingData.basePrice || 0) +
             (bookingData.luggagePrice || 0);
         delete bookingData.appliedPromotion;
 
-        // Lưu lại vào localStorage
         localStorage.setItem('bookingData', JSON.stringify(bookingData));
 
-        // Cập nhật hiển thị
         updateTotalPrice(bookingData);
         loadPromotions();
     }
 
-    // Update main function
     document.addEventListener('DOMContentLoaded', function () {
         const bookingDataStr = localStorage.getItem('bookingData');
         if (!bookingDataStr) {
@@ -944,18 +930,14 @@
 
         const bookingData = JSON.parse(bookingDataStr);
         console.log('Booking Data:', bookingData);
-        // Cập nhật thông tin chuyến bay đi
         updateFlightInfo(bookingData.outbound, false);
 
-        // Nếu là chuyến khứ hồi
         if (bookingData.bookingType === 'round-trip' && bookingData.return) {
             updateFlightInfo(bookingData.return, true);
         }
 
-        // Cập nhật thông tin hành khách
         updatePassengerInfo(bookingData.bookingDetails);
 
-        // Cập nhật tổng tiền
         updateTotalPrice(bookingData);
         loadPromotions();
 

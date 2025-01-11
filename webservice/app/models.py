@@ -92,6 +92,7 @@ class GoiDichVu(db.Model):
     HeSoGia = db.Column(db.Numeric(3,2), default=1.00)
     TrangThai = db.Column(db.Integer, default=0)
 
+    ds_dat_cho = db.relationship('DatCho', backref='goi_dich_vu', lazy=True)
     dich_vu_ve = db.relationship('DichVuVe', backref='goi_dich_vu', lazy='dynamic', cascade='all, delete-orphan')
 
 class DichVuVe(db.Model):
@@ -263,12 +264,14 @@ class DatCho(db.Model):
     MaDatCho = db.Column(db.Integer, primary_key=True, autoincrement=True)
     MaCB = db.Column(db.String(8), db.ForeignKey('CHUYENBAY.MaChuyenBay', ondelete='CASCADE'), nullable=False)
     MaNLH = db.Column(db.Integer, db.ForeignKey('NGUOILIENHE.MaNLH', ondelete='CASCADE'), nullable=False)
+    MaGoi = db.Column(db.Integer, db.ForeignKey('GOIDICHVU.MaGoi', ondelete='SET NULL'), nullable=True)
     SoLuongGheBus = db.Column(db.Integer, nullable=False)
     SoLuongGheEco = db.Column(db.Integer, nullable=False)
     NgayMua = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     TrangThai = db.Column(db.String(25), nullable=False)
     MaND = db.Column(db.Integer, db.ForeignKey('NGUOIDUNG.MaND', ondelete='CASCADE'), nullable=True)
     MaDatChoGoc = db.Column(db.Integer, db.ForeignKey('DATCHO.MaDatCho'), nullable=True) 
+
     # Relationships
     nguoi_lien_he = db.relationship('NguoiLienHe', backref='ds_dat_cho')
     chuyen_bay = db.relationship('ChuyenBay', backref='ds_dat_cho')
@@ -283,7 +286,6 @@ class DatCho(db.Model):
     __table_args__ = (
         db.CheckConstraint(TrangThai.in_(['Đang thanh toán', 'Đã thanh toán', 'Đã hủy'])),
     )
-
     @staticmethod
     def generate_booking_code(ma_hhk):
         """Tạo mã đặt chỗ theo format: MaHHK + năm + số tự động tăng"""

@@ -1,9 +1,7 @@
 {% extends 'user/base.html' %}
 {% block title %}Đặt chỗ của tôi{% endblock %}
 {% block content %}
-<div class="container">
-    {% include 'user/navbar.html'%}
-</div>
+{% include 'user/navbar.html'%}
 <div class="container mt-3 mb-5">
     <!-- Header -->
     <div class="row mb-3">
@@ -98,8 +96,13 @@
                     <div id="bookingResult" class="d-none">
                         <!-- Thông tin chung -->
                         <div class="card mb-3">
-                            <div class="card-header bg-primary text-white">
+                            <div
+                                class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0">Thông tin đặt chỗ #<span id="bookingId"></span></h5>
+                                <button class="btn btn-light btn-sm" id="printTicketBtn" onclick="printTicket()"
+                                    style="display: none;">
+                                    <i class="bi bi-printer me-1"></i>In vé điện tử
+                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -157,6 +160,7 @@
     </div>
     {% endif %}
 </div>
+{% include 'user/footer.html'%}
 <style>
     .no-bookings-message {
         text-align: center;
@@ -370,4 +374,5 @@
 </script>
 <script src="{{url_for('static', filename='js/signout.js')}}"></script>
 <script src="{{url_for('static', filename='js/thongtindatcho.js')}}"></script>
+<script src="{{url_for('static', filename='js/helper.js')}}"></script>
 {% endblock %}

@@ -1,8 +1,6 @@
 {% extends "user/base.html" %}
 {% block content %}
-<div class="container">
-    {% include 'user/navbar.html'%}
-</div>
+{% include 'user/navbar.html'%}
 <div class="container mt-5 mb-5">
     {% if error %}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -11,75 +9,98 @@
     </div>
     {% endif %}
 
-    <div class="card shadow bg-body-tertiary rounded">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-airplane"
-                viewBox="0 0 16 16">
-                <path
-                    d="M6.428 1.151C6.708.591 7.213 0 8 0s1.292.592 1.572 1.151C9.861 1.73 10 2.431 10 3v3.691l5.17 2.585a1.5 1.5 0 0 1 .83 1.342V12a.5.5 0 0 1-.582.493l-5.507-.918-.375 2.253 1.318 1.318A.5.5 0 0 1 10.5 16h-5a.5.5 0 0 1-.354-.854l1.319-1.318-.376-2.253-5.507.918A.5.5 0 0 1 0 12v-1.382a1.5 1.5 0 0 1 .83-1.342L6 6.691V3c0-.568.14-1.271.428-1.849m.894.448C7.111 2.02 7 2.569 7 3v4a.5.5 0 0 1-.276.447l-5.448 2.724a.5.5 0 0 0-.276.447v.792l5.418-.903a.5.5 0 0 1 .575.41l.5 3a.5.5 0 0 1-.14.437L6.708 15h2.586l-.647-.646a.5.5 0 0 1-.14-.436l.5-3a.5.5 0 0 1 .576-.411L15 11.41v-.792a.5.5 0 0 0-.276-.447L9.276 7.447A.5.5 0 0 1 9 7V3c0-.432-.11-.979-.322-1.401C8.458 1.159 8.213 1 8 1s-.458.158-.678.599" />
-            </svg>
-            Vé máy bay
+    <!-- Alert for validation errors -->
+    <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="validationAlert">
+        <span id="validationMessage"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-airplane-engines me-2"></i>
+                <h5 class="mb-0">Tìm kiếm chuyến bay</h5>
+            </div>
         </div>
         <div class="card-body">
-            <form action="{{ url_for('homepage.search_flights') }}" method="POST" id="searchForm">
-                <div class="row mb-3">
-                    <div class="col">
-                        <div class="d-flex align-items-center gap-3 justify-content-end">
-                            <div class="position-relative" style="min-width: 220px;">
-                                <a class="btn btn-outline-dark w-100" data-bs-toggle="collapse" href="#collapseExample"
-                                    role="button" aria-expanded="true" aria-controls="collapseExample"
-                                    id="passengerButton">
-                                    1 Người lớn, 0 Trẻ em, 0 Em bé
-                                </a>
-                                <div class="collapse position-absolute" id="collapseExample"
-                                    style="width: 100%; z-index: 1000; margin-top: 5px;">
-                                    <div class="card card-body">
-                                        <label class="form-label">Số hành khách</label>
-                                        <label for="nguoiLon">Người lớn</label>
-                                        <div data-mdb-input-init class="form-outline mb-2">
+            <form action="{{ url_for('homepage.search_flights') }}" method="POST" id="searchForm"
+                class="needs-validation" novalidate>
+                <div class="row mb-4">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <!-- Passenger Selection -->
+                        <div class="position-relative">
+                            <label class="form-label">Hành khách</label>
+                            <div class="dropdown w-100">
+                                <button
+                                    class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
+                                    type="button" id="passengerButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span>1 Người lớn, 0 Trẻ em, 0 Em bé</span>
+                                    <i class="bi bi-person"></i>
+                                </button>
+                                <div class="dropdown-menu p-3" style="width: 300px;">
+                                    <div class="mb-3">
+                                        <label for="nguoiLon" class="form-label d-flex justify-content-between">
+                                            <span>Người lớn</span>
+                                            <small class="text-muted">(>12 tuổi)</small>
+                                        </label>
+                                        <div class="input-group">
                                             <input type="number" id="nguoiLon" name="nguoiLon"
-                                                class="form-control passenger-input"
-                                                value="{{ default_data.passenger_adults }}" min="1" required />
+                                                class="form-control text-center passenger-input" value="1" min="1"
+                                                required>
                                         </div>
-                                        <label for="treEm">Trẻ em</label>
-                                        <div data-mdb-input-init class="form-outline mb-2">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="treEm" class="form-label d-flex justify-content-between">
+                                            <span>Trẻ em</span>
+                                            <small class="text-muted">(2-12 tuổi)</small>
+                                        </label>
+                                        <div class="input-group">
                                             <input type="number" id="treEm" name="treEm"
-                                                class="form-control passenger-input"
-                                                value="{{ default_data.passenger_children }}" min="0" required />
+                                                class="form-control text-center passenger-input" value="0" min="0"
+                                                required>
                                         </div>
-                                        <label for="emBe">Em bé</label>
-                                        <div data-mdb-input-init class="form-outline">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="emBe" class="form-label d-flex justify-content-between">
+                                            <span>Em bé</span>
+                                            <small class="text-muted">(<2 tuổi)</small>
+                                        </label>
+                                        <div class="input-group">
                                             <input type="number" id="emBe" name="emBe"
-                                                class="form-control passenger-input"
-                                                value="{{ default_data.passenger_infants }}" min="0" required />
+                                                class="form-control text-center passenger-input" value="0" min="0"
+                                                required>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="input-group" style="width: 200px;">
-                                <select class="form-select" aria-label="Default select example" name="seat_class">
-                                    {% for class in default_data.seat_class %}
-                                    <option value="{{ class.value }}">{{ class.label }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
                         </div>
                     </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <!-- Seat Class -->
+                        <label class="form-label">Hạng ghế</label>
+                        <select class="form-select" name="seat_class">
+                            {% for class in default_data.seat_class %}
+                            <option value="{{ class.value }}">{{ class.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
                             <!-- Origin -->
                             <div class="col-md-5">
-                                <label class="form-label">Từ</label>
-                                <input type="hidden" name="origin" id="origin"> <!-- Thêm hidden input -->
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button"
-                                        id="originDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Chọn địa điểm
+                                <label class="form-label">Điểm đi</label>
+                                <input type="hidden" name="origin" id="origin">
+                                <div class="dropdown w-100">
+                                    <button
+                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
+                                        type="button" id="originDropdownButton" data-bs-toggle="dropdown">
+                                        <span>Chọn điểm đi</span>
+                                        <i class="bi bi-geo-alt"></i>
                                     </button>
-                                    <ul class="dropdown-menu w-100" aria-labelledby="originDropdownButton"
-                                        id="origin-list">
+                                    <ul class="dropdown-menu w-100" id="origin-list">
                                         <li class="px-3">
                                             <input type="text" class="form-control" id="searchInputOrigin"
                                                 placeholder="Tìm kiếm...">
@@ -99,26 +120,26 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-2 d-flex justify-content-center align-items-center">
-                                <button class="btn btn-outline-dark" id="swap-button">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-arrow-left-right mb-1" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                            d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5m14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5" />
-                                    </svg>
+                            <!-- Swap Button -->
+                            <div class="col-md-2 d-flex align-items-center justify-content-center my-2">
+                                <button class="btn btn-outline-primary rounded-circle p-2" type="button"
+                                    id="swap-button">
+                                    <i class="bi bi-arrow-left-right"></i>
                                 </button>
                             </div>
+
                             <!-- Destination -->
                             <div class="col-md-5">
-                                <label class="form-label">Đến</label>
-                                <input type="hidden" name="destination" id="destination"> <!-- Thêm hidden input -->
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button"
-                                        id="destinationDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Chọn địa điểm
+                                <label class="form-label">Điểm đến</label>
+                                <input type="hidden" name="destination" id="destination">
+                                <div class="dropdown w-100">
+                                    <button
+                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
+                                        type="button" id="destinationDropdownButton" data-bs-toggle="dropdown">
+                                        <span>Chọn điểm đến</span>
+                                        <i class="bi bi-geo-alt"></i>
                                     </button>
-                                    <ul class="dropdown-menu w-100" aria-labelledby="destinationDropdownButton"
-                                        id="destination-list">
+                                    <ul class="dropdown-menu w-100" id="destination-list">
                                         <li class="px-3">
                                             <input type="text" class="form-control" id="searchInputDestination"
                                                 placeholder="Tìm kiếm...">
@@ -139,130 +160,256 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Column for departure and return date -->
+
                     <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-6">
-                                <label for="departure-date" class="form-label">Ngày đi</label>
+                            <!-- Departure Date -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày đi</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                                     <input type="date" id="departure-date" name="departure-date" class="form-control"
-                                        value="{{ default_data.departure_date }}" min="{{ today_date }}" />
+                                        value="{{ departure_date }}" min="{{ today_date }}" required>
                                 </div>
                             </div>
 
-                            <div class="col-md-6" id="return-date-section">
-                                <label for="return-date" class="form-label">Ngày về</label>
+                            <!-- Return Date -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày về</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                                     <input type="date" id="return-date" name="return-date" class="form-control"
-                                        value="{{ default_data.return_date }}" min="{{ today_date }}">
+                                        value="{{ return_date }}" min="{{ today_date }}" disabled>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Khứ hồi Checkbox -->
-                <div class="d-flex justify-content-end align-items-end mt-3">
-                    <div class="form-check">
-                        <input type="checkbox" name="return-trip" class="form-check-input" id="return-trip" {% if
-                            default_data.is_round_trip %}checked{% endif %}>
-                        <label class="form-check-label" for="return-trip">Khứ hồi</label>
+                <!-- Round Trip Checkbox -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="form-check float-end">
+                            <input type="checkbox" name="return-trip" class="form-check-input" id="return-trip">
+                            <label class="form-check-label" for="return-trip">Khứ hồi</label>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-3 d-grid">
-                    <button class="btn btn-outline-primary" type="submit">Tìm kiếm chuyến bay</button>
+
+                <!-- Submit Button -->
+                <div class="d-grid">
+                    <button class="btn btn-primary btn-lg" type="submit">
+                        <i class="bi bi-search me-2"></i>Tìm kiếm chuyến bay
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;">
-</div>
+
+{% include 'user/footer.html'%}
 
 <script>
-    const config = document.getElementById('pagination-config');
-    const API_URL = config.dataset.apiUrl;
-    console.log('api:', API_URL)
-    document.addEventListener("DOMContentLoaded", function () {
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0]; // Lấy định dạng YYYY-MM-DD
-        document.getElementById('departure-date').setAttribute('min', formattedDate);
-        document.getElementById('return-date').setAttribute('min', formattedDate);
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Form validation
+        const form = document.getElementById('searchForm');
+        const validationAlert = document.getElementById('validationAlert');
+        const validationMessage = document.getElementById('validationMessage');
 
-    document.querySelectorAll('.passenger-input').forEach(input => {
-        input.addEventListener('change', function () {
-            const nguoiLon = document.getElementById('nguoiLon').value;
-            const treEm = document.getElementById('treEm').value;
-            const emBe = document.getElementById('emBe').value;
+        // Passenger input validation
+        function validatePassengers() {
+            const adults = parseInt(document.getElementById('nguoiLon').value) || 0;
+            const infants = parseInt(document.getElementById('emBe').value) || 0;
 
-            document.getElementById('passengerButton').textContent =
-                `${nguoiLon} Người lớn, ${treEm} Trẻ em, ${emBe} Em bé`;
+            if (infants > adults) {
+                validationAlert.classList.remove('d-none');
+                validationMessage.textContent = 'Số em bé không được nhiều hơn số người lớn';
+                return false;
+            }
+
+            validationAlert.classList.add('d-none');
+            return true;
+        }
+
+        // Handle passenger increment/decrement
+        document.querySelectorAll('.passenger-minus, .passenger-plus').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.dataset.target;
+                const input = document.getElementById(targetId);
+                const currentValue = parseInt(input.value) || 0;
+                const isPlus = this.classList.contains('passenger-plus');
+                const minValue = parseInt(input.min) || 0;
+
+                if (isPlus) {
+                    input.value = currentValue + 1;
+                } else {
+                    input.value = Math.max(minValue, currentValue - 1);
+                }
+
+                // Update passenger summary
+                updatePassengerSummary();
+                validatePassengers();
+            });
         });
-    });
-    function toggleReturnDate() {
-        const returnDateInput = document.getElementById('return-date');
-        const returnTripCheckbox = document.getElementById('return-trip');
-        returnDateInput.disabled = !returnTripCheckbox.checked;
-    }
 
-    document.getElementById('return-trip').addEventListener('change', toggleReturnDate);
+        // Update passenger summary text
+        function updatePassengerSummary() {
+            const adults = document.getElementById('nguoiLon').value;
+            const children = document.getElementById('treEm').value;
+            const infants = document.getElementById('emBe').value;
 
-    toggleReturnDate();
+            document.getElementById('passengerButton').querySelector('span').textContent =
+                `${adults} Người lớn, ${children} Trẻ em, ${infants} Em bé`;
+        }
 
-    function filterDropdown(inputId, dropdownId) {
-        const input = document.getElementById(inputId);
-        const filter = input.value.toLowerCase();
-        const dropdownItems = document.querySelectorAll(`#${dropdownId} .dropdown-item`);
+        // Handle passenger input changes
+        document.querySelectorAll('.passenger-input').forEach(input => {
+            input.addEventListener('change', function () {
+                const minValue = parseInt(this.min) || 0;
+                this.value = Math.max(minValue, parseInt(this.value) || 0);
+                updatePassengerSummary();
+                validatePassengers();
+            });
+        });
 
-        dropdownItems.forEach(function (item) {
-            const text = item.textContent || item.innerText;
-            if (text.toLowerCase().indexOf(filter) > -1) {
-                item.style.display = '';
-            } else {
-                item.style.display = 'none';
+        // Filter dropdowns
+        function filterDropdown(inputId, dropdownId) {
+            const input = document.getElementById(inputId);
+            const filter = input.value.toLowerCase();
+            const dropdownItems = document.querySelectorAll(`#${dropdownId} .dropdown-item`);
+
+            dropdownItems.forEach(function (item) {
+                const text = item.textContent || item.innerText;
+                if (text.toLowerCase().indexOf(filter) > -1) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Location selection handlers
+        window.selectOrigin = function (displayText, airportCode) {
+            document.getElementById('originDropdownButton').querySelector('span').textContent = displayText;
+            document.getElementById('origin').value = airportCode;
+        }
+
+        window.selectDestination = function (displayText, airportCode) {
+            document.getElementById('destinationDropdownButton').querySelector('span').textContent = displayText;
+            document.getElementById('destination').value = airportCode;
+        }
+
+        // Search input event listeners
+        document.getElementById('searchInputOrigin').addEventListener('keyup', function () {
+            filterDropdown('searchInputOrigin', 'origin-list');
+        });
+
+        document.getElementById('searchInputDestination').addEventListener('keyup', function () {
+            filterDropdown('searchInputDestination', 'destination-list');
+        });
+
+        // Swap button handler
+        document.getElementById('swap-button').addEventListener('click', function (e) {
+            e.preventDefault();
+            let originButton = document.getElementById('originDropdownButton').querySelector('span');
+            let destinationButton = document.getElementById('destinationDropdownButton').querySelector('span');
+            let originInput = document.getElementById('origin');
+            let destinationInput = document.getElementById('destination');
+
+            let tempText = originButton.textContent;
+            let tempValue = originInput.value;
+
+            originButton.textContent = destinationButton.textContent;
+            originInput.value = destinationInput.value;
+
+            destinationButton.textContent = tempText;
+            destinationInput.value = tempValue;
+        });
+
+        // Return trip checkbox handler
+        document.getElementById('return-trip').addEventListener('change', function () {
+            const returnDateInput = document.getElementById('return-date');
+            returnDateInput.disabled = !this.checked;
+
+            if (this.checked) {
+                const departureDate = document.getElementById('departure-date').value;
+                returnDateInput.min = departureDate;
+                if (!returnDateInput.value) {
+                    returnDateInput.value = departureDate;
+                }
             }
         });
-    }
 
+        // Set min date for departure and handle date changes
+        const today = new Date().toISOString().split('T')[0];
+        const departureDate = document.getElementById('departure-date');
+        const returnDate = document.getElementById('return-date');
 
-    document.getElementById('searchInputOrigin').addEventListener('keyup', function () {
-        filterDropdown('searchInputOrigin', 'origin-list');
-    });
+        departureDate.min = today;
+        departureDate.addEventListener('change', function () {
+            if (document.getElementById('return-trip').checked) {
+                returnDate.min = this.value;
+                if (returnDate.value && returnDate.value < this.value) {
+                    returnDate.value = this.value;
+                }
+            }
+        });
 
-    document.getElementById('searchInputDestination').addEventListener('keyup', function () {
-        filterDropdown('searchInputDestination', 'destination-list');
-    });
+        // Form submission handler
+        form.addEventListener('submit', function (e) {
+            if (!validatePassengers()) {
+                e.preventDefault();
+                return;
+            }
 
-    function selectOrigin(displayText, airportCode) {
-        document.getElementById('originDropdownButton').textContent = displayText;
-        document.getElementById('origin').value = airportCode;
-    }
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
 
-    function selectDestination(displayText, airportCode) {
-        document.getElementById('destinationDropdownButton').textContent = displayText;
-        document.getElementById('destination').value = airportCode;
-    }
+            if (!origin || !destination) {
+                e.preventDefault();
+                validationAlert.classList.remove('d-none');
+                validationMessage.textContent = 'Vui lòng chọn điểm đi và điểm đến';
+                return;
+            }
 
-    // Cập nhật hàm swap button
-    document.getElementById('swap-button').addEventListener('click', function (e) {
-        e.preventDefault();
-        let originDropdown = document.getElementById('originDropdownButton');
-        let destinationDropdown = document.getElementById('destinationDropdownButton');
-        let originInput = document.getElementById('origin');
-        let destinationInput = document.getElementById('destination');
+            if (origin === destination) {
+                e.preventDefault();
+                validationAlert.classList.remove('d-none');
+                validationMessage.textContent = 'Điểm đi và điểm đến không được trùng nhau';
+                return;
+            }
 
-        let tempText = originDropdown.textContent;
-        let tempValue = originInput.value;
+            const departureDate = document.getElementById('departure-date').value;
+            if (!departureDate) {
+                e.preventDefault();
+                validationAlert.classList.remove('d-none');
+                validationMessage.textContent = 'Vui lòng chọn ngày đi';
+                return;
+            }
 
-        originDropdown.textContent = destinationDropdown.textContent;
-        originInput.value = destinationInput.value;
+            if (document.getElementById('return-trip').checked) {
+                const returnDate = document.getElementById('return-date').value;
+                if (!returnDate) {
+                    e.preventDefault();
+                    validationAlert.classList.remove('d-none');
+                    validationMessage.textContent = 'Vui lòng chọn ngày về';
+                    return;
+                }
 
-        destinationDropdown.textContent = tempText;
-        destinationInput.value = tempValue;
+                if (returnDate < departureDate) {
+                    e.preventDefault();
+                    validationAlert.classList.remove('d-none');
+                    validationMessage.textContent = 'Ngày về phải sau ngày đi';
+                    return;
+                }
+            }
+        });
+
+        // Initialize tooltips and popovers if using Bootstrap 5
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
 </script>
-<script src="{{url_for('static', filename='js/signout.js')}}"></script>
-{% endblock%}
+{% endblock %}

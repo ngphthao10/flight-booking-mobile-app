@@ -42,19 +42,6 @@ def home():
             user_info=user_info
         )
 
-    except requests.exceptions.RequestException as e:
-        error_message = f"Lỗi kết nối tới API: {str(e)}"
-        flash(error_message, 'danger')
-        # Log lỗi để debug
-        current_app.logger.error(f"API Connection Error: {error_message}")
-        return render_template(
-            'user/homepage.html',
-            san_bay=[],
-            default_data={},
-            error=error_message,
-            api_url=current_app.config['API_URL'],
-            user_info=None
-        )
     except Exception as e:
         error_message = f"Lỗi hệ thống: {str(e)}"
         flash(error_message, 'danger')

@@ -974,25 +974,24 @@
                 };
                 hanh_khach.push(infant);
             }
-
             let chuyen_bay = [];
-
             if (bookingData.outbound.flight.is_connecting) {
                 for (let segment of bookingData.outbound.flight.segments) {
                     chuyen_bay.push({
                         ma_chuyen_bay: segment.ma_chuyen_bay,
                         so_ghe_bus: segment.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                        so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                        so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                        ma_goi: bookingData.outbound.package.ma_goi
                     });
                 }
             } else {
                 chuyen_bay.push({
                     ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
                     so_ghe_bus: bookingData.outbound.flight.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                    so_ghe_eco: bookingData.outbound.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                    so_ghe_eco: bookingData.outbound.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                    ma_goi: bookingData.outbound.package.ma_goi
                 });
             }
-
 
             if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
                 if (bookingData.return.flight.is_connecting) {
@@ -1000,17 +999,20 @@
                         chuyen_bay.push({
                             ma_chuyen_bay: segment.ma_chuyen_bay,
                             so_ghe_bus: segment.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                            so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                            so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                            ma_goi: bookingData.return.package.ma_goi
                         });
                     }
                 } else {
                     chuyen_bay.push({
                         ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
                         so_ghe_bus: bookingData.return.flight.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                        so_ghe_eco: bookingData.return.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0
+                        so_ghe_eco: bookingData.return.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                        ma_goi: bookingData.return.package.ma_goi
                     });
                 }
             }
+
 
             const finalData = {
                 nguoi_lien_he,
