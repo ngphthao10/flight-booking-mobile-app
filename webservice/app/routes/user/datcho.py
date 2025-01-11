@@ -355,11 +355,9 @@ def get_booking_info(mand):
 @datcho.route('/api/get_booking_detailed/<int:madatcho>', methods=['GET'])
 def get_booking_detailed(madatcho):
     try:
-        # Tạo alias cho bảng SanBay
         SanBayDi = aliased(SanBay)
         SanBayDen = aliased(SanBay)
 
-        # Query chính
         bookings = db.session.query(
             DatCho, 
             ChuyenBay,

@@ -63,12 +63,12 @@ def login():
             'error': str(e)
         }), 500
 
-@auth_bp.route('/api/logout', methods=['GET'])
-@login_required
-def logout():
-    session.clear()
-    logout_user()  
-    return jsonify({'status': True, 'message': 'Đăng xuất thành công'}), 200
+# @auth_bp.route('/api/logout', methods=['GET'])
+# @login_required
+# def logout():
+#     session.clear()
+#     logout_user()  
+#     return jsonify({'status': True, 'message': 'Đăng xuất thành công'}), 200
 
 
 @auth_bp.route('/login/google')
@@ -133,9 +133,8 @@ def google_callback():
                 db.session.add(user)
                 db.session.commit()
 
-            login_user(user)  # Đăng nhập người dùng vào phiên làm việc hiện tại
+            login_user(user) 
 
-            # Thông tin người dùng cần gửi về client
             user_data = {
                 'MaND': user.MaND,
                 'TenDangNhap': user.TenDangNhap,
@@ -164,12 +163,6 @@ def google_callback():
         else:
             return jsonify({'status': False, 'message': 'Email chưa được xác minh'}), 400
 
-    except requests.exceptions.RequestException as req_err:
-        return jsonify({
-            'status': False,
-            'message': 'Lỗi mạng khi xác thực với Google',
-            'error': str(req_err)
-        }), 500
     except Exception as e:
         return jsonify({
             'status': False,

@@ -264,7 +264,7 @@ def create_e_ticket(booking_data, output_path):
                     ['THÔNG TIN HÀNH KHÁCH', ''],
                     ['Danh xưng:', passenger['DanhXung']],
                     ['Họ tên:', f"{passenger['Ho']} {passenger['Ten']}"],
-                    ['CCCD/Passport:', passenger['CCCD']],
+                    ['CCCD:', passenger['CCCD']],
                     ['Ngày sinh:', datetime.strptime(passenger['NgaySinh'], '%Y-%m-%d').strftime('%d/%m/%Y')],
                     ['Quốc tịch:', passenger['QuocTich']],
                     ['Hành lý:', f"{passenger['HanhLy']['SoKy']}kg - {passenger['HanhLy']['MoTa']}" if passenger.get('HanhLy') else 'Không có']
@@ -288,6 +288,7 @@ def create_e_ticket(booking_data, output_path):
             
             if idx < len(bookings) - 1:
                 elements.append(PageBreak())
+
         if len(bookings) >= 1 and bookings[0].get('ThanhToan'):
             thanh_toan = bookings[0]['ThanhToan']
             elements.append(PageBreak())  
