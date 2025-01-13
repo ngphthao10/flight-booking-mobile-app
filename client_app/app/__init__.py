@@ -16,6 +16,7 @@ def create_app():
     from app.routes.auth import auth
     from app.routes.user.homepage import homepage
     from app.routes.user.datcho import datcho
+    from app.routes.admin.datcho import xemdatcho
     from app.routes.user.khuyenmai import promotion
     from app.routes.admin.hanghangkhong import hanghangkhong
     from app.routes.admin.sanbay import sanbay
@@ -24,6 +25,7 @@ def create_app():
 
     app.register_blueprint(homepage)
     app.register_blueprint(datcho, url_prefix="/datcho")
+    app.register_blueprint(xemdatcho, url_prefix="/xemdatcho")
     app.register_blueprint(hanghangkhong, url_prefix="/hanghangkhong")
     app.register_blueprint(sanbay, url_prefix="/sanbay")
     app.register_blueprint(auth, url_prefix="/auth")

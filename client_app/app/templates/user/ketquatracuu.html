@@ -145,7 +145,7 @@
                 error.classList.remove('d-none');
             }
         } catch (err) {
-            error.textContent = 'Có lỗi xảy ra khi tải thông tin đặt chỗ';
+            error.textContent = `Có lỗi xảy ra khi tải thông tin đặt chỗ: ${err.message}`;
             error.classList.remove('d-none');
         } finally {
             loading.classList.add('d-none');
@@ -156,5 +156,6 @@
 </script>
 <script src="{{url_for('static', filename='js/signout.js')}}"></script>
 <script src="{{url_for('static', filename='js/thongtindatcho.js')}}"></script>
+<script src="{{url_for('static', filename='js/helper.js')}}"></script>
 
 {% endblock %}

@@ -566,37 +566,6 @@
             statusElementId: 'returnStatus'
         });
     }
-    // Các hàm format
-    function formatTime(datetime) {
-        return new Date(datetime).toLocaleTimeString('vi-VN', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-    function formatDatetime(datetime) {
-        const date = new Date(datetime);
-
-        return date.toLocaleString('vi-VN', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        }).replace(/\//g, '-');
-    }
-    function formatDuration(hours) {
-        const h = Math.floor(hours);
-        const m = Math.round((hours - h) * 60);
-        return `${h}h ${m}m`;
-    }
-    function formatPrice(price) {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(price);
-    }
 
     function backToOutbound() {
         document.getElementById('returnFlightsContainer').style.display = 'none';
@@ -791,7 +760,6 @@
         }
     }
 
-    // Render các option package với giá được tính toán cho cả chuyến bay kết nối
     function renderPackageOptions(packages, isReturn) {
         const container = document.querySelector(`#${isReturn ? 'return' : 'outbound'}-content .package-options`);
         if (!container || !packages) return;
@@ -899,13 +867,6 @@
         packageModal = new bootstrap.Modal(document.getElementById('packageSelectionModal'));
     });
 
-    function formatPrice(price) {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(price);
-    }
-
     async function confirmPackageSelection() {
         if (!selectedOutboundPackage) {
             alert('Vui lòng chọn gói dịch vụ cho chuyến đi');
@@ -1008,6 +969,7 @@
             minutes = diffInMinutes % 60; if (minutes === 0) { return `${hours} giờ`; } return `${hours} giờ ${minutes} phút`;
     }
 </script>
+<script src="{{url_for('static', filename='js/helper.js')}}"></script>
 {% endblock %}
 
 {% endblock %}

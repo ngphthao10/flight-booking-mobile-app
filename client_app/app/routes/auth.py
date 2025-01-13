@@ -6,13 +6,9 @@ auth = Blueprint('auth', __name__)
 import hashlib
 
 def get_gravatar_url(email, size=200, default='identicon'):
-    # Xử lý email
     email = email.strip().lower()
-    # Mã hóa MD5
     hash_md5 = hashlib.md5(email.encode('utf-8')).hexdigest()
-    # Ghép chuỗi để tạo link
     return f"https://www.gravatar.com/avatar/{hash_md5}?d={default}&s={size}"
-
 
 @auth.route('/register/user')
 def user_register():
@@ -22,13 +18,10 @@ def user_register():
 def homepage():
     return render_template('admin/admin_home.html', api_url=current_app.config['API_URL'])
 
-
 @auth.route('/handle-login', methods=['POST'])
 def handle_login():
     try:
         user_data = request.get_json()
-        print(user_data)
-
         user_email = user_data['TenDangNhap']
 
         avatar_url = get_gravatar_url(user_email, size=200, default='identicon')

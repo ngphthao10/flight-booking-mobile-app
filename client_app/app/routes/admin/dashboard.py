@@ -8,7 +8,7 @@ dashboard = Blueprint('dashboard', __name__)
 @dashboard.route('/')
 @admin_required
 def index():
-    return render_template('admin/dashboard.html')
+    return render_template('admin/dashboard.html', api_url=current_app.config['API_URL'])
 
 @dashboard.route('/market-share')
 @admin_required

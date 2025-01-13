@@ -234,30 +234,6 @@ class NguoiLienHe(db.Model):
         db.CheckConstraint(SDT.regexp_match('^[0-9]+$')),
     )
 
-# class DatCho(db.Model):
-#     __tablename__ = 'DATCHO'
-    
-#     MaDatCho = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     MaCB = db.Column(db.String(8), db.ForeignKey('CHUYENBAY.MaChuyenBay', ondelete='CASCADE'), primary_key=True)
-#     MaNLH = db.Column(db.Integer, db.ForeignKey('NGUOILIENHE.MaNLH', ondelete='CASCADE'), nullable=False)
-#     SoLuongGheBus = db.Column(db.Integer, nullable=False)
-#     SoLuongGheEco = db.Column(db.Integer, nullable=False)
-#     NgayMua = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-#     TrangThai = db.Column(db.String(25), nullable=False)
-#     MaND = db.Column(db.Integer, db.ForeignKey('NGUOIDUNG.MaND', ondelete='CASCADE'), nullable=False)
-    
-#     # Relationships
-#     nguoi_lien_he = db.relationship('NguoiLienHe', backref='ds_dat_cho')
-#     chuyen_bay = db.relationship('ChuyenBay', backref='ds_dat_cho')
-#     nguoi_dung = db.relationship('NguoiDung', backref='ds_dat_cho')
-#     ds_hanh_khach = db.relationship('HanhKhach', 
-#                                  secondary='CHITIETDATCHO',
-#                                  backref=db.backref('ds_dat_cho', lazy=True))
-    
-#     __table_args__ = (
-#         db.CheckConstraint(TrangThai.in_(['Đang thanh toán', 'Đã thanh toán', 'Đã hủy'])),
-#     )
-
 class DatCho(db.Model):
     __tablename__ = 'DATCHO'
     
@@ -284,7 +260,7 @@ class DatCho(db.Model):
                                     backref=db.backref('dat_cho_goc', remote_side=[MaDatChoGoc]))
     
     __table_args__ = (
-        db.CheckConstraint(TrangThai.in_(['Đang thanh toán', 'Đã thanh toán', 'Đã hủy'])),
+        db.CheckConstraint(TrangThai.in_(['Đang xử lý', 'Đã thanh toán', 'Đã hủy'])),
     )
     @staticmethod
     def generate_booking_code(ma_hhk):
@@ -391,3 +367,17 @@ class BookingTamThoi(db.Model):
             db.session.commit()
         except:
             db.session.rollback()
+
+class LyDoHuy(db.Model):
+    __tablename__ = 'LYDOHUY'
+    
+    MaLyDo = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    MaDatCho = db.Column(db.Integer, db.ForeignKey('DATCHO.MaDatCho', ondelete='CASCADE'), nullable=False)
+    NoiDung = db.Column(db.Text, nullable=False)
+    NgayTao = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    TrangThai = db.Column(db.String(20), nullable=False, default='Chờ duyệt')  # Các trạng thái: Chờ duyệt, Đã duyệt, Từ chối
+    LyDoTuChoi = db.Column(db.Text) 
+    NgayXuLy = db.Column(db.DateTime)
+    
+    dat_cho = db.relationship('DatCho', backref=db.backref('ly_do_huy', uselist=False))

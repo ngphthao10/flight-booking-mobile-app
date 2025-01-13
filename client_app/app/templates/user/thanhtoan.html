@@ -25,10 +25,10 @@
             <div class="card bg-primary text-white rounded-4 shadow-sm mb-2">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">Hoàn tất thanh toán của bạn trong <span style="color: yellow;">10
-                                phút</span>
-                            kể từ lần đầu thấy thông báo này
-
+                        <div class="flex-grow-1">
+                            Vé của bạn sẽ được giữ trong
+                            <span id="countdown" style="color: yellow;">10:00</span>
+                            .Vui lòng hoàn tất thanh toán của bạn!
                         </div>
                         <i class="bi bi-clock ms-2"></i>
                     </div>
@@ -198,16 +198,7 @@
                 </div>
             </div>
 
-            <!-- Toast thông báo -->
-            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-                <div id="paymentToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <strong class="me-auto">Thông báo</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body" id="toastMessage"></div>
-                </div>
-            </div>
+
         </div>
 
         <!-- Cột bên phải - Tóm tắt chuyến bay -->
@@ -246,17 +237,20 @@
         </div>
     </div>
 </div>
+
 <div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;"></div>
 
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
 
 <style>
-    /* Các styles cũ giữ nguyên */
-    /* Thêm styles mới */
-    .time-remaining {
-        font-family: monospace;
-        font-size: 1.2rem;
-    }
-
     .payment-option:hover {
         border-color: var(--bs-primary) !important;
         background-color: var(--bs-light);
@@ -363,18 +357,6 @@
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
 
-    .time-remaining {
-        font-family: monospace;
-        font-size: 1.2rem;
-        min-width: 70px;
-        text-align: right;
-    }
-
-    /* Hiệu ứng nhấp nháy cho cảnh báo */
-    .time-remaining.warning {
-        animation: blink 1s infinite;
-    }
-
     @keyframes blink {
         50% {
             opacity: 0.5;
@@ -419,12 +401,7 @@
 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('qrModal'));
                 modal.hide();
-
-                const toast = new bootstrap.Toast(document.getElementById('paymentToast'));
-                document.getElementById('toastMessage').textContent = 'Thanh toán thành công!';
-                document.getElementById('toastMessage').classList.remove('text-danger');
-                document.getElementById('toastMessage').classList.add('text-success');
-                toast.show();
+                showMessage('success', 'Thanh toán thành công!');
 
                 setTimeout(() => {
                     window.location.href = `/datcho/booking-success`;
@@ -434,11 +411,7 @@
             }
 
         } catch (error) {
-            const toast = new bootstrap.Toast(document.getElementById('paymentToast'));
-            document.getElementById('toastMessage').textContent = error.message;
-            document.getElementById('toastMessage').classList.remove('text-success');
-            document.getElementById('toastMessage').classList.add('text-danger');
-            toast.show();
+            showMessage('danger', `Lỗi: ${error.message}`);
         } finally {
             button.disabled = false;
             button.innerHTML = '<i class="bi bi-download me-2"></i>Xác nhận đã thanh toán';
@@ -944,4 +917,6 @@
     });
 
 </script>
+<script src="{{url_for('static', filename='js/countdown.js')}}"></script>
+<script src="{{url_for('static', filename='js/showMessage.js')}}"></script>
 {% endblock %}

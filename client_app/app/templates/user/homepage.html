@@ -16,7 +16,7 @@
     </div>
 
     <div class="card shadow border-0">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-dark text-white">
             <div class="d-flex align-items-center">
                 <i class="bi bi-airplane-engines me-2"></i>
                 <h5 class="mb-0">Tìm kiếm chuyến bay</h5>
@@ -122,8 +122,7 @@
 
                             <!-- Swap Button -->
                             <div class="col-md-2 d-flex align-items-center justify-content-center my-2">
-                                <button class="btn btn-outline-primary rounded-circle p-2" type="button"
-                                    id="swap-button">
+                                <button class="btn btn-outline-dark rounded-circle" type="button" id="swap-button">
                                     <i class="bi bi-arrow-left-right"></i>
                                 </button>
                             </div>
@@ -198,7 +197,7 @@
 
                 <!-- Submit Button -->
                 <div class="d-grid">
-                    <button class="btn btn-primary btn-lg" type="submit">
+                    <button class="btn btn-outline-dark btn-lg" type="submit">
                         <i class="bi bi-search me-2"></i>Tìm kiếm chuyến bay
                     </button>
                 </div>
@@ -412,4 +411,5 @@
         });
     });
 </script>
+<script src="{{url_for('static', filename='js/signout.js')}}"></script>
 {% endblock %}

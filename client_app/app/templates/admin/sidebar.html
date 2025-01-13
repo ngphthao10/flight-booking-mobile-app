@@ -123,7 +123,7 @@
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="" class="sidebar-link">
+            <a href="{{url_for('xemdatcho.booking_info')}}" class="sidebar-link">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"
                     transform="rotate(0 0 0)">
                     <path
@@ -133,8 +133,15 @@
                         d="M20.4838 6.51868C20.7767 6.22578 20.7767 5.75091 20.4838 5.45802C20.1909 5.16512 19.7161 5.16512 19.4232 5.45802L11.9298 12.9514L8.57686 9.59849C8.28396 9.3056 7.80909 9.3056 7.5162 9.5985C7.22331 9.89139 7.22331 10.3663 7.5162 10.6592L11.3995 14.5424C11.6924 14.8353 12.1672 14.8353 12.4601 14.5424L20.4838 6.51868Z"
                         fill="#ffffff" />
                 </svg>
+                <span class="position-relative">
+                    Đặt chỗ&nbsp;&nbsp;&nbsp;
+                    <span id="cancellation-badge"
+                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                        <span id="pending-count">0</span>
+                    </span>
+                </span>
 
-                <span>Đặt chỗ</span>
+
             </a>
         </li>
         <li class="sidebar-item">
@@ -206,5 +213,34 @@
                 alert('Có lỗi xảy ra khi đăng xuất!');
             }
         }
+
+        function updateCancellationBadge() {
+            fetch(`${API_URL}/api/lydohuy`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const pendingCount = data.data.filter(
+                            item => item.trang_thai === 'Chờ duyệt'
+                        ).length;
+                        const badge = document.getElementById('cancellation-badge');
+                        const countElement = document.getElementById('pending-count');
+
+                        if (badge && countElement) {
+                            countElement.textContent = pendingCount;
+                            if (pendingCount > 0) {
+                                badge.classList.remove('d-none');
+                            } else {
+                                badge.classList.add('d-none');
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching cancellation requests:', error);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateCancellationBadge);
+        setInterval(updateCancellationBadge, 300000);
     </script>
 </aside>

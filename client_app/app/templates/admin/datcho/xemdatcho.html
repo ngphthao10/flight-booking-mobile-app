@@ -1,15 +1,16 @@
-{% extends 'user/base.html' %}
-{% block title %}Đặt chỗ của tôi{% endblock %}
+{% extends 'admin/base.html' %}
+{% block title %}Đặt chỗ{% endblock %}
 {% block content %}
-{% include 'user/navbar.html'%}
 <div class="container mt-3 mb-5">
     <!-- Header -->
     <div class="row mb-3">
-        <div class="col text-center">
-            <h4 class="mb-2">Danh sách đặt chỗ</h4>
+        <div class="col-12">
+            <h1 class="text-center fw-bold">
+                Danh sách đặt chỗ
+            </h1>
+            <hr class="my-2">
         </div>
     </div>
-    {% if session.user_info %}
     <!-- Stats Cards -->
     <div class="row mb-3">
         <div class="col-md-4 mb-3">
@@ -96,21 +97,13 @@
                     <div id="bookingResult" class="d-none">
                         <!-- Thông tin chung -->
                         <div class="card mb-3">
-                            <div class="card-header bg-primary text-white">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Thông tin đặt chỗ #<span id="bookingId"></span></h5>
-
-                                    <div class="d-flex">
-                                        <button class="btn btn-light btn-sm me-2" id="printTicketBtn"
-                                            onclick="printTicket()" style="display: none;">
-                                            <i class="bi bi-printer me-1"></i>In vé điện tử
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" id="cancelBookingBtn"
-                                            onclick="showCancelForm()" style="display: none;">
-                                            <i class="bi bi-x-circle me-1"></i>Yêu cầu hủy đặt chỗ
-                                        </button>
-                                    </div>
-                                </div>
+                            <div
+                                class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Thông tin đặt chỗ #<span id="bookingId"></span></h5>
+                                <button class="btn btn-light btn-sm" id="printTicketBtn" onclick="printTicket()"
+                                    style="display: none;">
+                                    <i class="bi bi-printer me-1"></i>In vé điện tử
+                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -162,51 +155,31 @@
             </div>
         </div>
     </div>
-    {% else %}
-    <div class="no-bookings-message">
-        <i class="fas fa-info-circle"></i> Bạn cần đăng nhập để xem thông tin đặt chỗ
-    </div>
-    {% endif %}
-</div>
 
-<!-- Modal form hủy đặt chỗ -->
-<div class="modal fade" id="cancelBookingModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Yêu cầu hủy đặt chỗ</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Điều khoản hủy -->
-                <div class="alert alert-info mb-3">
-                    <h6 class="alert-heading mb-2"><i class="bi bi-info-circle me-2"></i>Điều khoản hủy đặt chỗ</h6>
-                    <ul class="mb-0">
-                        <li class="mb-2">Yêu cầu hủy vé chỉ được chấp nhận khi thực hiện trước giờ bay ít nhất 8 tiếng.
-                        </li>
-                        <li class="mb-2">Hoàn tiền:
-                            <ul>
-                                <li>Nếu vé của bạn có dịch vụ hoàn vé, số tiền hoàn lại sẽ được tính theo tỷ lệ phần
-                                    trăm đã nêu trên gói dịch vụ.</li>
-                                <li>Nếu vé không có dịch vụ hoàn vé, bạn sẽ không được hoàn lại tiền.</li>
-                            </ul>
-                        </li>
-                        <li>Vui lòng kiểm tra gói dịch vụ của vé để biết chi tiết về điều khoản hoàn vé.</li>
-                    </ul>
-                </div>
-                <form id="cancelBookingForm">
-                    <div class="mb-3">
-                        <label for="cancelReason" class="form-label">Lý do hủy đặt chỗ</label>
-                        <textarea class="form-control" id="cancelReason" rows="3"
-                            placeholder="Ghi lý do ngắn gọn (không quá 100 ký tự)" required></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="backToDetail()">Quay lại</button>
-                <button type="button" class="btn btn-danger" onclick="submitCancelRequest()">
-                    <i class="bi bi-send"></i> Gửi yêu cầu
-                </button>
+    <!-- Danh sách yêu cầu hủy -->
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Danh sách yêu cầu hủy</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="cancelTable" class="table table-hover table-sm" style="font-size: 0.875rem;">
+                    <!-- Trong phần thead của bảng cancelTable -->
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã yêu cầu</th>
+                            <th>Mã đặt chỗ</th>
+                            <th>Người yêu cầu</th>
+                            <th>Thông tin liên hệ (SĐT, Email)</th>
+                            <th>Ngày yêu cầu</th>
+                            <th>Lý do</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cancelTableBody">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -218,12 +191,11 @@
             <strong class="me-auto">Thông báo</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">Chưa có thông báo</div>
+        <div class="toast-body"></div>
     </div>
 </div>
 
 
-{% include 'user/footer.html' %}
 <style>
     .no-bookings-message {
         text-align: center;
@@ -257,14 +229,15 @@
         margin-left: 20px;
     }
 </style>
-
+{% endblock %}
+{% block javascript %}
 <script>
-    const config = document.getElementById('pagination-config');
-    const API_URL = config.dataset.apiUrl;
+    // const config = document.getElementById('pagination-config');
+    // const API_URL = config.dataset.apiUrl;
 
     async function loadBookingInfo(mand) {
         try {
-            const response = await fetch(`${API_URL}/api/booking/info/${mand}`);
+            const response = await fetch(`${API_URL}/api/booking/all`);
             const data = await response.json();
 
             if (data.status === 'success') {
@@ -350,16 +323,17 @@
     }
 
     function getStatusBadgeClass(status) {
-        switch (status.toLowerCase()) {
-            case 'đã thanh toán':
-                return 'bg-success';
-            case 'đang thanh toán':
-                return 'bg-warning text-dark';
-            case 'đã hủy':
-                return 'bg-danger';
-            default:
-                return 'bg-secondary';
+        const statusLower = status.toLowerCase();
+        if (statusLower === 'đã thanh toán' || statusLower === 'đã duyệt') {
+            return 'bg-success';
         }
+        if (statusLower === 'đang thanh toán' || statusLower === 'chờ duyệt') {
+            return 'bg-warning text-dark';
+        }
+        if (statusLower === 'đã hủy' || statusLower === 'từ chối') {
+            return 'bg-danger';
+        }
+        return 'bg-secondary';
     }
 
     function showEmptyState() {
@@ -388,7 +362,7 @@
         const bookingTableBody = document.getElementById('bookingTableBody');
         bookingTableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-4">
+                <td colspan="7" class="text-center py-4">
                     <div class="text-danger">
                         <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
                         <p class="mb-0">Đã có lỗi xảy ra. Vui lòng thử lại sau.</p>
@@ -396,6 +370,34 @@
                 </td>
             </tr>
         `;
+    }
+
+    function showEmptyCancelList() {
+        const cancelTableBody = document.getElementById('cancelTableBody');
+        cancelTableBody.innerHTML = `
+        <tr>
+            <td colspan="8" class="text-center py-4">
+                <div class="text-muted">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p class="mb-0">Không có yêu cầu hủy nào</p>
+                </div>
+            </td>
+        </tr>
+    `;
+    }
+
+    function showErrorCancelList() {
+        const cancelTableBody = document.getElementById('cancelTableBody');
+        cancelTableBody.innerHTML = `
+        <tr>
+            <td colspan="8" class="text-center py-4">
+                <div class="text-danger">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <p class="mb-0">Đã có lỗi xảy ra khi tải danh sách yêu cầu hủy</p>
+                </div>
+            </td>
+        </tr>
+    `;
     }
     const maNguoiDung = document.getElementById('ma_nguoi_dung').getAttribute('value');
 
@@ -434,9 +436,268 @@
         }
     }
 
+    async function loadCancelRequests() {
+        try {
+            const response = await fetch(`${API_URL}/api/lydohuy`);
+            const data = await response.json();
+
+            if (data.success) {
+                const cancelTableBody = document.getElementById('cancelTableBody');
+                cancelTableBody.innerHTML = '';
+
+                if (data.data.length > 0) {
+                    // Trong hàm loadCancelRequests, sửa lại phần tạo row
+                    data.data.forEach(request => {
+                        const row = document.createElement('tr');
+                        const contactInfo = `
+                            <div>${request.dat_cho.nguoi_lien_he.sdt}</div>
+                            <div>${request.dat_cho.nguoi_lien_he.email}</div>
+                        `;
+
+                        const statusBadgeClass = getStatusBadgeClass(request.trang_thai);
+
+                        // Kiểm tra trạng thái để hiển thị nút
+                        let actionButton = '';
+                        if (request.trang_thai !== 'Từ chối' && request.trang_thai !== 'Đã duyệt') {
+                            actionButton = `
+                                <button class="btn btn-sm btn-outline-success" 
+                                        onclick="approveCancel(${request.ma_dat_cho})"
+                                        data-bs-toggle="tooltip" 
+                                        title="Xác nhận hủy đặt chỗ">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="rejectCancel(${request.ma_dat_cho})"
+                                        data-bs-toggle="tooltip" 
+                                        title="Từ chối hủy đặt chỗ">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            `;
+
+                        } else {
+                            actionButton = `
+                                <span class="badge bg-secondary">Đã xử lý</span>
+                            `;
+                        }
+
+                        row.innerHTML = `
+                            <td>${request.ma_ly_do}</td>
+                            <td>${request.ma_dat_cho}</td>
+                            <td>${request.dat_cho.nguoi_lien_he.ho_ten}</td>
+                            <td>${contactInfo}</td>
+                            <td>${formatDateTime(request.ngay_tao)}</td>
+                            <td>
+                                <span class="d-inline-block text-truncate" style="max-width: 200px;" 
+                                    title="${request.noi_dung}">
+                                    ${request.noi_dung}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge ${statusBadgeClass}">
+                                    ${request.trang_thai}
+                                </span>
+                            </td>
+                            <td>${actionButton}</td>
+                        `;
+
+                        cancelTableBody.appendChild(row);
+                    });
+
+                    // Khởi tạo DataTable
+                    if ($.fn.DataTable.isDataTable('#cancelTable')) {
+                        $('#cancelTable').DataTable().destroy();
+                    }
+                    $('#cancelTable').DataTable({
+                        language: {
+                            search: "Tìm kiếm:",
+                            lengthMenu: "Hiển thị _MENU_ bản ghi",
+                            info: "Hiển thị _START_ đến _END_ trong _TOTAL_ bản ghi",
+                            paginate: {
+                                first: "Đầu",
+                                last: "Cuối",
+                                next: "Tiếp",
+                                previous: "Trước"
+                            },
+                            zeroRecords: "Không tìm thấy bản ghi nào",
+                            infoEmpty: "Không có dữ liệu",
+                            infoFiltered: "(lọc từ _MAX_ bản ghi)"
+                        },
+                        order: [[0, 'desc']], // Sắp xếp theo ngày yêu cầu mới nhất
+                        pageLength: 5,
+                        lengthMenu: [5, 10, 25, 50]
+                    });
+                } else {
+                    showEmptyCancelList();
+                }
+            } else {
+                console.error('Error loading cancel requests:', data.message);
+                showErrorCancelList();
+            }
+        } catch (error) {
+            console.error('Error fetching cancel requests:', error);
+            showErrorCancelList();
+        }
+    }
+
+    // Helper function để format datetime
+    function formatDateTime(datetime) {
+        return new Date(datetime).toLocaleString('vi-VN');
+    }
+
+    // Thêm vào document ready
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBookingInfo(maNguoiDung);
+        loadCancelRequests(); // Thêm load danh sách hủy
+    });
+
+    async function approveCancel(maDatCho) {
+        // Hiển thị form xác nhận với SweetAlert2
+        const result = await Swal.fire({
+            title: 'Xác nhận duyệt hủy',
+            text: 'Bạn có chắc chắn muốn duyệt yêu cầu hủy này?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy'
+        });
+
+        // Nếu người dùng click Đồng ý
+        if (result.isConfirmed) {
+            // Hiển thị spinner khi bắt đầu xử lý
+            Swal.fire({
+                title: 'Đang xử lý...',
+                text: 'Vui lòng đợi trong giây lát',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            try {
+                const response = await fetch(`${API_URL}/api/duyet-huy-dat-cho/${maDatCho}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Hiển thị thông báo thành công
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Đã duyệt hủy đặt chỗ thành công'
+                    });
+                    // Refresh lại danh sách
+                    loadCancelRequests();
+                    // Refresh lại bảng đặt chỗ
+                    loadBookingInfo(maNguoiDung);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Đã có lỗi xảy ra khi xử lý yêu cầu'
+                });
+            }
+        }
+    }
+
+    // Thêm hàm xử lý từ chối hủy
+    async function rejectCancel(maDatCho) {
+        // Sử dụng SweetAlert2 để hiện form nhập lý do
+        const { value: lyDo } = await Swal.fire({
+            title: 'Từ chối yêu cầu hủy',
+            input: 'textarea',
+            inputLabel: 'Lý do từ chối',
+            inputPlaceholder: 'Nhập lý do từ chối...',
+            inputAttributes: {
+                'aria-label': 'Nhập lý do từ chối'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Vui lòng nhập lý do từ chối!';
+                }
+            }
+        });
+
+        if (lyDo) {
+            // Hiển thị spinner khi bắt đầu xử lý
+            Swal.fire({
+                title: 'Đang xử lý...',
+                text: 'Vui lòng đợi trong giây lát',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await fetch(`${API_URL}/api/tu-choi-huy-dat-cho/${maDatCho}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ly_do: lyDo })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Đã từ chối yêu cầu hủy đặt chỗ'
+                    });
+                    // Refresh lại danh sách
+                    loadCancelRequests();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message
+                    });
+                }
+            } catch (error) {
+                Swal.close();
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Đã có lỗi xảy ra khi xử lý yêu cầu'
+                });
+            }
+        }
+    }
+
+    // Khởi tạo tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
 </script>
 <script src="{{url_for('static', filename='js/signout.js')}}"></script>
 <script src="{{url_for('static', filename='js/thongtindatcho.js')}}"></script>
 <script src="{{url_for('static', filename='js/helper.js')}}"></script>
-<script src="{{url_for('static', filename='js/showMessage.js')}}"></script>
 {% endblock %}

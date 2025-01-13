@@ -1,9 +1,9 @@
+
 from flask import Blueprint, jsonify, request
 from app import db
 from app.models import *
 from sqlalchemy import func
 from datetime import datetime, timedelta
-from sqlalchemy.sql import or_, and_
 
 report = Blueprint('report', __name__)
 
@@ -292,7 +292,8 @@ def get_booking_stats():
             func.count(DatCho.MaDatCho).label('total_bookings'),
             func.sum(DatCho.SoLuongGheBus + DatCho.SoLuongGheEco).label('total_passengers')
         ).filter(
-            DatCho.NgayMua.between(start_date, end_date)
+            DatCho.NgayMua.between(start_date, end_date),
+            DatCho.TrangThai == 'Đã thanh toán'
         ).group_by(
             func.date(DatCho.NgayMua)
         ).order_by(

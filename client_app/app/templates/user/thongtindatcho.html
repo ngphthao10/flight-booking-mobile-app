@@ -464,7 +464,7 @@
                 <!-- Departure -->
                 <div class="text-center" style="min-width: 120px">
                     <div class="h5 mb-1 fw-bold">${flight.san_bay_di}</div>
-                    <div class="text-muted small">${formatDate(flight.thoi_gian_di)}</div>
+                    <div class="text-muted small">${formatDateTime(flight.thoi_gian_di)}</div>
                 </div>
 
                 <!-- Flight Info -->
@@ -480,7 +480,7 @@
                 <!-- Arrival -->
                 <div class="text-center" style="min-width: 120px">
                     <div class="h5 mb-1 fw-bold">${flight.san_bay_den}</div>
-                    <div class="text-muted small">${formatDate(flight.thoi_gian_den)}</div>
+                    <div class="text-muted small">${formatDateTime(flight.thoi_gian_den)}</div>
                 </div>
             </div>
 
@@ -547,7 +547,7 @@
                 <!-- Departure -->
                 <div class="text-center" style="min-width: 120px">
                     <div class="h5 mb-1 fw-bold">${firstSegment.san_bay_di}</div>
-                    <div class="text-muted small">${formatDate(firstSegment.thoi_gian_di)}</div>
+                    <div class="text-muted small">${formatDateTime(firstSegment.thoi_gian_di)}</div>
                 </div>
 
                 <!-- Flight Info -->
@@ -568,7 +568,7 @@
                 <!-- Arrival -->
                 <div class="text-center" style="min-width: 120px">
                     <div class="h5 mb-1 fw-bold">${lastSegment.san_bay_den}</div>
-                    <div class="text-muted small">${formatDate(lastSegment.thoi_gian_den)}</div>
+                    <div class="text-muted small">${formatDateTime(lastSegment.thoi_gian_den)}</div>
                 </div>
             </div>
 
@@ -661,16 +661,6 @@
         return stops;
     }
 
-    // Helper function to format time only
-    function formatTime(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleTimeString('vi-VN', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-    }
-
     function calculateFlightTime(startTime, endTime) {
         const start = new Date(startTime);
         const end = new Date(endTime);
@@ -699,7 +689,7 @@
         return `${hours} giờ ${minutes} phút`;
     }
 
-    function formatDate(dateStr) {
+    function formatDateTime(dateStr) {
         const date = new Date(dateStr);
         const days = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
         const day = days[date.getDay()];
@@ -710,13 +700,6 @@
         const minutes = String(date.getMinutes()).padStart(2, '0');
 
         return `${day}, ${dayOfMonth} thg ${month} ${year} ${hours}:${minutes}`;
-    }
-
-    function formatPrice(price) {
-        return new Intl.NumberFormat('vi-VN', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(price) + ' VND';
     }
 
     // Thêm hàm kiểm tra toàn bộ form
@@ -754,13 +737,6 @@
         }
 
         return isValid;
-    }
-
-    // Format ngày sinh thành YYYY-MM-DD
-    function formatBirthday(year, month, day) {
-        month = String(month).padStart(2, '0');
-        day = String(day).padStart(2, '0');
-        return `${year}-${month}-${day}`;
     }
 
     // Hàm lấy thông tin hành lý cho một chuyến bay cụ thể
@@ -862,11 +838,11 @@
 
             // Tạo mảng hành khách
             const hanh_khach = [];
+            let quantity = bookingData.passengers.adults + bookingData.passengers.children;
 
             // Thu thập thông tin người lớn
             for (let i = 0; i < bookingData.passengers.adults; i++) {
                 const passengerIndex = i + 1;
-
                 // Lấy hành lý chuyến đi
                 const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
                 const dich_vu_hanh_ly = [];
@@ -890,7 +866,6 @@
                         });
                     }
                 }
-                console.log("hanhlynguoilon: ", dich_vu_hanh_ly)
 
                 const adult = {
                     ho_hk: document.getElementById(`adult_${i}_lastname`).value.trim(),
@@ -912,7 +887,6 @@
             // Thu thập thông tin trẻ em
             for (let i = 0; i < bookingData.passengers.children; i++) {
                 const passengerIndex = bookingData.passengers.adults + i + 1;
-
                 // Lấy hành lý chuyến đi
                 const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
                 const dich_vu_hanh_ly = [];
@@ -952,7 +926,6 @@
                     loai_hk: "Trẻ em",
                     dich_vu_hanh_ly: dich_vu_hanh_ly
                 };
-                console.log("hanhlytreem: ", dich_vu_hanh_ly)
                 hanh_khach.push(child);
             }
 
@@ -979,16 +952,16 @@
                 for (let segment of bookingData.outbound.flight.segments) {
                     chuyen_bay.push({
                         ma_chuyen_bay: segment.ma_chuyen_bay,
-                        so_ghe_bus: segment.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                        so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                        so_ghe_bus: segment.loai_ghe === 'BUS' ? quantity : 0,
+                        so_ghe_eco: segment.loai_ghe === 'ECO' ? quantity : 0,
                         ma_goi: bookingData.outbound.package.ma_goi
                     });
                 }
             } else {
                 chuyen_bay.push({
                     ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
-                    so_ghe_bus: bookingData.outbound.flight.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                    so_ghe_eco: bookingData.outbound.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                    so_ghe_bus: bookingData.outbound.flight.loai_ghe === 'BUS' ? quantity : 0,
+                    so_ghe_eco: bookingData.outbound.flight.loai_ghe === 'ECO' ? quantity : 0,
                     ma_goi: bookingData.outbound.package.ma_goi
                 });
             }
@@ -998,21 +971,20 @@
                     for (let segment of bookingData.return.flight.segments) {
                         chuyen_bay.push({
                             ma_chuyen_bay: segment.ma_chuyen_bay,
-                            so_ghe_bus: segment.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                            so_ghe_eco: segment.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                            so_ghe_bus: segment.loai_ghe === 'BUS' ? quantity : 0,
+                            so_ghe_eco: segment.loai_ghe === 'ECO' ? quantity : 0,
                             ma_goi: bookingData.return.package.ma_goi
                         });
                     }
                 } else {
                     chuyen_bay.push({
                         ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
-                        so_ghe_bus: bookingData.return.flight.loai_ghe === 'BUS' ? hanh_khach.length : 0,
-                        so_ghe_eco: bookingData.return.flight.loai_ghe === 'ECO' ? hanh_khach.length : 0,
+                        so_ghe_bus: bookingData.return.flight.loai_ghe === 'BUS' ? quantity : 0,
+                        so_ghe_eco: bookingData.return.flight.loai_ghe === 'ECO' ? quantity : 0,
                         ma_goi: bookingData.return.package.ma_goi
                     });
                 }
             }
-
 
             const finalData = {
                 nguoi_lien_he,
@@ -1041,7 +1013,7 @@
             bookingData.temp = result
             // Lưu booking ID và chuyển trang
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
-
+            localStorage.setItem('isFromBookingInfo', 'true');
             window.location.href = '/datcho/thanhtoan';
 
         } catch (error) {
@@ -1059,7 +1031,7 @@
     }
 
 </script>
-
+<script src="{{url_for('static', filename='js/helper.js')}}"></script>
 
 {% endblock %}
 

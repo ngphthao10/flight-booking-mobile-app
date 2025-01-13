@@ -46,13 +46,13 @@ def get_flight_services(flight_dict):
             
             chi_tiet = ''
             if 'xách tay' in dv.TenDichVu.lower():
-                chi_tiet = f'Được phép mang {dv_ve.ThamSo}kg hành lý xách tay'
+                chi_tiet = f'Được phép mang {int(dv_ve.ThamSo)}kg hành lý xách tay'
             elif 'ký gửi' in dv.TenDichVu.lower():
-                chi_tiet = f'Được phép ký gửi {dv_ve.ThamSo}kg hành lý'
+                chi_tiet = f'Được phép ký gửi {int(dv_ve.ThamSo)}kg hành lý'
             elif 'đổi' in dv.TenDichVu.lower():
-                chi_tiet = f'Phí đổi vé: {dv_ve.ThamSo}% giá vé'
+                chi_tiet = f'Phí đổi vé: {int(dv_ve.ThamSo)}% giá vé'
             elif 'hoàn' in dv.TenDichVu.lower():
-                chi_tiet = f'Hoàn {dv_ve.ThamSo}% giá vé'
+                chi_tiet = f'Hoàn {int(dv_ve.ThamSo)}% giá vé'
             elif 'bảo hiểm' in dv.TenDichVu.lower():
                 chi_tiet = 'Có bảo hiểm du lịch' if dv_ve.ThamSo > 0 else 'Không có bảo hiểm'
 

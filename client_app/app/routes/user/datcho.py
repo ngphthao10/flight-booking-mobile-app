@@ -5,12 +5,11 @@ from app.decorators import login_required
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle, TA_LEFT
 from reportlab.lib.units import inch, cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from datetime import datetime
-import os
 
 datcho = Blueprint('datcho', __name__)
 
@@ -176,6 +175,17 @@ def create_e_ticket(booking_data, output_path):
             encoding='utf-8'
         ))
 
+        styles.add(ParagraphStyle(
+            name='CustomHeading2',
+            parent=styles['Normal'],
+            fontName='DejaVuSerif-Bold',
+            fontSize=12,
+            spaceAfter=10,
+            spaceBefore=10,
+            leading=16,
+            alignment=TA_LEFT,
+            encoding='utf-8'
+        ))
         elements = []
 
         bookings = booking_data.get('data', [])
@@ -258,39 +268,45 @@ def create_e_ticket(booking_data, output_path):
                 elements.append(service_table)
                 elements.append(Spacer(1, 20))
 
-            # Thông tin hành khách
-            for passenger in booking['HanhKhach']:
-                passenger_info = [
-                    ['THÔNG TIN HÀNH KHÁCH', ''],
-                    ['Danh xưng:', passenger['DanhXung']],
-                    ['Họ tên:', f"{passenger['Ho']} {passenger['Ten']}"],
-                    ['CCCD:', passenger['CCCD']],
-                    ['Ngày sinh:', datetime.strptime(passenger['NgaySinh'], '%Y-%m-%d').strftime('%d/%m/%Y')],
-                    ['Quốc tịch:', passenger['QuocTich']],
-                    ['Hành lý:', f"{passenger['HanhLy']['SoKy']}kg - {passenger['HanhLy']['MoTa']}" if passenger.get('HanhLy') else 'Không có']
-                ]
-                
-                passenger_table = Table(passenger_info, colWidths=[4*cm, 12*cm])
-                passenger_table.setStyle(TableStyle([
-                    ('FONTNAME', (0, 0), (-1, -1), 'DejaVuSerif'),
-                    ('FONTNAME', (0, 0), (-1, 0), 'DejaVuSerif-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, 0), 12),
-                    ('FONTSIZE', (0, 1), (-1, -1), 10),
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
-                    ('BOX', (0, 0), (-1, -1), 2, colors.black),
-                    ('SPAN', (0, 0), (1, 0)),
-                ]))
-                elements.append(passenger_table)
-                elements.append(Spacer(1, 20))
+                # Thông tin hành khách
+                elements.append(Paragraph("DANH SÁCH HÀNH KHÁCH", styles['CustomTitle']))
+
+                for idx, passenger in enumerate(booking['HanhKhach'], 1):
+                    # Header cho mỗi hành khách
+                    elements.append(Paragraph(f"Hành khách {idx}: {passenger['LoaiHK']}", styles['CustomHeading2']))
+                    
+                    passenger_info = [
+                        ['THÔNG TIN HÀNH KHÁCH', ''],
+                        ['Danh xưng:', passenger['DanhXung']],
+                        ['Họ tên:', f"{passenger['Ho']} {passenger['Ten']}"],
+                        ['CCCD:', passenger['CCCD']],
+                        ['Ngày sinh:', datetime.strptime(passenger['NgaySinh'], '%Y-%m-%d').strftime('%d/%m/%Y')],
+                        ['Quốc tịch:', passenger['QuocTich']],
+                        ['Hành lý:', f"{passenger['HanhLy']['SoKy']}kg - {passenger['HanhLy']['MoTa']}" if passenger.get('HanhLy') else 'Không có']
+                    ]
+                    
+                    passenger_table = Table(passenger_info, colWidths=[4*cm, 12*cm])
+                    passenger_table.setStyle(TableStyle([
+                        ('FONTNAME', (0, 0), (-1, -1), 'DejaVuSerif'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'DejaVuSerif-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, 0), 12),
+                        ('FONTSIZE', (0, 1), (-1, -1), 10),
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                        ('BOX', (0, 0), (-1, -1), 2, colors.black),
+                        ('SPAN', (0, 0), (1, 0)),
+                    ]))
+                    elements.append(passenger_table)
+                    elements.append(Spacer(1, 20))
             
             if idx < len(bookings) - 1:
                 elements.append(PageBreak())
 
         if len(bookings) >= 1 and bookings[0].get('ThanhToan'):
             thanh_toan = bookings[0]['ThanhToan']
+            he_so_gia = booking['DatCho']['GoiDichVu']['HeSoGia']
             elements.append(PageBreak())  
             
             elements.append(Paragraph("THÔNG TIN THANH TOÁN", styles['CustomTitle']))
@@ -317,32 +333,42 @@ def create_e_ticket(booking_data, output_path):
                 ['Mô tả', 'Số lượng', 'Thành tiền'],
             ]
 
-            for idx, booking in enumerate(bookings):
-                trip_type = "Vé máy bay chiều đi" if idx == 0 else "Vé máy bay chiều về"
-                hang_ve = "Business" if booking['DatCho']['SoLuongGhe']['Business'] > 0 else "Economy"
-                gia_ve = booking['ChuyenBay']['GiaVe']['Business' if hang_ve == "Business" else "Economy"]
-                
+            # Thêm vé Business
+            booking = bookings[0]
+            if booking['DatCho']['SoLuongGhe']['Business'] > 0:
+                so_luong = booking['DatCho']['SoLuongGhe']['Business']
+                gia_ve = booking['ChuyenBay']['GiaVe']['Business']
                 payment_details.append([
-                    f"{trip_type}\n{booking['ChuyenBay']['SanBayDi']['ThanhPho']} → {booking['ChuyenBay']['SanBayDen']['ThanhPho']}\n{hang_ve}",
-                    "1",
-                    f"{gia_ve:,.0f} VNĐ"
+                    f"Vé máy bay hạng Business\n{booking['ChuyenBay']['SanBayDi']['ThanhPho']} → {booking['ChuyenBay']['SanBayDen']['ThanhPho']}",
+                    str(so_luong),
+                    f"{(gia_ve * he_so_gia * so_luong):,.0f} VNĐ"
                 ])
 
-            for booking in bookings:
-                for passenger in booking['HanhKhach']:
-                    if passenger.get('HanhLy'):
-                        payment_details.append([
-                            f"Hành lý ký gửi {passenger['HanhLy']['SoKy']}kg",
-                            "1",
-                            f"{passenger['HanhLy']['Gia']:,.0f} VNĐ"
-                        ])
+            # Thêm vé Economy
+            if booking['DatCho']['SoLuongGhe']['Economy'] > 0:
+                so_luong = booking['DatCho']['SoLuongGhe']['Economy']
+                gia_ve = booking['ChuyenBay']['GiaVe']['Economy']
+                payment_details.append([
+                    f"Vé máy bay hạng Economy\n{booking['ChuyenBay']['SanBayDi']['ThanhPho']} → {booking['ChuyenBay']['SanBayDen']['ThanhPho']}",
+                    str(so_luong),
+                    f"{(gia_ve * he_so_gia * so_luong):,.0f} VNĐ"
+                ])
 
-            thanh_toan = bookings[0]['ThanhToan']
+            # Thêm hành lý
+            for passenger in booking['HanhKhach']:
+                if passenger.get('HanhLy'):
+                    payment_details.append([
+                        f"Hành lý ký gửi {passenger['HanhLy']['SoKy']}kg\n{passenger['Ho']} {passenger['Ten']} - {passenger['CCCD']}",
+                        "1",
+                        f"{passenger['HanhLy']['Gia']:,.0f} VNĐ"
+                    ])
+
+            # Thêm tổng cộng
             payment_details.extend([
-                ['Tổng tiền', '', f"{thanh_toan['SoTien']:,.0f} VNĐ"],
+                ['Tổng tiền', '', f"{(thanh_toan['SoTien'] + thanh_toan['TienGiam']):,.0f} VNĐ"],
                 ['Giảm giá', '', f"-{thanh_toan['TienGiam']:,.0f} VNĐ"],
                 ['Thuế', '', f"{thanh_toan['Thue']:,.0f} VNĐ"],
-                ['TỔNG THANH TOÁN', '', f"{(thanh_toan['SoTien'] - thanh_toan['TienGiam'] + thanh_toan['Thue']):,.0f} VNĐ"]
+                ['TỔNG THANH TOÁN', '', f"{(thanh_toan['SoTien'] + thanh_toan['Thue']):,.0f} VNĐ"]
             ])
 
             detail_table = Table(payment_details, colWidths=[8*cm, 3*cm, 5*cm])
@@ -360,6 +386,7 @@ def create_e_ticket(booking_data, output_path):
                 ('LINEBELOW', (0, -2), (-1, -2), 2, colors.black), 
             ]))
             elements.append(detail_table)
+            
         doc.build(elements)
         return True, "PDF created successfully"
 

@@ -33,7 +33,6 @@
         padding-right: 100px;
     }
 
-    /* Thêm khung mờ mờ phía sau form */
     .transparent-form-container {
         max-width: 450px;
         width: 100%;
@@ -41,7 +40,6 @@
         border-radius: 10px;
         padding: 30px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        /* Nếu trình duyệt hỗ trợ, có thể thêm backdrop-filter để mờ nền */
         backdrop-filter: blur(10px);
     }
 
@@ -154,7 +152,6 @@
                 const result = await response.json();
 
                 if (response.ok && result.status) {
-                    // Dùng hàm tái sử dụng
                     await handleLoginSuccess(result.data);
                 } else {
                     alert(result.message || "Đăng nhập thất bại");
@@ -168,7 +165,6 @@
         // 2. Sự kiện login bằng Google
         btnGoogleLogin.addEventListener('click', async function () {
             try {
-                // Gọi API Google Login từ Server Webservice (Server 1)
                 const response = await fetch(`${API_URL}/login/google`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
@@ -176,26 +172,19 @@
                 const result = await response.json();
 
                 if (response.ok && result.authorization_url) {
-                    // Mở popup để đăng nhập bằng Google
                     const popup = window.open(result.authorization_url, 'Google Login', 'width=600,height=600');
 
-                    // Kiểm tra popup đã mở hay chưa
                     if (!popup) {
                         alert("Không thể mở cửa sổ đăng nhập. Vui lòng kiểm tra trình duyệt của bạn.");
                         return;
                     }
 
-                    // Lắng nghe thông điệp từ popup
                     window.addEventListener('message', async function (event) {
-                        // Xác thực origin để bảo mật
                         if (event.origin !== `${API_URL}`) return;
 
                         const userData = event.data;
                         if (userData && userData.MaND) {
-                            // Đóng popup
                             popup.close();
-
-                            // Dùng hàm tái sử dụng
                             await handleLoginSuccess(userData);
                         }
                     }, false);

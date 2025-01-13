@@ -45,7 +45,7 @@ function displayBookingInfo(bookings) {
                                 <i class="bi bi-airplane-fill position-absolute top-50 start-50 translate-middle"></i>
                             </div>
                             <div class="mt-3 small">
-                                ${booking.ChuyenBay.ThoiGianDi, booking.ChuyenBay.ThoiGianDen}
+                                ${calculateDuration(booking.ChuyenBay.ThoiGianDi, booking.ChuyenBay.ThoiGianDen)}
                             </div>
                         </div>
 
@@ -142,9 +142,18 @@ function displayBookingInfo(bookings) {
         } else {
             printTicketBtn.style.display = 'none';
         }
+
+        const cancelBookingBtn = document.getElementById('cancelBookingBtn');
+        if (firstBooking.DatCho.TrangThai === 'Đã thanh toán') {
+            cancelBookingBtn.style.display = 'block';
+        } else {
+            cancelBookingBtn.style.display = 'none';
+        }
+
     } catch { }
     // Hiển thị kết quả
     result.classList.remove('d-none');
+
 
 }
 
@@ -183,5 +192,76 @@ async function printTicket() {
         error.classList.remove('d-none');
     } finally {
         loading.classList.add('d-none');
+    }
+}
+
+function calculateDuration(start, end) {
+    const diff = new Date(end) - new Date(start);
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+}
+
+// Thêm các hàm xử lý hủy đặt chỗ
+function showCancelForm() {
+    const cancelModal = new bootstrap.Modal(document.getElementById('cancelBookingModal'));
+    cancelModal.show();
+}
+
+function showCancelForm() {
+    // Đóng modal chi tiết đặt chỗ
+    const detailModal = bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'));
+    detailModal.hide();
+
+    // Mở modal hủy đặt chỗ
+    const cancelModal = new bootstrap.Modal(document.getElementById('cancelBookingModal'));
+    cancelModal.show();
+}
+
+function backToDetail() {
+    // Đóng modal hủy
+    const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
+    cancelModal.hide();
+
+    // Mở lại modal chi tiết
+    const detailModal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
+    detailModal.show();
+}
+
+async function submitCancelRequest() {
+    const bookingId = document.getElementById('bookingId').textContent;
+    const reason = document.getElementById('cancelReason').value.trim();
+
+    if (!reason) {
+        alert('Vui lòng nhập lý do hủy đặt chỗ');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/datcho/${bookingId}/huy`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                noi_dung: reason
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('success', 'Gửi yêu cầu hủy đặt chỗ thành công');
+            const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
+            cancelModal.hide();
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showMessage('danger', data.message || 'Có lỗi xảy ra khi gửi yêu cầu hủy');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('danger', 'Có lỗi xảy ra khi gửi yêu cầu hủy');
     }
 }
