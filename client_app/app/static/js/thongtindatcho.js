@@ -228,13 +228,90 @@ function backToDetail() {
     detailModal.show();
 }
 
-async function submitCancelRequest() {
-    const bookingId = document.getElementById('bookingId').textContent;
-    const reason = document.getElementById('cancelReason').value.trim();
+// async function submitCancelRequest() {
+//     const bookingId = document.getElementById('bookingId').textContent;
+//     const reason = document.getElementById('cancelReason').value.trim();
 
-    if (!reason) {
-        alert('Vui lòng nhập lý do hủy đặt chỗ');
+//     if (!reason) {
+//         alert('Vui lòng nhập lý do hủy đặt chỗ');
+//         return;
+//     }
+
+//     try {
+//         const response = await fetch(`${API_URL}/api/datcho/${bookingId}/huy`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 noi_dung: reason
+//             })
+//         });
+
+//         const data = await response.json();
+
+//         if (data.success) {
+//             // showMessage('success', 'Gửi yêu cầu hủy đặt chỗ thành công');
+//             Swal.fire({
+//                 icon: 'success',
+//                 title: 'Thành công!',
+//                 text: 'Gửi yêu cầu hủy đặt chỗ thành công'
+//             });
+//             const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
+//             cancelModal.hide();
+//             setTimeout(() => {
+//                 window.location.reload();
+//             }, 2000);
+//         } else {
+//             Swal.fire({
+//                 icon: 'error',
+//                 title: 'Lỗi!',
+//                 text: data.message || 'Có lỗi xảy ra khi gửi yêu cầu hủy'
+//             });
+//             // showMessage('danger', data.message || 'Có lỗi xảy ra khi gửi yêu cầu hủy');
+//         }
+//     } catch (error) {
+//         console.error('Error:', error);
+//         Swal.fire({
+//             icon: 'error',
+//             title: 'Lỗi!',
+//             text: 'Có lỗi xảy ra khi gửi yêu cầu hủy'
+//         });
+//         // showMessage('danger', 'Có lỗi xảy ra khi gửi yêu cầu hủy');
+//     }
+// }
+
+async function submitCancelRequest() {
+    const form = document.getElementById('cancelBookingForm');
+    const bookingId = document.getElementById('bookingId').textContent;
+    const selectedReason = document.querySelector('input[name="cancelReason"]:checked');
+
+    // Kiểm tra form hợp lệ
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
         return;
+    }
+
+    // Nếu không có lý do được chọn
+    if (!selectedReason) {
+        form.classList.add('was-validated');
+        return;
+    }
+
+    let reason;
+
+    // Xử lý lấy nội dung lý do
+    if (selectedReason.value === 'other') {
+        const otherReasonText = document.getElementById('otherReasonText');
+        reason = otherReasonText.value.trim();
+
+        if (!reason) {
+            otherReasonText.classList.add('is-invalid');
+            return;
+        }
+    } else {
+        // Lấy text của radio button được chọn
+        reason = selectedReason.parentElement.querySelector('span').textContent;
     }
 
     try {
@@ -251,17 +328,32 @@ async function submitCancelRequest() {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('success', 'Gửi yêu cầu hủy đặt chỗ thành công');
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: 'Gửi yêu cầu hủy đặt chỗ thành công'
+            });
+
+            // Đóng modal
             const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
             cancelModal.hide();
+
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
         } else {
-            showMessage('danger', data.message || 'Có lỗi xảy ra khi gửi yêu cầu hủy');
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: data.message || 'Có lỗi xảy ra khi gửi yêu cầu hủy'
+            });
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('danger', 'Có lỗi xảy ra khi gửi yêu cầu hủy');
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: 'Có lỗi xảy ra khi gửi yêu cầu hủy'
+        });
     }
 }

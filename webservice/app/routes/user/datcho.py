@@ -366,7 +366,6 @@ def get_booking_info(mand):
 @datcho.route('/api/booking/all', methods=['GET'])
 def get_all_bookings():
     try:
-        # Lấy tất cả các mã đặt chỗ độc nhất
         booking_ids = db.session.query(
             case(
                 (DatCho.MaDatChoGoc != None, DatCho.MaDatChoGoc),
@@ -400,7 +399,6 @@ def get_all_bookings():
                 )
             ).all()
 
-            # Kiểm tra xem có phải vé khứ hồi không
             is_round_trip = False
             if len(flights) == 2:
                 if flights[0].ThanhPhoDi == flights[1].ThanhPhoDen and flights[0].ThanhPhoDen == flights[1].ThanhPhoDi:
@@ -409,7 +407,6 @@ def get_all_bookings():
             first_flight = flights[0]
             flight_list = []
             
-            # Tạo danh sách chuyến bay
             for flight in flights:
                 flight_list.append({
                     "MaChuyenBay": flight.MaCB,
@@ -506,7 +503,6 @@ def get_booking_detailed(madatcho):
                 ChiTietDatCho.MaDatCho == booking.MaDatCho
             ).all()
 
-            # Phần booking_info hiện tại
             booking_info = {
                 "MaChuyenBay": flight.MaChuyenBay,
                 "MaDatCho": booking.MaDatCho,
@@ -601,30 +597,24 @@ def get_booking_detailed(madatcho):
             "message": str(e)
         }), 500
 
-
 @datcho.route('/api/datcho/<int:ma_dat_cho>/huy', methods=['POST'])
 def huy_dat_cho(ma_dat_cho):
     try:
-        # Lấy nội dung từ request body
         data = request.get_json()
         noi_dung = data.get('noi_dung')
 
-        # Kiểm tra nội dung
         if not noi_dung:
             return jsonify({
                 'success': False,
                 'message': 'Thiếu nội dung lý do hủy'
             }), 400
 
-        # Kiểm tra đặt chỗ có tồn tại không 
         dat_cho = DatCho.query.get(ma_dat_cho)
         if not dat_cho:
             return jsonify({
                 'success': False,
                 'message': 'Không tìm thấy thông tin đặt chỗ'
             }), 404
-
-        # Kiểm tra trạng thái đặt chỗ
         if dat_cho.TrangThai == 'Đã hủy':
             return jsonify({
                 'success': False,
@@ -633,7 +623,6 @@ def huy_dat_cho(ma_dat_cho):
 
         ngay_tao = now
 
-        # Tạo bản ghi lý do hủy
         ly_do_huy = LyDoHuy(
             MaDatCho=ma_dat_cho,
             NoiDung=noi_dung,
@@ -642,7 +631,6 @@ def huy_dat_cho(ma_dat_cho):
 
         dat_cho.TrangThai = 'Đang xử lý'
 
-        # Lưu vào database
         db.session.add(ly_do_huy)
         db.session.commit()
 
@@ -663,11 +651,9 @@ def huy_dat_cho(ma_dat_cho):
             'message': f'Lỗi hệ thống: {str(e)}'
         }), 500
 
-
 @datcho.route('/api/lydohuy', methods=['GET'])
 def get_danh_sach_huy():
     try:
-        # Lấy danh sách từ database kèm thông tin đặt chỗ
         ds_huy = (db.session.query(LyDoHuy, DatCho)
                  .join(DatCho)
                  .order_by(LyDoHuy.NgayTao.desc())
@@ -708,7 +694,6 @@ def get_danh_sach_huy():
 @datcho.route('/api/duyet-huy-dat-cho/<int:ma_dat_cho>', methods=['POST']) 
 def duyet_huy_dat_cho(ma_dat_cho):
     try:
-        # Kiểm tra đặt chỗ có trong LyDoHuy không
         ly_do_huy = LyDoHuy.query.filter_by(MaDatCho=ma_dat_cho).first()
         if not ly_do_huy:
             return jsonify({
@@ -716,11 +701,9 @@ def duyet_huy_dat_cho(ma_dat_cho):
                 'message': 'Không tìm thấy yêu cầu hủy cho đặt chỗ này'
             }), 404
 
-        # Lấy thông tin đặt chỗ và chuyến bay
         dat_cho = ly_do_huy.dat_cho
         chuyen_bay = dat_cho.chuyen_bay
 
-        # Tính thời gian chênh lệch giữa thời điểm hủy và bay
         thoi_gian_chenh_lech = chuyen_bay.ThoiGianDi - ly_do_huy.NgayTao
         gio_chenh_lech = thoi_gian_chenh_lech.total_seconds() / 3600
 
@@ -735,10 +718,8 @@ def duyet_huy_dat_cho(ma_dat_cho):
                 'success': False,
                 'message': 'Đặt chỗ đã được hủy trước đó'
             }), 400
-        # Lấy danh sách đặt chỗ cần hủy (bao gồm đặt chỗ hiện tại và đặt chỗ liên quan)
         ds_huy = []
         
-        # Lấy đặt chỗ hiện tại
         dat_cho = DatCho.query.get(ma_dat_cho)
         if not dat_cho:
             return jsonify({
@@ -754,11 +735,9 @@ def duyet_huy_dat_cho(ma_dat_cho):
             
         ds_huy.append(dat_cho)
         
-        # Nếu là đặt chỗ gốc, lấy tất cả đặt chỗ liên quan
         if dat_cho.MaDatChoGoc is None:
             dat_cho_lien_quan = DatCho.query.filter_by(MaDatChoGoc=dat_cho.MaDatCho).all()
             ds_huy.extend(dat_cho_lien_quan)
-        # Nếu là đặt chỗ liên quan, lấy đặt chỗ gốc và các đặt chỗ liên quan khác
         else:
             dat_cho_goc = DatCho.query.get(dat_cho.MaDatChoGoc)
             ds_huy.append(dat_cho_goc)
@@ -768,7 +747,6 @@ def duyet_huy_dat_cho(ma_dat_cho):
         result = []
         for dc in ds_huy:
             if dc.TrangThai != 'Đã hủy':  
-                # Kiểm tra dịch vụ hoàn vé
                 ty_le_hoan = 0
                 if dc.MaGoi:
                     dich_vu_hoan_ve = DichVu.query.filter_by(TenDichVu='Hoàn vé').first()
@@ -782,22 +760,18 @@ def duyet_huy_dat_cho(ma_dat_cho):
                         if dich_vu_ve:
                             ty_le_hoan = float(dich_vu_ve.ThamSo) / 100
 
-                # Tính tiền hoàn dựa trên giá vé
                 thanh_toan = ThanhToan.query.filter_by(MaDatCho=dc.MaDatCho).first()
                 so_tien_hoan = 0
 
                 if ty_le_hoan > 0:
-                    # Tính tổng giá vé gốc
                     tong_gia_ve = (float(dc.chuyen_bay.GiaVeBus) * dc.SoLuongGheBus + 
                                 float(dc.chuyen_bay.GiaVeEco) * dc.SoLuongGheEco)
                     so_tien_hoan = tong_gia_ve * ty_le_hoan
                     
                     if thanh_toan:
-                        # Cập nhật số tiền trong thanh toán
                         thanh_toan.SoTien = float(thanh_toan.SoTien) - so_tien_hoan
                         db.session.add(thanh_toan)
 
-                # Cập nhật số ghế còn lại trong chuyến bay
                 chuyen_bay = dc.chuyen_bay
                 if dc.SoLuongGheBus > 0:
                     chuyen_bay.SLBusConLai += dc.SoLuongGheBus
@@ -805,7 +779,6 @@ def duyet_huy_dat_cho(ma_dat_cho):
                     chuyen_bay.SLEcoConLai += dc.SoLuongGheEco
                 db.session.add(chuyen_bay)
 
-                # Cập nhật trạng thái đặt chỗ
                 dc.TrangThai = 'Đã hủy'
                 db.session.add(dc)
 
@@ -858,7 +831,6 @@ def duyet_huy_dat_cho(ma_dat_cho):
 @datcho.route('/api/tu-choi-huy-dat-cho/<int:ma_dat_cho>', methods=['POST'])
 def tu_choi_huy_dat_cho(ma_dat_cho):
     try:
-        # Lấy lý do từ chối từ request
         data = request.get_json()
         ly_do_tu_choi = data.get('ly_do')
 
@@ -868,7 +840,6 @@ def tu_choi_huy_dat_cho(ma_dat_cho):
                 'message': 'Vui lòng cung cấp lý do từ chối'
             }), 400
 
-        # Kiểm tra đặt chỗ có trong LyDoHuy không
         ly_do_huy = LyDoHuy.query.filter_by(MaDatCho=ma_dat_cho).first()
         if not ly_do_huy:
             return jsonify({
@@ -876,7 +847,6 @@ def tu_choi_huy_dat_cho(ma_dat_cho):
                 'message': 'Không tìm thấy yêu cầu hủy cho đặt chỗ này'
             }), 404
 
-        # Lấy thông tin đặt chỗ
         dat_cho = DatCho.query.get(ma_dat_cho)
         if not dat_cho:
             return jsonify({
@@ -890,24 +860,19 @@ def tu_choi_huy_dat_cho(ma_dat_cho):
                 'message': 'Đặt chỗ đã được hủy trước đó'
             }), 400
 
-        # Lấy thông tin người liên hệ từ relationship
         nguoi_lien_he = dat_cho.nguoi_lien_he
         chuyen_bay = dat_cho.chuyen_bay
 
-        # Cập nhật trạng thái yêu cầu hủy
         ly_do_huy.TrangThai = 'Từ chối'
         ly_do_huy.LyDoTuChoi = ly_do_tu_choi
         ly_do_huy.NgayXuLy = now
         dat_cho.TrangThai = 'Đã thanh toán'
         db.session.add(ly_do_huy)
         
-        # Lưu thông tin vào database
         db.session.commit()
 
-        # Nếu có người liên hệ và email, gửi email thông báo
         if nguoi_lien_he and nguoi_lien_he.Email:
             try:
-                # Chuẩn bị thông tin để gửi email
                 reject_info = {
                     'ma_dat_cho': ma_dat_cho,
                     'ma_chuyen_bay': chuyen_bay.MaChuyenBay,
@@ -921,7 +886,6 @@ def tu_choi_huy_dat_cho(ma_dat_cho):
                     }
                 }
 
-                # Gửi email thông báo
                 send_booking_cancellation_rejected_email(
                     nguoi_lien_he.Email, 
                     reject_info

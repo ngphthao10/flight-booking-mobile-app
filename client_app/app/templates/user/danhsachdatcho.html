@@ -171,7 +171,7 @@
 
 <!-- Modal form hủy đặt chỗ -->
 <div class="modal fade" id="cancelBookingModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered  modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Yêu cầu hủy đặt chỗ</h5>
@@ -194,11 +194,49 @@
                         <li>Vui lòng kiểm tra gói dịch vụ của vé để biết chi tiết về điều khoản hoàn vé.</li>
                     </ul>
                 </div>
-                <form id="cancelBookingForm">
-                    <div class="mb-3">
-                        <label for="cancelReason" class="form-label">Lý do hủy đặt chỗ</label>
-                        <textarea class="form-control" id="cancelReason" rows="3"
-                            placeholder="Ghi lý do ngắn gọn (không quá 100 ký tự)" required></textarea>
+                <form id="cancelBookingForm" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium mb-3">Lý do hủy đặt chỗ</label>
+
+                        <div class="card">
+                            <div class="list-group list-group-flush">
+                                <label class="list-group-item list-group-item-action">
+                                    <input class="form-check-input me-2" type="radio" name="cancelReason"
+                                        value="schedule_change" required>
+                                    <span>Thay đổi lịch trình công việc/cá nhân</span>
+                                </label>
+
+                                <label class="list-group-item list-group-item-action">
+                                    <input class="form-check-input me-2" type="radio" name="cancelReason"
+                                        value="health_issue">
+                                    <span>Vấn đề sức khỏe không thể đi được</span>
+                                </label>
+
+                                <label class="list-group-item list-group-item-action">
+                                    <input class="form-check-input me-2" type="radio" name="cancelReason"
+                                        value="family_emergency">
+                                    <span>Tình huống khẩn cấp trong gia đình</span>
+                                </label>
+
+                                <label class="list-group-item list-group-item-action">
+                                    <input class="form-check-input me-2" type="radio" name="cancelReason" value="other">
+                                    <span>Lý do khác</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Textarea cho lý do khác -->
+                        <div id="otherReasonContainer" class="collapse mt-3">
+                            <textarea class="form-control" id="otherReasonText" rows="3" maxlength="100"
+                                placeholder="Vui lòng nhập lý do của bạn (không quá 100 ký tự)"></textarea>
+                            <div class="form-text text-end">
+                                <span id="charCount">0</span>/100 ký tự
+                            </div>
+                        </div>
+
+                        <div class="invalid-feedback">
+                            Vui lòng chọn lý do hủy đặt chỗ
+                        </div>
                     </div>
                 </form>
             </div>
@@ -209,16 +247,6 @@
                 </button>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Thông báo</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">Chưa có thông báo</div>
     </div>
 </div>
 
@@ -400,6 +428,32 @@
     const maNguoiDung = document.getElementById('ma_nguoi_dung').getAttribute('value');
 
     document.addEventListener('DOMContentLoaded', () => {
+        const otherReasonContainer = document.getElementById('otherReasonContainer');
+        const otherReasonText = document.getElementById('otherReasonText');
+        const charCount = document.getElementById('charCount');
+        const radioButtons = document.getElementsByName('cancelReason');
+
+        // Xử lý hiện/ẩn textarea khi chọn radio
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.value === 'other') {
+                    $(otherReasonContainer).collapse('show');
+                    otherReasonText.required = true;
+                } else {
+                    $(otherReasonContainer).collapse('hide');
+                    otherReasonText.required = false;
+                    otherReasonText.value = '';
+                    charCount.textContent = '0';
+                }
+            });
+        });
+
+        // Đếm ký tự trong textarea
+        otherReasonText.addEventListener('input', function () {
+            const count = this.value.length;
+            charCount.textContent = count;
+        });
+
         loadBookingInfo(maNguoiDung);
     });
 
@@ -438,5 +492,5 @@
 <script src="{{url_for('static', filename='js/signout.js')}}"></script>
 <script src="{{url_for('static', filename='js/thongtindatcho.js')}}"></script>
 <script src="{{url_for('static', filename='js/helper.js')}}"></script>
-<script src="{{url_for('static', filename='js/showMessage.js')}}"></script>
+<!-- <script src="{{url_for('static', filename='js/showMessage.js')}}"></script> -->
 {% endblock %}

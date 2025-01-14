@@ -401,10 +401,6 @@
     }
     const maNguoiDung = document.getElementById('ma_nguoi_dung').getAttribute('value');
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadBookingInfo(maNguoiDung);
-    });
-
     async function viewBooking(madatcho) {
 
         const modal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
@@ -544,14 +540,12 @@
         return new Date(datetime).toLocaleString('vi-VN');
     }
 
-    // Thêm vào document ready
     document.addEventListener('DOMContentLoaded', () => {
         loadBookingInfo(maNguoiDung);
-        loadCancelRequests(); // Thêm load danh sách hủy
+        loadCancelRequests();
     });
 
     async function approveCancel(maDatCho) {
-        // Hiển thị form xác nhận với SweetAlert2
         const result = await Swal.fire({
             title: 'Xác nhận duyệt hủy',
             text: 'Bạn có chắc chắn muốn duyệt yêu cầu hủy này?',
@@ -563,9 +557,7 @@
             cancelButtonText: 'Hủy'
         });
 
-        // Nếu người dùng click Đồng ý
         if (result.isConfirmed) {
-            // Hiển thị spinner khi bắt đầu xử lý
             Swal.fire({
                 title: 'Đang xử lý...',
                 text: 'Vui lòng đợi trong giây lát',
@@ -588,16 +580,16 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Hiển thị thông báo thành công
                     Swal.fire({
                         icon: 'success',
                         title: 'Thành công!',
                         text: 'Đã duyệt hủy đặt chỗ thành công'
                     });
-                    // Refresh lại danh sách
-                    loadCancelRequests();
-                    // Refresh lại bảng đặt chỗ
-                    loadBookingInfo(maNguoiDung);
+                    // loadCancelRequests();
+                    // loadBookingInfo(maNguoiDung);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -616,29 +608,52 @@
         }
     }
 
-    // Thêm hàm xử lý từ chối hủy
     async function rejectCancel(maDatCho) {
-        // Sử dụng SweetAlert2 để hiện form nhập lý do
         const { value: lyDo } = await Swal.fire({
             title: 'Từ chối yêu cầu hủy',
-            input: 'textarea',
-            inputLabel: 'Lý do từ chối',
-            inputPlaceholder: 'Nhập lý do từ chối...',
-            inputAttributes: {
-                'aria-label': 'Nhập lý do từ chối'
+            input: 'select',
+            inputOptions: {
+                'time_expired': 'Đã quá thời hạn cho phép hủy vé (8 tiếng trước giờ bay)',
+                'ticket_used': 'Vé đã được sử dụng/check-in',
+                'invalid_policy': 'Không đúng chính sách hoàn/hủy vé của hạng vé đã chọn',
+                'processing': 'Yêu cầu đang được xử lý, không thể hủy',
+                'other': 'Lý do khác...'
             },
+            inputPlaceholder: 'Chọn lý do từ chối',
             showCancelButton: true,
             confirmButtonText: 'Xác nhận',
-            cancelButtonText: 'Hủy',
+            cancelButtonText: 'Đóng',
             inputValidator: (value) => {
                 if (!value) {
-                    return 'Vui lòng nhập lý do từ chối!';
+                    return 'Vui lòng chọn lý do từ chối!';
                 }
+            },
+            didOpen: () => {
+                const select = Swal.getInput();
+                select.addEventListener('change', (e) => {
+                    if (e.target.value === 'other') {
+                        Swal.fire({
+                            title: 'Từ chối yêu cầu hủy',
+                            input: 'textarea',
+                            inputLabel: 'Lý do từ chối khác',
+                            inputPlaceholder: 'Nhập lý do từ chối...',
+                            inputAttributes: {
+                                'aria-label': 'Nhập lý do từ chối'
+                            },
+                            showCancelButton: true,
+                            confirmButtonText: 'Xác nhận',
+                            cancelButtonText: 'Đóng',
+                            inputValidator: (value) => {
+                                if (!value) {
+                                    return 'Vui lòng nhập lý do từ chối!';
+                                }
+                            }
+                        });
+                    }
+                });
             }
         });
-
         if (lyDo) {
-            // Hiển thị spinner khi bắt đầu xử lý
             Swal.fire({
                 title: 'Đang xử lý...',
                 text: 'Vui lòng đợi trong giây lát',
@@ -668,8 +683,11 @@
                         title: 'Thành công!',
                         text: 'Đã từ chối yêu cầu hủy đặt chỗ'
                     });
-                    // Refresh lại danh sách
-                    loadCancelRequests();
+                    // loadCancelRequests();
+                    // loadBookingInfo(maNguoiDung);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -689,7 +707,6 @@
         }
     }
 
-    // Khởi tạo tooltips
     document.addEventListener('DOMContentLoaded', function () {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

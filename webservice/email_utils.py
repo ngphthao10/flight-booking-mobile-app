@@ -96,7 +96,7 @@ def send_booking_cancellation_rejected_email(to_email, reject_info):
     Lý do từ chối: {reject_info.get('ly_do')}
     Thời gian xử lý: {reject_info.get('thoi_gian')}
 
-    Nếu anh/chị cần hỗ trợ thêm, vui lòng liên hệ với chúng tôi qua website hoặc hotline.
+    Nếu anh/chị cần hỗ trợ thêm, vui lòng liên hệ với chúng tôi qua website.
     
     Trân trọng,
     FlightBooking team.
