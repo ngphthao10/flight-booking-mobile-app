@@ -43,10 +43,10 @@ def send_booking_cancellation_email(to_email, cancellation_info):
     # Tạo danh sách thông tin các vé bị hủy
     cancelled_bookings = []
     for booking in cancellation_info['ds_huy']:
+        bookingId =  f"Mã đặt chỗ: {booking['ma_dat_cho'][0]}"
         booking_detail = f"""
-        Mã đặt chỗ: {booking['ma_dat_cho']}
         Mã chuyến bay: {booking['ma_chuyen_bay']}
-        Tỷ lệ hoàn tiền: {booking['ty_le_hoan']}
+        Tỷ lệ hoàn tiền: {round(booking['ty_le_hoan'], 0)}
         Số tiền hoàn: {booking['so_tien_hoan']} VND
         """
         cancelled_bookings.append(booking_detail)
@@ -56,6 +56,8 @@ def send_booking_cancellation_email(to_email, cancellation_info):
     Chào bạn,
 
     Yêu cầu hủy đặt chỗ của bạn đã được xử lý thành công. Dưới đây là chi tiết các đặt chỗ đã hủy:
+
+    {bookingId}
 
     {"".join(cancelled_bookings)}
     Thời gian duyệt hủy: {cancellation_info['ngay_duyet']}

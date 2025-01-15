@@ -123,6 +123,29 @@ def create_booking():
 @datcho.route('/api/bookings/<booking_id>/<user_id>/confirm', methods=['POST'])
 def confirm_booking(booking_id, user_id):
     try:
+        data = request.get_json()
+        phuong_thuc = data.get('phuong_thuc')
+        if phuong_thuc == 'Card':
+            card_info = data.get('card_info')
+            if not card_info:
+                return jsonify({'error': 'Thiếu thông tin thẻ thanh toán'}), 400
+                
+            the_tt = TheThanhToan.query.filter_by(
+                SoThe=card_info['so_the'].replace(" ", ""),
+                TenChuThe=card_info['ten_chu_the'],
+                NganHang=card_info['ngan_hang']
+            ).first()
+
+            print(the_tt)
+            if not the_tt:
+                return jsonify({'error': 'Thông tin thẻ không hợp lệ'}), 400
+                
+            if the_tt.SoDu < data.get('tong_tien', 0):
+                return jsonify({'error': 'Số dư không đủ để thực hiện giao dịch'}), 400
+                
+            the_tt.SoDu -= data.get('tong_tien', 0)
+            db.session.add(the_tt)
+
         BookingTamThoi.cleanup_expired()
         temp_booking = BookingTamThoi.query.get(booking_id)
         if not temp_booking or temp_booking.ExpiresAt < now:
@@ -131,12 +154,10 @@ def confirm_booking(booking_id, user_id):
         booking_data = temp_booking.Data
         thong_tin = booking_data['thong_tin_dat_cho']
         flight_updates = thong_tin.get('flight_updates', {})
-        data = request.get_json()
        
         tien_giam = 0
         ma_khuyen_mai = data.get('ma_khuyen_mai')  
         tong_tien = data.get('tong_tien', 0) 
-        phuong_thuc = data.get('phuong_thuc', 0)
 
         if ma_khuyen_mai: 
             khuyen_mai = KhuyenMai.query.get(ma_khuyen_mai)

@@ -59,26 +59,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Ví điện tử khác -->
-                    <div class="payment-option mb-3 p-3 rounded-3 border">
-                        <div class="form-check d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-3">
-                                <input class="form-check-input" type="radio" name="paymentMethod" value="E-Wallet"
-                                    id="otherWallet">
-                                <label class="form-check-label fw-semibold d-flex align-items-center gap-2"
-                                    for="otherWallet">
-                                    Ví điện tử khác
-                                    <span class="badge bg-success bg-opacity-10 text-success small">New!</span>
-                                </label>
-                            </div>
-                            <div class="payment-logos d-flex gap-2">
-                                <i class="bi bi-wallet2 fs-4 text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Thẻ thanh toán -->
+                    <!-- Thay đổi phần thẻ thanh toán -->
                     <div class="payment-option p-3 rounded-3 border">
                         <div class="form-check d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-3">
@@ -91,6 +72,31 @@
                             </div>
                             <div class="payment-logos d-flex gap-2">
                                 <i class="bi bi-credit-card fs-4 text-primary"></i>
+                            </div>
+                        </div>
+                        <div id="cardPaymentForm" class="mt-3 d-none">
+                            <!-- Danh sách ngân hàng dạng radio -->
+                            <div class="mb-3">
+                                <label class="form-label d-block">Chọn ngân hàng</label>
+                                <div class="bank-list row row-cols-2 row-cols-md-3 g-3" id="bankList">
+                                    <!-- Banks will be loaded here -->
+                                </div>
+                            </div>
+
+                            <!-- Thông tin thẻ -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Số thẻ</label>
+                                    <input type="text" class="form-control" id="cardNumber" required maxlength="19"
+                                        placeholder="Nhập 16 chữ số">
+                                    <div class="form-text">Ví dụ: 4532 7891 5623 0147</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tên chủ thẻ</label>
+                                    <input type="text" class="form-control" id="cardHolder" required
+                                        placeholder="Nhập tên không dấu">
+                                    <div class="form-text">Ví dụ: NGUYEN VAN A</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -134,10 +140,12 @@
 
                     <!-- Nút thanh toán -->
                     <button id="paymentButton"
-                        class="btn btn-primary w-100 py-3 rounded-3 position-relative d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-qr-code fs-5"></i>
-                        <span>Hiển thị mã QR để thanh toán</span>
-                        <div class="spinner-border spinner-border-sm position-absolute end-0 me-3 d-none" role="status">
+                        class="btn btn-primary w-100 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <div class="button-content">
+                            <i class="bi bi-qr-code fs-5"></i>
+                            <span class="button-text">Hiển thị mã QR để thanh toán</span>
+                        </div>
+                        <div class="spinner-border spinner-border-sm d-none" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </button>
@@ -201,11 +209,9 @@
 
         </div>
 
-        <!-- Cột bên phải - Tóm tắt chuyến bay -->
         <div class="col-lg-4">
             <div class="card rounded-4 shadow-sm mb-2">
                 <div class="card-body p-4">
-                    <!-- Header với icon máy bay -->
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <div class="bg-info bg-opacity-10 p-3 rounded-circle">
                             <i class="bi bi-airplane fs-5"></i>
@@ -241,6 +247,27 @@
 <div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;"></div>
 
 <style>
+    .bank-option {
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .bank-option:hover {
+        border-color: #0d6efd;
+        background-color: #f8f9fa;
+    }
+
+    .bank-option.selected {
+        border-color: #0d6efd;
+        background-color: #e7f1ff;
+    }
+
+    .bank-option input[type="radio"] {
+        margin-right: 8px;
+    }
+
     .payment-option:hover {
         border-color: var(--bs-primary) !important;
         background-color: var(--bs-light);
@@ -355,51 +382,163 @@
 </style>
 
 <script>
+    document.getElementById('cardNumber').addEventListener('input', function (e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        let formattedValue = this.value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        if (formattedValue !== this.value) {
+            this.value = formattedValue;
+        }
+    });
+
+    document.getElementById('cardHolder').addEventListener('input', function (e) {
+        let value = this.value;
+        let withoutDiacritics = value.normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-zA-Z\s]/g, '')
+            .toUpperCase();
+
+        if (withoutDiacritics !== this.value) {
+            this.value = withoutDiacritics;
+        }
+    });
+
+    // Thêm validation khi submit
+    function validateCardInfo() {
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const cardHolder = document.getElementById('cardHolder').value;
+
+        if (!/^\d{16}$/.test(cardNumber)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Số thẻ phải có đủ 16 chữ số'
+            });
+            return false;
+        }
+
+        if (!/^[A-Z\s]{3,}$/.test(cardHolder)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Tên chủ thẻ không hợp lệ (chỉ chứa chữ cái và khoảng trắng)'
+            });
+            return false;
+        }
+
+        return true;
+    }
+
 
     const config = document.getElementById('pagination-config');
     const API_URL = config.dataset.apiUrl;
     const userInfo = JSON.parse('{{ user_info | tojson | safe }}');
 
     console.log("THANHTOAN:", API_URL)
+
+    async function loadBanks() {
+        try {
+            const response = await fetch(`${API_URL}/api/banks`);
+            const result = await response.json();
+
+            if (result.success) {
+                const bankList = document.getElementById('bankList');
+                bankList.innerHTML = result.data.map(bank => `
+                <div class="col">
+                    <div class="bank-option" onclick="this.querySelector('input').click()">
+                        <input type="radio" 
+                               class="form-check-input" 
+                               name="bankRadio" 
+                               id="bank_${bank.code}" 
+                               value="${bank.name}">
+                        <label class="form-check-label" for="bank_${bank.code}">
+                            ${bank.name}
+                        </label>
+                    </div>
+                </div>
+            `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading banks:', error);
+        }
+    }
+
+    document.addEventListener('change', function (e) {
+        if (e.target.matches('input[name="bankRadio"]')) {
+            document.querySelectorAll('.bank-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            e.target.closest('.bank-option').classList.add('selected');
+        }
+    });
+
+
     document.getElementById('confirmPayment').addEventListener('click', async function () {
         const button = this;
         button.disabled = true;
         button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
-
+        Swal.fire({
+            title: 'Đang xử lý...',
+            text: 'Vui lòng đợi trong giây lát',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
         try {
             const bookingData = JSON.parse(localStorage.getItem('bookingData'));
-
             const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             const maND = userInfo && userInfo.MaND ? userInfo.MaND : 1;
+
+            let paymentData = {
+                tong_tien: bookingData.basePrice,
+                ma_khuyen_mai: bookingData.appliedPromotion?.code || '',
+                phuong_thuc: selectedPaymentMethod
+            };
+
+            if (selectedPaymentMethod === 'Card') {
+                const selectedBank = document.querySelector('input[name="bankRadio"]:checked');
+                if (!selectedBank) {
+                    throw new Error('Vui lòng chọn ngân hàng');
+                }
+
+                paymentData.card_info = {
+                    ngan_hang: selectedBank.value,
+                    so_the: document.getElementById('cardNumber').value,
+                    ten_chu_the: document.getElementById('cardHolder').value
+                };
+            }
+
             const response = await fetch(`${API_URL}/api/bookings/${bookingData.temp.booking_id}/${maND}/confirm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    tong_tien: bookingData.basePrice,
-                    ma_khuyen_mai: bookingData.appliedPromotion?.code || '',
-                    phuong_thuc: selectedPaymentMethod
-                })
+                body: JSON.stringify(paymentData)
             });
 
             const data = await response.json();
 
             if (data.success) {
+
                 bookingData.bookingInfo = data;
                 localStorage.setItem('bookingData', JSON.stringify(bookingData));
 
-                const modal = bootstrap.Modal.getInstance(document.getElementById('qrModal'));
-                modal.hide();
-                // showMessage('success', 'Thanh toán thành công!');
+                if (selectedPaymentMethod === 'Card') {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('qrModal'));
+                    if (modal) modal.hide();
+                }
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công!',
                     text: 'Thanh toán thành công!',
-                    allowOutsideClick: false,  // Ngăn việc click ra ngoài để đóng
-                    confirmButtonText: 'OK'    // Tùy chỉnh text của nút
+                    allowOutsideClick: false,
+                    confirmButtonText: 'OK'
                 }).then((result) => {
-                    // Chỉ chuyển trang khi người dùng bấm OK
                     if (result.isConfirmed) {
                         window.location.href = `/datcho/booking-success`;
                     }
@@ -414,26 +553,100 @@
                 title: 'Lỗi!',
                 text: error.message
             });
-            // showMessage('danger', `Lỗi: ${error.message}`);
         } finally {
             button.disabled = false;
             button.innerHTML = '<i class="bi bi-download me-2"></i>Xác nhận đã thanh toán';
         }
     });
 
-    document.getElementById('paymentButton').addEventListener('click', function () {
-        this.querySelector('.spinner-border').classList.remove('d-none');
-        this.disabled = true;
+    // Cập nhật nội dung nút khi chuyển đổi phương thức thanh toán
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const cardForm = document.getElementById('cardPaymentForm');
+            const payButton = document.getElementById('paymentButton');
+            const buttonContent = payButton.querySelector('.button-content');
 
-        setTimeout(() => {
-            this.querySelector('.spinner-border').classList.add('d-none');
-            this.disabled = false;
-
-            var qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
-            qrModal.show();
-        }, 1000);
+            if (this.value === 'Card') {
+                cardForm.classList.remove('d-none');
+                loadBanks();
+                buttonContent.innerHTML = '<i class="bi bi-credit-card fs-5"></i><span class="button-text"> Thanh toán qua thẻ</span>';
+            } else {
+                cardForm.classList.add('d-none');
+                buttonContent.innerHTML = '<i class="bi bi-qr-code fs-5"></i><span class="button-text"> Hiển thị mã QR để thanh toán</span>';
+            }
+        });
     });
 
+    document.getElementById('paymentButton').addEventListener('click', function () {
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const button = this;
+        const buttonContent = button.querySelector('.button-content');
+        const spinner = button.querySelector('.spinner-border');
+
+        function showSpinner() {
+            if (buttonContent && spinner) {
+                buttonContent.classList.add('d-none');
+                spinner.classList.remove('d-none');
+                button.disabled = true;
+            }
+        }
+
+        function hideSpinner() {
+            if (buttonContent && spinner) {
+                buttonContent.classList.remove('d-none');
+                spinner.classList.add('d-none');
+                button.disabled = false;
+            }
+        }
+
+        // Xử lý theo phương thức thanh toán
+        if (selectedPaymentMethod === 'VietQR') {
+            showSpinner();
+            setTimeout(() => {
+                hideSpinner();
+                var qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+                qrModal.show();
+            }, 1000);
+        } else if (selectedPaymentMethod === 'Card') {
+            // Validate thông tin thẻ
+            const selectedBank = document.querySelector('input[name="bankRadio"]:checked');
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardHolder = document.getElementById('cardHolder').value;
+
+            // Kiểm tra đã nhập đủ thông tin
+            if (!selectedBank) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin',
+                    text: 'Vui lòng chọn ngân hàng'
+                });
+                return;
+            }
+            if (!cardNumber) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin',
+                    text: 'Vui lòng nhập số thẻ'
+                });
+                return;
+            }
+            if (!cardHolder) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thiếu thông tin',
+                    text: 'Vui lòng nhập tên chủ thẻ'
+                });
+                return;
+            }
+
+            // Xử lý thanh toán thẻ
+            showSpinner();
+            setTimeout(() => {
+                hideSpinner();
+                document.getElementById('confirmPayment').click();
+            }, 1000);
+        }
+    });
     document.getElementById('qrModal').addEventListener('show.bs.modal', function () {
         var display = document.getElementById('qrTimer');
     });

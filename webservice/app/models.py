@@ -381,3 +381,11 @@ class LyDoHuy(db.Model):
     NgayXuLy = db.Column(db.DateTime)
     
     dat_cho = db.relationship('DatCho', backref=db.backref('ly_do_huy', uselist=False))
+
+class TheThanhToan(db.Model):
+    __tablename__ = 'THETHANHTOAN'
+
+    SoThe = db.Column(db.String(16), primary_key=True)
+    TenChuThe = db.Column(db.String(100), nullable=False)
+    NganHang = db.Column(db.String(50), nullable=False)
+    SoDu = db.Column(db.DECIMAL(15,2), default=0)

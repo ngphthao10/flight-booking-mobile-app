@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timedelta
-from app.models import ChuyenBay, MayBay, HangHangKhong, DichVu, DichVuVe, GoiDichVu
+from app.models import ChuyenBay, MayBay, HangHangKhong, DichVu, DichVuVe, GoiDichVu, TheThanhToan
 from app import db
 
 dichvuve = Blueprint('dichvuve', __name__)
@@ -210,4 +210,29 @@ def get_package_luggage(ma_goi):
     except Exception as e:
         print(f"Error getting luggage info: {str(e)}")
         return jsonify({'error': 'Lỗi hệ thống'}), 500
+
+@dichvuve.route('/api/banks', methods=['GET'])
+def get_banks():
+    try:
+        banks = db.session.query(TheThanhToan.NganHang).distinct().all()
+        
+        bank_list = [
+            {
+                'id': index + 1,
+                'name': bank[0], 
+                'code': bank[0].lower().replace(' ', '_')
+            } 
+            for index, bank in enumerate(banks)
+        ]
+        
+        return jsonify({
+            'success': True,
+            'data': bank_list
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
