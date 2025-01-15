@@ -69,7 +69,7 @@ const validateAge = (birthDate, type) => {
     switch (type) {
         case 'adult': return age >= 12;
         case 'child': return age >= 2 && age < 12;
-        case 'infant': return age < 2;
+        case 'infant': return age < 2 && age >= 0;
         default: return false;
     }
 };
@@ -138,7 +138,7 @@ const validateField = (input) => {
                         const ageRanges = {
                             adult: 'từ 12 tuổi trở lên',
                             child: 'từ 2 đến 11 tuổi',
-                            infant: 'dưới 2 tuổi'
+                            infant: 'từ 0 đến dưới 2 tuổi'
                         };
                         showError(input, `Độ tuổi phải ${ageRanges[type]}`);
                     } else {

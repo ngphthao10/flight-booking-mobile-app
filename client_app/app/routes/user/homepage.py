@@ -112,14 +112,13 @@ def search_flights():
                 'origin': origin,
                 'destination': destination,
                 'departure_date': departure_date,
-                'return_date': datetime.strptime(return_date, '%Y-%m-%d').strftime('%d-%m-%Y') ,
+                'return_date': datetime.strptime(return_date, '%Y-%m-%d').strftime('%d-%m-%Y') if return_date else None,
                 'adults': adults,
                 'children': children,
                 'infants': infants,
                 'seat_class': seat_class,
                 'is_round_trip': is_round_trip
             }
-            print(search_params)
             session['search_params'] = search_params
             session['flight_results'] = processed_results
 
