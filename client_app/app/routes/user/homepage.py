@@ -8,22 +8,18 @@ homepage = Blueprint('homepage', __name__)
 @homepage.route('/', methods=['GET'])
 def home():
     try:
-        # Lấy thông tin user từ utils
         user_info = session.get('user_info')
 
-        # Lấy danh sách sân bay từ API
         response = requests.get(f"{current_app.config['API_URL']}/api/sanbay")
         response.raise_for_status()
         sanbay_list = response.json()
 
-        # Lấy thông tin hiện tại
         today = datetime.now()
         tomorrow = today + timedelta(days=1)
         
-        # Chuẩn bị dữ liệu mặc định cho form
         default_data = {
-            'departure_date': today.strftime('%Y-%m-%d'),
-            'return_date': tomorrow.strftime('%Y-%m-%d'),
+            'departure_date': today.strftime('%d-%m-%Y'),
+            'return_date': tomorrow.strftime('%d-%m-%Y'),
             'passenger_adults': 1,
             'passenger_children': 0,
             'passenger_infants': 0,
@@ -45,8 +41,6 @@ def home():
     except Exception as e:
         error_message = f"Lỗi hệ thống: {str(e)}"
         flash(error_message, 'danger')
-        # Log lỗi để debug
-        current_app.logger.error(f"System Error: {error_message}")
         return render_template(
             'user/homepage.html',
             san_bay=[],
@@ -59,7 +53,6 @@ def home():
 @homepage.route('/search-flights', methods=['GET', 'POST'])
 def search_flights():
     try:
-        # Khởi tạo giá trị mặc định
         processed_results = {
             'direct_flights': [],
             'connecting_flights': [],
@@ -69,10 +62,9 @@ def search_flights():
         search_params = {}
 
         if request.method == 'POST':
-            # Lấy dữ liệu từ form
             origin = request.form.get('origin')
             destination = request.form.get('destination')
-            departure_date = request.form.get('departure-date')
+            departure_date = datetime.strptime(request.form.get('departure-date'), '%Y-%m-%d').strftime('%d-%m-%Y') 
             return_date = request.form.get('return-date')
             seat_class = request.form.get('seat_class', 'ECO')
             adults = int(request.form.get('nguoiLon', 1))
@@ -80,16 +72,14 @@ def search_flights():
             infants = int(request.form.get('emBe', 0))
             is_round_trip = request.form.get('return-trip') == 'on'
 
-            # Validate input
             if not all([origin, destination, departure_date]):
                 flash('Vui lòng điền đầy đủ thông tin tìm kiếm', 'warning')
                 return redirect(url_for('homepage.home'))
                 
-            # Chuẩn bị dữ liệu gửi đến API
             search_data = {
                 'san_bay_di': origin,
                 'san_bay_den': destination,
-                'ngay_di': datetime.strptime(departure_date, '%Y-%m-%d').strftime('%d-%m-%Y'),
+                'ngay_di': departure_date,
                 'so_luong_khach': adults + children,
                 'loai_ghe': seat_class,
                 'khu_hoi': is_round_trip,
@@ -102,7 +92,6 @@ def search_flights():
             else:
                 search_data['ngay_ve'] = ''
 
-            # Gọi API tìm kiếm chuyến bay
             response = requests.post(
                 f"{current_app.config['API_URL']}/api/flights/search",
                 json=search_data
@@ -110,7 +99,6 @@ def search_flights():
             response.raise_for_status()
             flight_results = response.json()
 
-            # Xử lý kết quả chuyến bay
             if flight_results.get('direct_flights'):
                 processed_results['direct_flights'].extend(flight_results['direct_flights'])
             if flight_results.get('connecting_flights'):
@@ -120,18 +108,18 @@ def search_flights():
             if flight_results.get('return_connecting_flights'):
                 processed_results['return_connecting_flights'].extend(flight_results['return_connecting_flights'])
 
-            # Lưu vào session
             search_params = {
                 'origin': origin,
                 'destination': destination,
                 'departure_date': departure_date,
-                'return_date': return_date,
+                'return_date': datetime.strptime(return_date, '%Y-%m-%d').strftime('%d-%m-%Y') ,
                 'adults': adults,
                 'children': children,
                 'infants': infants,
                 'seat_class': seat_class,
                 'is_round_trip': is_round_trip
             }
+            print(search_params)
             session['search_params'] = search_params
             session['flight_results'] = processed_results
 
@@ -245,7 +233,7 @@ def format_duration(hours):
 def parse_datetime(date_str):
     if not date_str:
         return datetime.now()
-    return datetime.strptime(date_str, '%Y-%m-%d')
+    return datetime.strptime(date_str, '%d-%m-%Y')
 
 @homepage.app_template_filter('days_offset')
 def days_offset(date, offset):

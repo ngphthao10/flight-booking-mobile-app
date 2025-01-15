@@ -371,7 +371,6 @@
         }
     }
 
-    // Render flight details template
     function renderFlightDetails(flightData, isConnecting = false) {
         const isConnectionFlight = isConnecting || flightData.flights;
 
@@ -441,8 +440,6 @@
             </div>`;
     }
 
-
-    // Function to handle flight selection
     function handleFlightSelection(params) {
         const {
             flightData,
@@ -595,6 +592,7 @@
     let selectedReturnPackagePrice = 0;
     let selectedOutboundPackage = null;
     let selectedReturnPackage = null;
+
     async function loadFlightServices(flights, isReturn = false) {
         try {
             if (!Array.isArray(flights)) {

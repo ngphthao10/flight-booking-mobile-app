@@ -202,97 +202,38 @@ function calculateDuration(start, end) {
     return `${hours}h ${minutes}m`;
 }
 
-// Thêm các hàm xử lý hủy đặt chỗ
 function showCancelForm() {
     const cancelModal = new bootstrap.Modal(document.getElementById('cancelBookingModal'));
     cancelModal.show();
 }
 
 function showCancelForm() {
-    // Đóng modal chi tiết đặt chỗ
     const detailModal = bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal'));
     detailModal.hide();
 
-    // Mở modal hủy đặt chỗ
     const cancelModal = new bootstrap.Modal(document.getElementById('cancelBookingModal'));
     cancelModal.show();
 }
 
 function backToDetail() {
-    // Đóng modal hủy
     const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
     cancelModal.hide();
 
-    // Mở lại modal chi tiết
     const detailModal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
     detailModal.show();
 }
 
-// async function submitCancelRequest() {
-//     const bookingId = document.getElementById('bookingId').textContent;
-//     const reason = document.getElementById('cancelReason').value.trim();
-
-//     if (!reason) {
-//         alert('Vui lòng nhập lý do hủy đặt chỗ');
-//         return;
-//     }
-
-//     try {
-//         const response = await fetch(`${API_URL}/api/datcho/${bookingId}/huy`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({
-//                 noi_dung: reason
-//             })
-//         });
-
-//         const data = await response.json();
-
-//         if (data.success) {
-//             // showMessage('success', 'Gửi yêu cầu hủy đặt chỗ thành công');
-//             Swal.fire({
-//                 icon: 'success',
-//                 title: 'Thành công!',
-//                 text: 'Gửi yêu cầu hủy đặt chỗ thành công'
-//             });
-//             const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
-//             cancelModal.hide();
-//             setTimeout(() => {
-//                 window.location.reload();
-//             }, 2000);
-//         } else {
-//             Swal.fire({
-//                 icon: 'error',
-//                 title: 'Lỗi!',
-//                 text: data.message || 'Có lỗi xảy ra khi gửi yêu cầu hủy'
-//             });
-//             // showMessage('danger', data.message || 'Có lỗi xảy ra khi gửi yêu cầu hủy');
-//         }
-//     } catch (error) {
-//         console.error('Error:', error);
-//         Swal.fire({
-//             icon: 'error',
-//             title: 'Lỗi!',
-//             text: 'Có lỗi xảy ra khi gửi yêu cầu hủy'
-//         });
-//         // showMessage('danger', 'Có lỗi xảy ra khi gửi yêu cầu hủy');
-//     }
-// }
 
 async function submitCancelRequest() {
     const form = document.getElementById('cancelBookingForm');
     const bookingId = document.getElementById('bookingId').textContent;
     const selectedReason = document.querySelector('input[name="cancelReason"]:checked');
 
-    // Kiểm tra form hợp lệ
     if (!form.checkValidity()) {
         form.classList.add('was-validated');
         return;
     }
 
-    // Nếu không có lý do được chọn
     if (!selectedReason) {
         form.classList.add('was-validated');
         return;
@@ -300,7 +241,6 @@ async function submitCancelRequest() {
 
     let reason;
 
-    // Xử lý lấy nội dung lý do
     if (selectedReason.value === 'other') {
         const otherReasonText = document.getElementById('otherReasonText');
         reason = otherReasonText.value.trim();
@@ -310,7 +250,6 @@ async function submitCancelRequest() {
             return;
         }
     } else {
-        // Lấy text của radio button được chọn
         reason = selectedReason.parentElement.querySelector('span').textContent;
     }
 

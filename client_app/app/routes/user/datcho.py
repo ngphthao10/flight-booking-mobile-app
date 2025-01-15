@@ -271,9 +271,9 @@ def create_e_ticket(booking_data, output_path):
                 # Thông tin hành khách
                 elements.append(Paragraph("DANH SÁCH HÀNH KHÁCH", styles['CustomTitle']))
 
-                for idx, passenger in enumerate(booking['HanhKhach'], 1):
+                for index, passenger in enumerate(booking['HanhKhach'], 1):
                     # Header cho mỗi hành khách
-                    elements.append(Paragraph(f"Hành khách {idx}: {passenger['LoaiHK']}", styles['CustomHeading2']))
+                    elements.append(Paragraph(f"Hành khách {index}: {passenger['LoaiHK']}", styles['CustomHeading2']))
                     
                     passenger_info = [
                         ['THÔNG TIN HÀNH KHÁCH', ''],
@@ -300,7 +300,7 @@ def create_e_ticket(booking_data, output_path):
                     ]))
                     elements.append(passenger_table)
                     elements.append(Spacer(1, 20))
-            
+ 
             if idx < len(bookings) - 1:
                 elements.append(PageBreak())
 

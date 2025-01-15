@@ -3,7 +3,6 @@
 
 {% block content %}
 <div class="container py-4">
-    <!-- Header với animation -->
     <div class="text-center mb-2">
         <div class="position-relative mb-2">
             <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2 animate__animated animate__bounceIn"
@@ -12,7 +11,7 @@
             </div>
             <div class="position-absolute top-100 start-50 translate-middle-x" style="z-index: 1;">
                 <div class="bg-success-subtle text-success px-3 py-1 rounded-pill" style="font-size: 0.8rem;">
-                    Mã đặt chỗ: <strong id="bookingCode" class="ms-1"></strong>
+                    Mã đặt chỗ: <strong id="bookingId" class="ms-1"></strong>
                 </div>
             </div>
         </div>
@@ -95,7 +94,6 @@
                 </div>
                 <div class="card-body">
                     <div id="passengersList" class="passenger-list">
-                        <!-- Được render bằng JavaScript -->
                     </div>
                 </div>
             </div>
@@ -112,7 +110,6 @@
                 </div>
                 <div class="card-body">
                     <div id="paymentDetails" class="list-group list-group-flush">
-                        <!-- Giá vé gốc -->
                         <div class="list-group-item border-0 px-0 py-2">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="small">Giá vé gốc</div>
@@ -120,7 +117,6 @@
                             </div>
                         </div>
 
-                        <!-- Giá vé gốc -->
                         <div class="list-group-item border-0 px-0 py-2">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="small">Tổng tiền hành lý</div>
@@ -128,7 +124,6 @@
                             </div>
                         </div>
 
-                        <!-- Tổng tiền -->
                         <div class="list-group-item border-0 px-0 pt-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <strong class="h6 mb-0">Tổng tiền</strong>
@@ -141,10 +136,16 @@
         </div>
     </div>
 
-    <!-- Buttons -->
     <div class="text-center mt-4">
-        <button class="btn btn-primary px-4 me-2 shadow-sm hover-lift" onclick="window.print()">
-            <i class="bi bi-printer me-2"></i>In vé
+        <div id="loading" class="text-center d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div id="error" class="alert alert-danger d-none"></div>
+
+        <button class="btn btn-primary px-4 me-2 shadow-sm hover-lift" onclick="printTicket()">
+            <i class="bi bi-printer me-1"></i>In vé
         </button>
         <a href="/" class="btn btn-outline-primary px-4 shadow-sm hover-lift">
             <i class="bi bi-house me-2"></i>Về trang chủ
@@ -152,7 +153,6 @@
     </div>
 </div>
 
-<!-- CSS -->
 <style>
     .hover-shadow {
         transition: all 0.3s ease;
@@ -177,7 +177,6 @@
         padding-bottom: 1.25rem;
     }
 
-    /* Smaller text for passenger details */
     .passenger-list .text-muted {
         font-size: 0.85rem;
     }
@@ -203,7 +202,7 @@
             return;
         }
         console.log(bookingData)
-        document.getElementById('bookingCode').textContent = bookingData.bookingInfo.ma_dat_cho_goc;
+        document.getElementById('bookingId').textContent = bookingData.bookingInfo.ma_dat_cho_goc;
 
         if (bookingData.outbound.flight.is_connecting) {
             renderConnectingFlight(bookingData.outbound.flight, 'outbound');
@@ -462,16 +461,12 @@
     }
 
     function formatDate(dateStr) {
-        // if (!dateStr) return '';
-
-        // // Kiểm tra nếu là format DD-MM-YYYY
         if (dateStr.length === 10) {
             const [day, month, year] = dateStr.split('-');
             const date = new Date(year, month - 1, day);
             return date.toLocaleDateString('vi-VN');
         }
 
-        // Nếu là format ISO hoặc các format khác
         const date = new Date(dateStr);
         return date.toLocaleDateString('vi-VN');
     }
@@ -480,4 +475,5 @@
         return timeStr.substring(11, 19);
     }
 </script>
+<script src="{{url_for('static', filename='js/thongtindatcho.js')}}"></script>
 {% endblock %}

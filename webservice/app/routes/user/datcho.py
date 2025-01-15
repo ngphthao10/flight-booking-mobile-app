@@ -1,9 +1,9 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 from app.models import *
 from app import db
 from email_utils import send_booking_confirmation_email, send_booking_cancellation_email, send_booking_cancellation_rejected_email
-from sqlalchemy import case, desc, or_
+from sqlalchemy import case, or_
 from sqlalchemy.orm import aliased
 
 datcho = Blueprint('datcho', __name__)
@@ -17,13 +17,11 @@ def create_booking():
         
         data = request.get_json()
         
-        # Kiểm tra thông tin người liên hệ
         required_contact = ['ho_nlh', 'ten_nlh', 'email', 'sdt']
         for field in required_contact:
             if field not in data['nguoi_lien_he']:
                 return jsonify({'error': f'Thiếu thông tin người liên hệ: {field}'}), 400
 
-        # Kiểm tra thông tin hành khách và dịch vụ hành lý
         required_passenger = ['ho_hk', 'ten_hk', 'danh_xung', 'cccd', 'ngay_sinh', 'quoc_tich', 'loai_hk']
         for passenger in data['hanh_khach']:
             for field in required_passenger:
@@ -33,14 +31,13 @@ def create_booking():
             if 'dich_vu_hanh_ly' in passenger:
                 for flight_luggage in passenger['dich_vu_hanh_ly']:
                     ma_chuyen_bay = flight_luggage.get('ma_chuyen_bay')
-                    ma_dich_vu = flight_luggage.get('ma_dich_vu_hanh_ly')
+                    ma_dich_vu = flight_luggage.get('ma_dich_vu_hanh_ly') 
                     
                     if ma_dich_vu:
                         dich_vu = DichVuHanhLy.query.get(ma_dich_vu)
                         if not dich_vu or dich_vu.MaCB != ma_chuyen_bay:
                             return jsonify({'error': f'Dịch vụ hành lý không hợp lệ cho chuyến bay {ma_chuyen_bay}'}), 400
 
-        # Kiểm tra thông tin chuyến bay và gói dịch vụ
         flight_updates = {}
         first_flight = None
         for flight_info in data['chuyen_bay']:
@@ -49,17 +46,15 @@ def create_booking():
             so_ghe_eco = flight_info.get('so_ghe_eco', 0)
             ma_goi = flight_info.get('ma_goi')
             
-            # Kiểm tra chuyến bay
             flight = ChuyenBay.query.get(ma_chuyen_bay)
             if not flight:
                 return jsonify({'error': f'Không tìm thấy chuyến bay {ma_chuyen_bay}'}), 404
             
-            # Kiểm tra gói dịch vụ
             if ma_goi:
                 goi_dv = GoiDichVu.query.get(ma_goi)
                 if not goi_dv:
                     return jsonify({'error': f'Không tìm thấy gói dịch vụ {ma_goi}'}), 404
-                if goi_dv.TrangThai != 0:  # Giả sử 0 là trạng thái hoạt động
+                if goi_dv.TrangThai != 0:  
                     return jsonify({'error': f'Gói dịch vụ {ma_goi} không khả dụng'}), 400
             
             if first_flight is None:
@@ -103,7 +98,7 @@ def create_booking():
                     'ma_chuyen_bay': flight['ma_chuyen_bay'],
                     'so_ghe_bus': flight.get('so_ghe_bus', 0),
                     'so_ghe_eco': flight.get('so_ghe_eco', 0),
-                    'ma_goi': flight.get('ma_goi')  # Thêm ma_goi vào response
+                    'ma_goi': flight.get('ma_goi')
                 } for flight in data['chuyen_bay']],
                 'flight_updates': flight_updates
             }
@@ -166,13 +161,12 @@ def confirm_booking(booking_id, user_id):
             db.session.add(nguoi_lien_he)
         db.session.flush()
 
-                # Tạo đặt chỗ gốc với thông tin gói dịch vụ
         dat_cho_goc = DatCho(
             MaCB=thong_tin['chuyen_bay'][0]['ma_chuyen_bay'],
             MaNLH=nguoi_lien_he.MaNLH,
             SoLuongGheBus=thong_tin['chuyen_bay'][0]['so_ghe_bus'],
             SoLuongGheEco=thong_tin['chuyen_bay'][0]['so_ghe_eco'],
-            MaGoi=thong_tin['chuyen_bay'][0].get('ma_goi'),  # Thêm MaGoi
+            MaGoi=thong_tin['chuyen_bay'][0].get('ma_goi'),  
             TrangThai='Đã thanh toán',
             NgayMua=now,
             MaND=user_id
@@ -182,14 +176,13 @@ def confirm_booking(booking_id, user_id):
 
         danh_sach_dat_cho = [dat_cho_goc]
 
-        # Tạo đặt chỗ cho các chuyến bay khác
         for chuyen_bay in thong_tin['chuyen_bay'][1:]:
             dat_cho = DatCho(
-                MaCB=chuyen_bay[' ma_chuyen_bay'],
+                MaCB=chuyen_bay['ma_chuyen_bay'],
                 MaNLH=nguoi_lien_he.MaNLH,
                 SoLuongGheBus=chuyen_bay['so_ghe_bus'],
                 SoLuongGheEco=chuyen_bay['so_ghe_eco'],
-                MaGoi=chuyen_bay.get('ma_goi'),  # Thêm MaGoi
+                MaGoi=chuyen_bay.get('ma_goi'), 
                 TrangThai='Đã thanh toán',
                 NgayMua=now,
                 MaND=user_id,
@@ -783,10 +776,10 @@ def duyet_huy_dat_cho(ma_dat_cho):
                 db.session.add(dc)
 
                 result.append({
-                    'ma_dat_cho': dc.MaDatCho,
+                    'ma_dat_cho': ma_dat_cho,
                     'ma_chuyen_bay': dc.MaCB,
                     'ty_le_hoan': f"{ty_le_hoan * 100}%",
-                    'so_tien_hoan': round(so_tien_hoan, 2)
+                    'so_tien_hoan': round(so_tien_hoan, 0)
                 })
 
         ly_do_huy.TrangThai = 'Đã duyệt'

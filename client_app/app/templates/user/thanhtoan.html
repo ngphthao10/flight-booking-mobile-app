@@ -395,12 +395,15 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công!',
-                    text: 'Thanh toán thành công!'
+                    text: 'Thanh toán thành công!',
+                    allowOutsideClick: false,  // Ngăn việc click ra ngoài để đóng
+                    confirmButtonText: 'OK'    // Tùy chỉnh text của nút
+                }).then((result) => {
+                    // Chỉ chuyển trang khi người dùng bấm OK
+                    if (result.isConfirmed) {
+                        window.location.href = `/datcho/booking-success`;
+                    }
                 });
-
-                setTimeout(() => {
-                    window.location.href = `/datcho/booking-success`;
-                }, 2000);
             } else {
                 throw new Error(data.error || 'Có lỗi xảy ra trong quá trình thanh toán');
             }

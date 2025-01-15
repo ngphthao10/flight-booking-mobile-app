@@ -129,7 +129,7 @@
                         <span>{{ '{:,.0f}'.format(price_range.max) }}₫</span>
                     </div>
                     <input type="range" class="form-range" id="priceSlider" min="{{ price_range.min }}"
-                        max="{{ price_range.max }}" value="{{ price_range.max }}">
+                        max="{{ price_range.max }}" step="100000" value="{{ price_range.max }}">
                 </div>
             </div>
         </div>

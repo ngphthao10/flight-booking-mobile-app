@@ -9,7 +9,6 @@
     </div>
     {% endif %}
 
-    <!-- Alert for validation errors -->
     <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="validationAlert">
         <span id="validationMessage"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -27,7 +26,6 @@
                 class="needs-validation" novalidate>
                 <div class="row mb-4">
                     <div class="col-lg-3 col-md-6 mb-3">
-                        <!-- Passenger Selection -->
                         <div class="position-relative">
                             <label class="form-label">Hành khách</label>
                             <div class="dropdown w-100">
@@ -76,7 +74,6 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-3">
-                        <!-- Seat Class -->
                         <label class="form-label">Hạng ghế</label>
                         <select class="form-select" name="seat_class">
                             {% for class in default_data.seat_class %}
@@ -89,7 +86,6 @@
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
                         <div class="row">
-                            <!-- Origin -->
                             <div class="col-md-5">
                                 <label class="form-label">Điểm đi</label>
                                 <input type="hidden" name="origin" id="origin">
@@ -120,14 +116,12 @@
                                 </div>
                             </div>
 
-                            <!-- Swap Button -->
                             <div class="col-md-2 d-flex align-items-center justify-content-center my-2">
                                 <button class="btn btn-outline-dark rounded-circle" type="button" id="swap-button">
                                     <i class="bi bi-arrow-left-right"></i>
                                 </button>
                             </div>
 
-                            <!-- Destination -->
                             <div class="col-md-5">
                                 <label class="form-label">Điểm đến</label>
                                 <input type="hidden" name="destination" id="destination">
@@ -162,30 +156,27 @@
 
                     <div class="col-md-6">
                         <div class="row">
-                            <!-- Departure Date -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Ngày đi</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                                     <input type="date" id="departure-date" name="departure-date" class="form-control"
-                                        value="{{ departure_date }}" min="{{ today_date }}" required>
+                                        value="{{ default_data.departure_date }}" min="{{ today_date }}" required>
                                 </div>
                             </div>
 
-                            <!-- Return Date -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Ngày về</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar"></i></span>
                                     <input type="date" id="return-date" name="return-date" class="form-control"
-                                        value="{{ return_date }}" min="{{ today_date }}" disabled>
+                                        value="{{ default_data.return_date }}" min="{{ today_date }}" disabled>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Round Trip Checkbox -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="form-check float-end">
@@ -195,7 +186,6 @@
                     </div>
                 </div>
 
-                <!-- Submit Button -->
                 <div class="d-grid">
                     <button class="btn btn-outline-dark btn-lg" type="submit">
                         <i class="bi bi-search me-2"></i>Tìm kiếm chuyến bay
@@ -210,64 +200,29 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Form validation
+
         const form = document.getElementById('searchForm');
         const validationAlert = document.getElementById('validationAlert');
         const validationMessage = document.getElementById('validationMessage');
 
-        // Passenger input validation
-        function validatePassengers() {
-            const adults = parseInt(document.getElementById('nguoiLon').value) || 0;
-            const infants = parseInt(document.getElementById('emBe').value) || 0;
-
-            if (infants > adults) {
-                validationAlert.classList.remove('d-none');
-                validationMessage.textContent = 'Số em bé không được nhiều hơn số người lớn';
-                return false;
-            }
-
-            validationAlert.classList.add('d-none');
-            return true;
-        }
-
-        // Handle passenger increment/decrement
-        document.querySelectorAll('.passenger-minus, .passenger-plus').forEach(button => {
-            button.addEventListener('click', function () {
-                const targetId = this.dataset.target;
-                const input = document.getElementById(targetId);
-                const currentValue = parseInt(input.value) || 0;
-                const isPlus = this.classList.contains('passenger-plus');
-                const minValue = parseInt(input.min) || 0;
-
-                if (isPlus) {
-                    input.value = currentValue + 1;
-                } else {
-                    input.value = Math.max(minValue, currentValue - 1);
-                }
-
-                // Update passenger summary
-                updatePassengerSummary();
-                validatePassengers();
-            });
-        });
-
-        // Update passenger summary text
-        function updatePassengerSummary() {
-            const adults = document.getElementById('nguoiLon').value;
-            const children = document.getElementById('treEm').value;
-            const infants = document.getElementById('emBe').value;
-
-            document.getElementById('passengerButton').querySelector('span').textContent =
-                `${adults} Người lớn, ${children} Trẻ em, ${infants} Em bé`;
-        }
-
-        // Handle passenger input changes
         document.querySelectorAll('.passenger-input').forEach(input => {
             input.addEventListener('change', function () {
                 const minValue = parseInt(this.min) || 0;
                 this.value = Math.max(minValue, parseInt(this.value) || 0);
-                updatePassengerSummary();
-                validatePassengers();
+
+                const adults = parseInt(document.getElementById('nguoiLon').value) || 0;
+                const children = document.getElementById('treEm').value;
+                const infants = parseInt(document.getElementById('emBe').value) || 0;
+
+                document.getElementById('passengerButton').querySelector('span').textContent =
+                    `${adults} Người lớn, ${children} Trẻ em, ${infants} Em bé`;
+                if (infants > adults) {
+                    validationAlert.classList.remove('d-none');
+                    validationMessage.textContent = 'Số em bé không được nhiều hơn số người lớn';
+                    return false;
+                }
+
+                validationAlert.classList.add('d-none');
             });
         });
 
@@ -287,7 +242,6 @@
             });
         }
 
-        // Location selection handlers
         window.selectOrigin = function (displayText, airportCode) {
             document.getElementById('originDropdownButton').querySelector('span').textContent = displayText;
             document.getElementById('origin').value = airportCode;
@@ -298,7 +252,6 @@
             document.getElementById('destination').value = airportCode;
         }
 
-        // Search input event listeners
         document.getElementById('searchInputOrigin').addEventListener('keyup', function () {
             filterDropdown('searchInputOrigin', 'origin-list');
         });
@@ -307,7 +260,6 @@
             filterDropdown('searchInputDestination', 'destination-list');
         });
 
-        // Swap button handler
         document.getElementById('swap-button').addEventListener('click', function (e) {
             e.preventDefault();
             let originButton = document.getElementById('originDropdownButton').querySelector('span');
@@ -325,7 +277,6 @@
             destinationInput.value = tempValue;
         });
 
-        // Return trip checkbox handler
         document.getElementById('return-trip').addEventListener('change', function () {
             const returnDateInput = document.getElementById('return-date');
             returnDateInput.disabled = !this.checked;
@@ -339,7 +290,6 @@
             }
         });
 
-        // Set min date for departure and handle date changes
         const today = new Date().toISOString().split('T')[0];
         const departureDate = document.getElementById('departure-date');
         const returnDate = document.getElementById('return-date');
@@ -354,7 +304,6 @@
             }
         });
 
-        // Form submission handler
         form.addEventListener('submit', function (e) {
             if (!validatePassengers()) {
                 e.preventDefault();
@@ -404,7 +353,6 @@
             }
         });
 
-        // Initialize tooltips and popovers if using Bootstrap 5
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);

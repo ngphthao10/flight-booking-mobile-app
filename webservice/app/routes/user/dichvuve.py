@@ -93,7 +93,6 @@ def flight_to_dict(flight, loai_ghe='ECO'):
 
 @dichvuve.route('/api/flights/<ma_chuyen_bay>/services', methods=['POST'])
 def get_flight_services_api(ma_chuyen_bay):
-    """API endpoint để lấy danh sách dịch vụ của một chuyến bay"""
     try:
         data = request.get_json()
         loai_ghe = data.get('loai_ghe', 'ECO').upper()

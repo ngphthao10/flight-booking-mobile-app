@@ -15,8 +15,6 @@ def get_sanbay():
        "thanh_pho": sb.ThanhPho
    } for sb in sanbay_list])
 
-from flask import jsonify, request
-
 @chuyenbay.route('/api/flights/<ma_chuyen_bay>', methods=['GET'])
 def get_flight_details(ma_chuyen_bay):
    try:
