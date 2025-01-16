@@ -104,7 +104,6 @@ function hideError(containerId) {
     if (error) error.remove();
 }
 
-// Helper functions
 function getPeriodLabel(timeRange) {
     const labels = {
         'today': 'Hôm nay',
@@ -123,7 +122,6 @@ function getRevenueChartTitle(month, year) {
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
 
-    // Sử dụng giá trị mặc định nếu month hoặc year không được truyền
     const selectedMonth = month || currentMonth;
     const selectedYear = year || currentYear;
 

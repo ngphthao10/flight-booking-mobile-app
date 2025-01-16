@@ -38,11 +38,9 @@ def export_market_share():
         if data['status'] != 'success':
             return jsonify({"error": "Failed to fetch data from API"}), 400
             
-        # Tạo workbook và thiết lập styles
         wb = Workbook()
         ws = wb.active
         
-        # Định nghĩa styles với font Times New Roman
         header_font = Font(name='Times New Roman', bold=True, size=13)
         title_font = Font(name='Times New Roman', bold=True, size=14)
         data_font = Font(name='Times New Roman', size=13)
@@ -61,11 +59,9 @@ def export_market_share():
         left_align = Alignment(horizontal='left', vertical='center')
         right_align = Alignment(horizontal='right', vertical='center')
         
-        # Thiết lập chiều cao hàng mặc định
         ws.sheet_properties.customHeight = True
         ws.row_dimensions[1].height = 30
         
-        # Thêm tiêu đề báo cáo
         ws.merge_cells('A1:D1')
         title_cell = ws['A1']
         title_cell.value = get_report_title('BÁO CÁO THỊ PHẦN HÃNG HÀNG KHÔNG',time_filter)
@@ -73,14 +69,12 @@ def export_market_share():
         title_cell.alignment = center_align
         title_cell.fill = PatternFill(start_color="C5E0B4", end_color="C5E0B4", fill_type="solid")
         
-        # Thêm thông tin thời gian và người xuất
         ws['A2'] = f"Thời gian xuất: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}"
         ws['A3'] = "Người xuất: admin"
         for row in [2, 3]:
             ws[f'A{row}'].font = data_font
             ws[f'A{row}'].alignment = left_align
         
-        # Thêm header bảng
         headers = ['Mã hàng', 'Tên hàng', 'Số lượng đặt chỗ', 'Thị phần (%)']
         alignments = [left_align, left_align, right_align, right_align]
         
@@ -92,7 +86,6 @@ def export_market_share():
             cell.alignment = alignment
             cell.fill = header_fill
         
-        # Thêm dữ liệu
         row_num = 5
         total_bookings = 0
         
@@ -103,7 +96,7 @@ def export_market_share():
                 (item['airline_code'], left_align),
                 (item['airline_name'], left_align),
                 (item['total_bookings'], right_align),
-                (f"{round(item['market_share'], 1)}%", right_align)  # Thêm ký hiệu % vào thị phần
+                (f"{round(item['market_share'], 1)}%", right_align) 
             ]
             
             for col, (value, alignment) in enumerate(cells, 1):
@@ -118,13 +111,12 @@ def export_market_share():
             total_bookings += item['total_bookings']
             row_num += 1
             
-        # Thêm dòng tổng cộng
         total_row = row_num
         total_cells = [
             ('Tổng cộng', left_align),
             ('', center_align),
             (total_bookings, right_align),
-            ('100%', right_align)  # Thêm ký hiệu % vào tổng thị phần
+            ('100%', right_align) 
         ]
         
         for col, (value, alignment) in enumerate(total_cells, 1):
@@ -135,13 +127,11 @@ def export_market_share():
             cell.alignment = alignment
             cell.fill = total_fill
             
-        # Căn chỉnh độ rộng cột
         ws.column_dimensions['A'].width = 15
         ws.column_dimensions['B'].width = 30
         ws.column_dimensions['C'].width = 20
         ws.column_dimensions['D'].width = 15
         
-        # Tạo temporary file và lưu
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
         temp_file_path = temp_file.name
         temp_file.close()
@@ -242,14 +232,12 @@ def export_revenue():
         title_cell.alignment = center_align
         title_cell.fill = PatternFill(start_color="C5E0B4", end_color="C5E0B4", fill_type="solid")
         
-        # Thêm thông tin thời gian và người xuất
         ws['A2'] = f"Thời gian xuất: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}"
         ws['A3'] = "Người xuất: admin"
         for row in [2, 3]:
             ws[f'A{row}'].font = data_font
             ws[f'A{row}'].alignment = left_align
         
-        # Thêm header bảng
         if report_type == 'monthly':
             headers = ['Ngày', 'Số đơn hàng', 'Doanh thu (VNĐ)']
         else:
@@ -264,8 +252,7 @@ def export_revenue():
             cell.border = thin_border
             cell.alignment = center_align
             cell.fill = header_fill
-        
-        # Thêm dữ liệu
+
         row_num = 5
         total_orders = 0
         total_revenue = 0
@@ -298,7 +285,6 @@ def export_revenue():
                 if row_fill:
                     cell.fill = row_fill
                 
-                # Format số cho cột doanh thu
                 if col == (3 if report_type == 'monthly' else 4):
                     cell.number_format = '#,##0'
             
@@ -306,7 +292,6 @@ def export_revenue():
             total_revenue += item['total_revenue']
             row_num += 1
             
-        # Thêm dòng tổng cộng
         total_row = row_num
         if report_type == 'monthly':
             total_cells = [
@@ -332,11 +317,9 @@ def export_revenue():
             cell.alignment = alignment
             cell.fill = total_fill
             
-            # Format số cho cột doanh thu trong dòng tổng
             if col == (3 if report_type == 'monthly' else 4):
                 cell.number_format = '#,##0'
         
-        # Căn chỉnh độ rộng cột
         ws.column_dimensions['A'].width = 15
         ws.column_dimensions['B'].width = 15
         ws.column_dimensions['C'].width = 20
@@ -345,7 +328,6 @@ def export_revenue():
             if include_growth == 'true':
                 ws.column_dimensions['E'].width = 15
         
-        # Tạo temporary file và lưu
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
         temp_file_path = temp_file.name
         temp_file.close()
@@ -400,8 +382,7 @@ def export_booking_stats():
             
         wb = Workbook()
         ws = wb.active
-        
-        # Define styles
+
         header_font = Font(name='Times New Roman', bold=True, size=13)
         title_font = Font(name='Times New Roman', bold=True, size=14)
         data_font = Font(name='Times New Roman', size=13)
@@ -420,11 +401,9 @@ def export_booking_stats():
         left_align = Alignment(horizontal='left', vertical='center')
         right_align = Alignment(horizontal='right', vertical='center')
         
-        # Set row height
         ws.sheet_properties.customHeight = True
         ws.row_dimensions[1].height = 30
         
-        # Set title
         ws.merge_cells('A1:C1')
         title_cell = ws['A1']
         title_cell.value = get_report_title('BÁO CÁO ĐẶT CHỖ', time_range)
@@ -432,14 +411,12 @@ def export_booking_stats():
         title_cell.alignment = center_align
         title_cell.fill = PatternFill(start_color="C5E0B4", end_color="C5E0B4", fill_type="solid")
         
-        # Add export info
         ws['A2'] = f"Thời gian xuất: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}"
         ws['A3'] = "Người xuất: admin"
         for row in [2, 3]:
             ws[f'A{row}'].font = data_font
             ws[f'A{row}'].alignment = left_align
         
-        # Add headers
         headers = ['Ngày', 'Số lượng đặt chỗ', 'Tổng số hành khách']
         
         for col, header in enumerate(headers, 1):
@@ -450,7 +427,6 @@ def export_booking_stats():
             cell.alignment = center_align
             cell.fill = header_fill
         
-        # Add data
         row_num = 5
         stats = data['data']['stats']
         
@@ -474,7 +450,6 @@ def export_booking_stats():
             
             row_num += 1
         
-        # Add totals
         total_row = row_num
         total_cells = [
             ('Tổng cộng', center_align),
@@ -489,13 +464,11 @@ def export_booking_stats():
             cell.border = thin_border
             cell.alignment = alignment
             cell.fill = total_fill
-        
-        # Set column widths
+
         ws.column_dimensions['A'].width = 15
         ws.column_dimensions['B'].width = 20
         ws.column_dimensions['C'].width = 20
-        
-        # Create and save temporary file
+
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
         temp_file_path = temp_file.name
         temp_file.close()
@@ -551,7 +524,6 @@ def export_baggage_stats():
         wb = Workbook()
         ws = wb.active
         
-        # Define styles
         header_font = Font(name='Times New Roman', bold=True, size=13)
         title_font = Font(name='Times New Roman', bold=True, size=14)
         data_font = Font(name='Times New Roman', size=13)
@@ -569,12 +541,10 @@ def export_baggage_stats():
         center_align = Alignment(horizontal='center', vertical='center')
         left_align = Alignment(horizontal='left', vertical='center')
         right_align = Alignment(horizontal='right', vertical='center')
-        
-        # Set row height
+
         ws.sheet_properties.customHeight = True
         ws.row_dimensions[1].height = 30
         
-        # Set title
         ws.merge_cells('A1:D1')
         title_cell = ws['A1']
         title_cell.value = get_report_title('BÁO CÁO DỊCH VỤ HÀNH LÝ', time_range)
@@ -582,14 +552,12 @@ def export_baggage_stats():
         title_cell.alignment = center_align
         title_cell.fill = PatternFill(start_color="C5E0B4", end_color="C5E0B4", fill_type="solid")
         
-        # Add export info
         ws['A2'] = f"Thời gian xuất: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}"
         ws['A3'] = "Người xuất: admin"
         for row in [2, 3]:
             ws[f'A{row}'].font = data_font
             ws[f'A{row}'].alignment = left_align
         
-        # Add headers
         headers = ['Trọng lượng', 'Số lượng đặt', 'Doanh thu (VNĐ)', 'Tỷ lệ (%)']
         
         for col, header in enumerate(headers, 1):
@@ -600,7 +568,6 @@ def export_baggage_stats():
             cell.alignment = center_align
             cell.fill = header_fill
         
-        # Add data
         row_num = 5
         stats = data['data']['stats']
         
@@ -623,13 +590,11 @@ def export_baggage_stats():
                 if row_fill:
                     cell.fill = row_fill
                 
-                # Format số cho cột doanh thu
                 if col == 3:
                     cell.number_format = '#,##0'
             
             row_num += 1
         
-        # Add totals
         total_row = row_num
         total_cells = [
             ('Tổng cộng', center_align),
@@ -646,17 +611,14 @@ def export_baggage_stats():
             cell.alignment = alignment
             cell.fill = total_fill
             
-            # Format số cho cột doanh thu trong dòng tổng
             if col == 3:
                 cell.number_format = '#,##0'
         
-        # Set column widths
         ws.column_dimensions['A'].width = 15
         ws.column_dimensions['B'].width = 15
         ws.column_dimensions['C'].width = 20
         ws.column_dimensions['D'].width = 15
-        
-        # Create and save temporary file
+
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
         temp_file_path = temp_file.name
         temp_file.close()

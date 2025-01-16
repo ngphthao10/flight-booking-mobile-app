@@ -21,9 +21,7 @@
     </div>
 
     <div class="row">
-        <!-- Form bên trái -->
         <div class="col-md-8">
-            <!-- Thông tin liên hệ -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title mb-4">Thông tin liên hệ (nhận vé/phiếu thanh toán)</h5>
@@ -70,12 +68,10 @@
                 </div>
             </div>
 
-            <!-- Thông tin hành khách -->
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title mb-4">Thông tin hành khách</h5>
                     <form id="passengersForm">
-                        <!-- Form sẽ được sinh động bằng JavaScript -->
                     </form>
                 </div>
             </div>
@@ -87,7 +83,6 @@
                         <div>
                             <h6 class="mb-2">Hành lý</h6>
                             <p class="mb-0 text-secondary">Bạn có cần mua thêm hành lý? Chạm tại đây.</p>
-                            <!-- Thêm div hiển thị tổng phụ -->
                             <div id="luggage-summary" class="text-primary mt-2" style="display: none;">
                                 Tổng phụ: <span class="fw-bold" id="luggage-total">0 VND</span>
                             </div>
@@ -101,7 +96,6 @@
             </div>
 
             {% include 'user/modalChonHanhLy.html' %}
-            <!-- Nút điều hướng -->
             <div class="d-flex justify-content-between">
                 <button class="btn btn-outline-primary" onclick="history.back()">
                     <i class="bi bi-arrow-left"></i> Quay lại
@@ -112,7 +106,6 @@
             </div>
         </div>
 
-        <!-- Summary bên phải -->
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body">
@@ -121,19 +114,17 @@
                     </div>
                     <div data-simplebar data-simplebar-auto-hide="false" class="flight-info-container overflow-x-hidden"
                         style="max-height: calc(100vh - 500px);">
-                        <!-- tự động điền -->
                     </div>
                 </div>
             </div>
             <div class="card mb">
                 <div class="total-price-container">
-                    <!-- Card tổng tiền sẽ hiển thị ở đây -->
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- Loading overlay -->
+
 <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none"
     style="z-index: 1050;">
     <div class="position-absolute top-50 start-50 translate-middle text-center">
@@ -576,7 +567,6 @@
             <div class="segments-container">
                 ${segments.map((segment, index) => `
                     <div class="segment-detail ${index > 0 ? 'mt-4' : ''} p-3 bg-light rounded-3">
-                        <!-- Airline Info -->
                         <div class="d-flex align-items-center gap-3 mb-2">
                             <i class="bi bi-airplane-engines text-primary"></i>
                             <div>
@@ -587,7 +577,6 @@
                             </div>
                         </div>
 
-                        <!-- Flight Route -->
                         <div class="d-flex justify-content-between align-items-center ps-4">
                             <div>
                                 <div class="fw-bold">${segment.san_bay_di}</div>
@@ -702,12 +691,10 @@
         return `${day}, ${dayOfMonth} thg ${month} ${year} ${hours}:${minutes}`;
     }
 
-    // Thêm hàm kiểm tra toàn bộ form
     function validateAllForms() {
         let isValid = true;
         const invalidElements = [];
 
-        // Validate form liên hệ
         const contactForm = document.getElementById('contactForm');
         if (contactForm) {
             contactForm.querySelectorAll('input, select').forEach(input => {
@@ -719,7 +706,6 @@
             });
         }
 
-        // Validate form hành khách
         const passengersForm = document.getElementById('passengersForm');
         if (passengersForm) {
             passengersForm.querySelectorAll('input, select').forEach(input => {
@@ -731,7 +717,6 @@
             });
         }
 
-        // Nếu có lỗi, scroll đến phần tử đầu tiên có lỗi
         if (!isValid && invalidElements.length > 0) {
             invalidElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -739,7 +724,6 @@
         return isValid;
     }
 
-    // Hàm lấy thông tin hành lý cho một chuyến bay cụ thể
     function getLuggageForFlight(flightCode, passengerIndex, direction) {
         try {
             const radioSelector = `input[name="luggage-p${passengerIndex}-${direction}"]:checked`;
@@ -760,7 +744,6 @@
         }
     }
 
-    // Hàm tổng hợp thông tin hành lý
     function getAllPassengersLuggage() {
         // Lấy bookingData từ localStorage
         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
@@ -822,13 +805,11 @@
                 return;
             }
 
-            // Lấy bookingData từ localStorage
             const bookingData = JSON.parse(localStorage.getItem('bookingData'));
             if (!bookingData) {
                 throw new Error('Không tìm thấy thông tin đặt chỗ');
             }
 
-            // Thu thập thông tin người liên hệ
             const nguoi_lien_he = {
                 ho_nlh: document.getElementById('contact_lastname').value.trim(),
                 ten_nlh: document.getElementById('contact_firstname').value.trim(),
@@ -836,14 +817,11 @@
                 sdt: document.getElementById('contact_phone').value.trim()
             };
 
-            // Tạo mảng hành khách
             const hanh_khach = [];
             let quantity = bookingData.passengers.adults + bookingData.passengers.children;
 
-            // Thu thập thông tin người lớn
             for (let i = 0; i < bookingData.passengers.adults; i++) {
                 const passengerIndex = i + 1;
-                // Lấy hành lý chuyến đi
                 const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
                 const dich_vu_hanh_ly = [];
 
@@ -855,7 +833,6 @@
                     });
                 }
 
-                // Lấy hành lý chuyến về nếu là vé khứ hồi
                 if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
                     const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
                     if (returnLuggage && returnLuggage.value !== '0') {
@@ -884,10 +861,8 @@
                 hanh_khach.push(adult);
             }
 
-            // Thu thập thông tin trẻ em
             for (let i = 0; i < bookingData.passengers.children; i++) {
                 const passengerIndex = bookingData.passengers.adults + i + 1;
-                // Lấy hành lý chuyến đi
                 const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
                 const dich_vu_hanh_ly = [];
 
@@ -900,7 +875,6 @@
                     });
                 }
 
-                // Lấy hành lý chuyến về nếu là vé khứ hồi
                 if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
                     const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
                     if (returnLuggage && returnLuggage.value !== '0') {
@@ -929,7 +903,6 @@
                 hanh_khach.push(child);
             }
 
-            // Thu thập thông tin em bé (nếu có)
             for (let i = 0; i < (bookingData.passengers.infants || 0); i++) {
                 const infant = {
                     ho_hk: document.getElementById(`infant_${i}_lastname`).value.trim(),
@@ -943,7 +916,7 @@
                     ),
                     quoc_tich: document.getElementById(`infant_${i}_nationality`).value,
                     loai_hk: "Em bé",
-                    dich_vu_hanh_ly: [] // Em bé không có hành lý
+                    dich_vu_hanh_ly: []
                 };
                 hanh_khach.push(infant);
             }
@@ -1011,7 +984,6 @@
                 throw new Error(result.error || 'Có lỗi xảy ra khi tạo booking');
             }
             bookingData.temp = result
-            // Lưu booking ID và chuyển trang
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
             localStorage.setItem('isFromBookingInfo', 'true');
             window.location.href = '/datcho/thanhtoan';
@@ -1025,7 +997,7 @@
             }
         }
     }
-    // Hàm hỗ trợ format ngày sinh
+
     function formatBirthday(year, month, day) {
         return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
     }

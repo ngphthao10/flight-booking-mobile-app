@@ -330,16 +330,13 @@
         const form = document.getElementById('airline-form');
         const serviceTemplate = document.getElementById('service-template');
         let servicesList = [];
-        // Kiểm tra có toast message không
         const toast = localStorage.getItem('toast');
         if (toast) {
             const { type, message } = JSON.parse(toast);
             showMessage(type, message);
-            // Xóa toast đã hiển thị
             localStorage.removeItem('toast');
         }
 
-        // Danh sách các container dịch vụ
         const containers = {
             'economy-standard': {
                 container: document.getElementById('economy-standard-services'),
@@ -362,7 +359,6 @@
                 loaiVe: 'Business'
             }
         };
-        // Hàm gọi API xóa hãng hàng không
         function deleteAirline(airlineId) {
             fetch(`${API_URL}/api/hang-hang-khong/${airlineId}`, {
                 method: 'DELETE',
@@ -383,7 +379,6 @@
                     alert('Đã xảy ra lỗi khi xóa hãng hàng không!');
                 });
         }
-        // Xử lý sự kiện click nút xác nhận xóa trong modal
         document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
             const airlineId = this.getAttribute('data-airline-id');
             const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
@@ -393,12 +388,11 @@
         });
 
 
-        // Fetch services first
         fetch(`${API_URL}/api/dich-vu`)
             .then(response => response.json())
             .then(data => {
                 if (data.status) {
-                    servicesList = data.data; // Lưu danh sách dịch vụ
+                    servicesList = data.data;
                     Object.keys(containers).forEach(key => {
                         const container = containers[key].container;
                         const addButton = document.createElement('button');
@@ -413,24 +407,21 @@
             .catch(error => {
                 console.error('Error loading services:', error);
             });
-        // Hàm thêm dịch vụ mới
+
         function addService(containerKey) {
             const container = containers[containerKey].container;
             const clone = document.importNode(serviceTemplate.content, true);
 
-            // Set data attributes
             const serviceItem = clone.querySelector('.service-item');
             serviceItem.dataset.maGoi = containers[containerKey].maGoi;
             serviceItem.dataset.loaiVe = containers[containerKey].loaiVe;
 
-            // Populate service select với dữ liệu đã load
             const serviceSelect = clone.querySelector('.service-select');
             servicesList.forEach(service => {
                 const option = new Option(`${service.TenDichVu} (${service.MoTa})`, service.MaDV);
                 serviceSelect.add(option);
             });
 
-            // Add remove event
             clone.querySelector('.remove-service').onclick = function () {
                 this.closest('.service-item').remove();
             };
@@ -438,7 +429,6 @@
             container.appendChild(clone);
         }
 
-        // Form submit handler
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             if (!form.checkValidity()) {
@@ -447,7 +437,6 @@
                 return;
             }
 
-            // Collect form data
             const formData = {
                 MaHHK: document.getElementById('maHHK').value,
                 TenHHK: document.getElementById('tenHHK').value,
@@ -455,7 +444,6 @@
                 dich_vu_ve: []
             };
 
-            // Collect services data
             document.querySelectorAll('.service-item').forEach(item => {
                 const serviceSelect = item.querySelector('.service-select');
                 const serviceParam = item.querySelector('.service-param');
@@ -470,7 +458,6 @@
                 }
             });
             console.log(formData)
-            // Send API request
             fetch(`${API_URL}/api/hang-hang-khong`, {
                 method: 'POST',
                 headers: {
@@ -494,7 +481,6 @@
                 });
         });
 
-        // Load danh sách quốc gia
         fetch(`${API_URL}/api/quoc-gia`)
             .then(response => response.json())
             .then(data => {
@@ -517,13 +503,12 @@
                 console.error('Error loading countries:', error);
             });
 
-        // Hàm fetch dữ liệu với các tham số tìm kiếm
         async function fetchAirlines(page, searchParams = {}) {
             try {
                 const params = new URLSearchParams({
                     page: page,
                     per_page: perPage,
-                    ...searchParams // Thêm các tham số tìm kiếm
+                    ...searchParams
                 });
 
                 const response = await fetch(`${API_URL}/api/hang-hang-khong?${params.toString()}`);
@@ -542,7 +527,6 @@
             }
         }
 
-        // Xử lý form tìm kiếm
         const searchForm = document.querySelector('form.needs-validation');
         searchForm.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -564,8 +548,6 @@
             fetchAirlines(1, searchParams);
         });
 
-
-        // Hàm cập nhật bảng
         function updateTable(data) {
             const table = document.getElementById('airlines-table');
             table.innerHTML = '';
@@ -610,17 +592,13 @@
                         const airlineId = this.getAttribute('data-id');
                         const airlineName = this.getAttribute('aria-label').replace('Xem thông tin ', '');
 
-                        // Set airline name trong modal
                         document.getElementById('airlineName').textContent = airlineName;
 
-                        // Lưu airlineId để sử dụng khi xác nhận xóa
                         document.getElementById('confirmDeleteBtn').setAttribute('data-airline-id', airlineId);
 
-                        // Hiển thị modal
                         const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
                         modal.show();
                     });
-                    // Thêm event listener cho nút xem chi tiết
                     const viewDetailsBtn = row.querySelector('.view-details-btn');
                     viewDetailsBtn.addEventListener('click', function () {
                         const airlineId = this.dataset.id;
@@ -628,7 +606,6 @@
                     });
                 });
 
-                // Khởi tạo tooltips
                 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -642,16 +619,13 @@
             }
         }
 
-        // Xử lý sự kiện click phân trang
         document.querySelectorAll('.pagination .page-link').forEach(link => {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
                 const page = parseInt(this.dataset.page);
 
-                // Kiểm tra page hợp lệ
                 if (!page || page < 1) return;
 
-                // Lấy các tham số tìm kiếm hiện tại
                 const urlParams = new URLSearchParams(window.location.search);
                 const searchParams = {
                     ma_hhk: urlParams.get('ma_hhk') || '',
@@ -661,12 +635,10 @@
                     order: urlParams.get('order') || 'asc'
                 };
 
-                // Thực hiện reload trang với tham số mới
                 window.location.href = `?page=${page}&${new URLSearchParams(searchParams).toString()}`;
             });
         });
 
-        // Khởi tạo dữ liệu ban đầu với các tham số từ URL (nếu có)
         const urlParams = new URLSearchParams(window.location.search);
         const initialSearchParams = {
             ma_hhk: urlParams.get('ma_hhk') || '',
@@ -677,7 +649,6 @@
         };
 
         fetchAirlines(currentPage, initialSearchParams);
-        // loadQuocGia();
     });
 </script>
 {% endblock %}

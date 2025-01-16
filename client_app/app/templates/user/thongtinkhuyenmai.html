@@ -12,23 +12,18 @@
         </div>
     </div>
 
-    <!-- Loading spinner -->
     <div id="loadingSpinner" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 
-    <!-- Error alert -->
     <div id="errorAlert" class="alert alert-danger d-none" role="alert">
     </div>
 
-    <!-- Promotions container -->
     <div class="row g-4" id="promotionsContainer">
-        <!-- Cards will be inserted here -->
     </div>
 
-    <!-- No promotions message -->
     <div id="noPromotions" class="text-center py-5 d-none">
         <p class="text-muted">Không có khuyến mãi nào</p>
     </div>
@@ -52,7 +47,6 @@
                 'linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)',
                 'linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)'
             ];
-            // Load promotions when initialized
             this.loadPromotions();
         }
 
@@ -190,8 +184,6 @@
         }
     }
 
-    // Sử dụng trong template:
-    // Initialize when document is loaded
     document.addEventListener('DOMContentLoaded', () => {
         new PromotionManager();
     });

@@ -36,53 +36,9 @@ def booking_info():
 def booking_detailed():
     return render_template('user/ketquatracuu.html', api_url=current_app.config['API_URL'])
 
-# @datcho.route('/generate_eticket/<int:madatcho>', methods=['GET'])
-# def generate_eticket(madatcho):
-#     try:
-#         # Gọi API để lấy thông tin đặt chỗ
-#         try:
-#             response = requests.get(f"{current_app.config['API_URL']}/api/get_booking_detailed/{madatcho}")
-#             if response.status_code != 200:
-#                 return jsonify({
-#                     "status": "error",
-#                     "message": "Không tìm thấy thông tin đặt chỗ"
-#                 }), response.status_code
-
-#             booking_data = response.json().get('data', [])[0]
-
-#         except requests.RequestException as e:
-#             current_app.logger.error(f"Error fetching booking details: {str(e)}")
-#             return jsonify({
-#                 "status": "error",
-#                 "message": "Lỗi kết nối server khi lấy thông tin đặt chỗ"
-#             }), 500
-
-#         # Tạo tên file
-#         filename = f"e-ticket_{madatcho}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-#         output_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-
-#         # Tạo PDF
-#         create_e_ticket(booking_data, output_path)
-
-#         # Trả về file
-#         return send_file(
-#             output_path,
-#             as_attachment=True,
-#             download_name=filename,
-#             mimetype='application/pdf'
-#         )
-
-#     except Exception as e:
-#         current_app.logger.error(f"Error generating e-ticket: {str(e)}")
-#         return jsonify({
-#             "status": "error",
-#             "message": f"Lỗi khi tạo vé điện tử: {str(e)}"
-#         }), 500
-
 @datcho.route('/generate_eticket/<int:madatcho>', methods=['GET'])
 def generate_eticket(madatcho):
     try:
-        # Gọi API để lấy thông tin đặt chỗ
         try:
             response = requests.get(f"{current_app.config['API_URL']}/api/get_booking_detailed/{madatcho}")
             if response.status_code != 200:
@@ -100,12 +56,10 @@ def generate_eticket(madatcho):
                 "message": "Lỗi kết nối server khi lấy thông tin đặt chỗ"
             }), 500
 
-        # Tạo tên file PDF
         filename = f"e-ticket_{madatcho}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         
         output_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
 
-        # Tạo PDF
         success, message = create_e_ticket(booking_data, output_path)
         
         if not success:
@@ -115,7 +69,6 @@ def generate_eticket(madatcho):
             }), 500
 
         
-        # Gửi file về client
         return send_file(
             output_path,
             mimetype='application/pdf',
@@ -132,21 +85,13 @@ def generate_eticket(madatcho):
 
 
 def create_e_ticket(booking_data, output_path):
-    """
-    Tạo vé máy bay (hỗ trợ cả vé một chiều và khứ hồi)
-    Args:
-        booking_data: dict chứa thông tin đặt vé (có thể là một chiều hoặc khứ hồi)
-        output_path: đường dẫn file PDF output
-    """
     try:
-        # Đăng ký font
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         font_dir = os.path.join(project_root, 'fonts')
         
         pdfmetrics.registerFont(TTFont('DejaVuSerif', os.path.join(font_dir, 'DejaVuSerif.ttf')))
         pdfmetrics.registerFont(TTFont('DejaVuSerif-Bold', os.path.join(font_dir, 'DejaVuSerif-Bold.ttf')))
         
-        # Tạo document
         doc = SimpleDocTemplate(
             output_path,
             pagesize=A4,
@@ -156,7 +101,6 @@ def create_e_ticket(booking_data, output_path):
             bottomMargin=1*cm
         )
         
-        # Khởi tạo styles
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(
             name='CustomTitle',
@@ -203,7 +147,6 @@ def create_e_ticket(booking_data, output_path):
                 title += f" ({trip_type})"
             elements.append(Paragraph(title, styles['CustomTitle']))
             
-            # Thông tin chuyến bay
             flight_info = [
                 ['THÔNG TIN CHUYẾN BAY', ''],
                 ['Chuyến bay:', str(booking['MaChuyenBay'])],
@@ -231,7 +174,6 @@ def create_e_ticket(booking_data, output_path):
             elements.append(flight_table)
             elements.append(Spacer(1, 20))
 
-            # Thông tin gói dịch vụ
             if booking['DatCho'].get('GoiDichVu'):
                 goi_dv = booking['DatCho']['GoiDichVu']
                 service_info = [
@@ -268,11 +210,9 @@ def create_e_ticket(booking_data, output_path):
                 elements.append(service_table)
                 elements.append(Spacer(1, 20))
 
-                # Thông tin hành khách
                 elements.append(Paragraph("DANH SÁCH HÀNH KHÁCH", styles['CustomTitle']))
 
                 for index, passenger in enumerate(booking['HanhKhach'], 1):
-                    # Header cho mỗi hành khách
                     elements.append(Paragraph(f"Hành khách {index}: {passenger['LoaiHK']}", styles['CustomHeading2']))
                     
                     passenger_info = [
@@ -333,7 +273,6 @@ def create_e_ticket(booking_data, output_path):
                 ['Mô tả', 'Số lượng', 'Thành tiền'],
             ]
 
-            # Thêm vé Business
             booking = bookings[0]
             if booking['DatCho']['SoLuongGhe']['Business'] > 0:
                 so_luong = booking['DatCho']['SoLuongGhe']['Business']
@@ -344,7 +283,6 @@ def create_e_ticket(booking_data, output_path):
                     f"{(gia_ve * he_so_gia * so_luong):,.0f} VNĐ"
                 ])
 
-            # Thêm vé Economy
             if booking['DatCho']['SoLuongGhe']['Economy'] > 0:
                 so_luong = booking['DatCho']['SoLuongGhe']['Economy']
                 gia_ve = booking['ChuyenBay']['GiaVe']['Economy']
@@ -354,7 +292,6 @@ def create_e_ticket(booking_data, output_path):
                     f"{(gia_ve * he_so_gia * so_luong):,.0f} VNĐ"
                 ])
 
-            # Thêm hành lý
             for passenger in booking['HanhKhach']:
                 if passenger.get('HanhLy'):
                     payment_details.append([
@@ -363,7 +300,6 @@ def create_e_ticket(booking_data, output_path):
                         f"{passenger['HanhLy']['Gia']:,.0f} VNĐ"
                     ])
 
-            # Thêm tổng cộng
             payment_details.extend([
                 ['Tổng tiền', '', f"{(thanh_toan['SoTien'] + thanh_toan['TienGiam']):,.0f} VNĐ"],
                 ['Giảm giá', '', f"-{thanh_toan['TienGiam']:,.0f} VNĐ"],

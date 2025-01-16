@@ -3,8 +3,6 @@ const isDuplicateCCCD = (cccd, currentInput) => {
     return allCCCDInputs.some(input => input.value.trim() === cccd);
 };
 
-
-// Các hàm validate helper
 const isValidEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
@@ -28,12 +26,10 @@ const isValidName = (name) => {
 // Hiển thị lỗi
 const showError = (input, message) => {
     const formGroup = input.closest('.col-md-6, .col-md-4, .col');
-    // Tìm hoặc tạo div error
     let errorDiv = formGroup.querySelector('.error-message');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
         errorDiv.className = 'error-message text-danger mt-1';
-        // Chèn error div sau small text-muted nếu có
         const smallText = formGroup.querySelector('small.text-muted');
         if (smallText) {
             smallText.insertAdjacentElement('afterend', errorDiv);
@@ -46,7 +42,6 @@ const showError = (input, message) => {
     input.classList.remove('is-valid');
 };
 
-// Hiển thị thành công
 const showSuccess = (input) => {
     const formGroup = input.closest('.col-md-6, .col-md-4, .col');
     const errorDiv = formGroup.querySelector('.error-message');
@@ -57,7 +52,6 @@ const showSuccess = (input) => {
     input.classList.add('is-valid');
 };
 
-// Kiểm tra tuổi
 const validateAge = (birthDate, type) => {
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();

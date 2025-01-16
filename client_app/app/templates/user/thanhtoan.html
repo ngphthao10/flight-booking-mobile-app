@@ -3,7 +3,6 @@
 
 {% block content %}
 <div class="container py-4">
-    <!-- Progress bar -->
     <div class="row mb-4">
         <div class="col">
             <div class="d-flex align-items-center">
@@ -20,7 +19,6 @@
         </div>
     </div>
     <div class="row">
-        <!-- Cột bên trái - Phần thanh toán -->
         <div class="col-lg-8 mb-2">
             <div class="card bg-primary text-white rounded-4 shadow-sm mb-2">
                 <div class="card-body p-3">
@@ -34,7 +32,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Tiêu đề -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="mb-0">Bạn muốn thanh toán thế nào?</h5>
             </div>
@@ -59,7 +56,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Thay đổi phần thẻ thanh toán -->
+                    <!-- CARD -->
                     <div class="payment-option p-3 rounded-3 border">
                         <div class="form-check d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-3">
@@ -75,15 +72,11 @@
                             </div>
                         </div>
                         <div id="cardPaymentForm" class="mt-3 d-none">
-                            <!-- Danh sách ngân hàng dạng radio -->
                             <div class="mb-3">
                                 <label class="form-label d-block">Chọn ngân hàng</label>
-                                <div class="bank-list row row-cols-2 row-cols-md-3 g-3" id="bankList">
-                                    <!-- Banks will be loaded here -->
-                                </div>
+                                <div class="bank-list row row-cols-2 row-cols-md-3 g-3" id="bankList"></div>
                             </div>
 
-                            <!-- Thông tin thẻ -->
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Số thẻ</label>
@@ -102,10 +95,8 @@
                     </div>
                 </div>
             </div>
-            <!-- Thêm vào phía dưới các phương thức thanh toán, trong cột bên trái -->
             <div class="card rounded-4 shadow-sm mt-4">
                 <div class="card-body p-4">
-                    <!-- Voucher -->
                     <div class="mb-2">
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
@@ -113,20 +104,12 @@
                             </div>
                             <h6 class="mb-0">Thêm mã giảm giá</h6>
                         </div>
-                        <div class="voucher-input">
-
-                        </div>
-                        <!-- Có thể thêm danh sách voucher có sẵn ở đây -->
-                        <div class="available-vouchers mt-3">
-                            <!-- Example voucher item -->
-
-                        </div>
+                        <div class="voucher-input"></div>
+                        <div class="available-vouchers mt-3"></div>
                     </div>
 
-                    <!-- Divider -->
                     <hr class="my-4">
 
-                    <!-- Tổng tiền và nút thanh toán -->
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <h6 class="mb-1">Tổng cộng</h6>
@@ -138,7 +121,6 @@
                         </div>
                     </div>
 
-                    <!-- Nút thanh toán -->
                     <button id="paymentButton"
                         class="btn btn-primary w-100 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2">
                         <div class="button-content">
@@ -151,7 +133,6 @@
                     </button>
                 </div>
             </div>
-
 
             <!-- Modal QR -->
             <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
@@ -171,15 +152,13 @@
                                 script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
                                 document.head.appendChild(script);
 
-                                // Tạo QR code sau khi thư viện đã được load
                                 script.onload = function () {
                                     const qrCode = document.getElementById('qrCode');
-                                    // Xóa nội dung cũ nếu có
+
                                     qrCode.innerHTML = '';
 
-                                    // Tạo QR code mới
                                     new QRCode(qrCode, {
-                                        text: "https://example.com", // Text bạn muốn chuyển thành QR
+                                        text: "https://example.com",
                                         width: 210,
                                         height: 210,
                                         colorDark: "#000000",
@@ -403,7 +382,6 @@
         }
     });
 
-    // Thêm validation khi submit
     function validateCardInfo() {
         const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
         const cardHolder = document.getElementById('cardHolder').value;
@@ -428,7 +406,6 @@
 
         return true;
     }
-
 
     const config = document.getElementById('pagination-config');
     const API_URL = config.dataset.apiUrl;
@@ -555,11 +532,10 @@
             });
         } finally {
             button.disabled = false;
-            button.innerHTML = '<i class="bi bi-download me-2"></i>Xác nhận đã thanh toán';
+            button.innerHTML = '<i class="bi bi-download me-2"></i> Xác nhận đã thanh toán';
         }
     });
 
-    // Cập nhật nội dung nút khi chuyển đổi phương thức thanh toán
     document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
         radio.addEventListener('change', function () {
             const cardForm = document.getElementById('cardPaymentForm');
@@ -599,7 +575,6 @@
             }
         }
 
-        // Xử lý theo phương thức thanh toán
         if (selectedPaymentMethod === 'VietQR') {
             showSpinner();
             setTimeout(() => {
@@ -608,12 +583,10 @@
                 qrModal.show();
             }, 1000);
         } else if (selectedPaymentMethod === 'Card') {
-            // Validate thông tin thẻ
             const selectedBank = document.querySelector('input[name="bankRadio"]:checked');
             const cardNumber = document.getElementById('cardNumber').value;
             const cardHolder = document.getElementById('cardHolder').value;
 
-            // Kiểm tra đã nhập đủ thông tin
             if (!selectedBank) {
                 Swal.fire({
                     icon: 'warning',
@@ -638,8 +611,6 @@
                 });
                 return;
             }
-
-            // Xử lý thanh toán thẻ
             showSpinner();
             setTimeout(() => {
                 hideSpinner();

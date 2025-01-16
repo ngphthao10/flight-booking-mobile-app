@@ -137,7 +137,6 @@
             }
         }
 
-        // 1. Sự kiện login thường
         loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
@@ -162,7 +161,6 @@
             }
         });
 
-        // 2. Sự kiện login bằng Google
         btnGoogleLogin.addEventListener('click', async function () {
             try {
                 const response = await fetch(`${API_URL}/login/google`, {

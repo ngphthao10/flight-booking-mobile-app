@@ -1,5 +1,4 @@
-from flask import Blueprint, render_template, flash, url_for, redirect, request, session, jsonify
-from flask_login import login_user, login_required, logout_user, current_user
+from flask import Blueprint, render_template, flash, url_for, redirect, request, session
 import requests
 from datetime import datetime, timedelta
 from flask import current_app 
@@ -18,8 +17,8 @@ def home():
         tomorrow = today + timedelta(days=1)
         
         default_data = {
-            'departure_date': today.strftime('%d-%m-%Y'),
-            'return_date': tomorrow.strftime('%d-%m-%Y'),
+            'departure_date': today.strftime('%Y-%m-%d'),
+            'return_date': tomorrow.strftime('%Y-%m-%d'),
             'passenger_adults': 1,
             'passenger_children': 0,
             'passenger_infants': 0,

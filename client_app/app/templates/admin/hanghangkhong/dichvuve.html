@@ -201,16 +201,13 @@
             }
 
             try {
-                // 1. Lấy thông tin cơ bản
                 const basicInfo = {
                     TenHHK: document.getElementById('tenHHK').value,
                     MaQG: document.getElementById('maQG').value
                 };
 
-                // 2. Lấy thông tin dịch vụ từ các container
                 const services = [];
 
-                // Economy Standard Services
                 const economyStandardItems = document.querySelector('#economyStandardServices .service-list')
                     ?.querySelectorAll('.service-item') || [];
                 economyStandardItems.forEach(item => {
@@ -219,14 +216,13 @@
                     if (select?.value && param?.value) {
                         services.push({
                             MaDV: parseInt(select.value),
-                            MaGoi: 1,  // Economy Standard
+                            MaGoi: 1,
                             LoaiVeApDung: 'Economy',
                             ThamSo: parseFloat(param.value)
                         });
                     }
                 });
 
-                // Economy Plus Services
                 const economyPlusItems = document.querySelector('#economyPlusServices .service-list')
                     ?.querySelectorAll('.service-item') || [];
                 economyPlusItems.forEach(item => {
@@ -235,14 +231,13 @@
                     if (select?.value && param?.value) {
                         services.push({
                             MaDV: parseInt(select.value),
-                            MaGoi: 3,  // Economy Plus
+                            MaGoi: 3,
                             LoaiVeApDung: 'Economy',
                             ThamSo: parseFloat(param.value)
                         });
                     }
                 });
 
-                // Business Standard Services
                 const businessStandardItems = document.querySelector('#businessStandardServices .service-list')
                     ?.querySelectorAll('.service-item') || [];
                 businessStandardItems.forEach(item => {
@@ -251,14 +246,13 @@
                     if (select?.value && param?.value) {
                         services.push({
                             MaDV: parseInt(select.value),
-                            MaGoi: 2,  // Business Standard
+                            MaGoi: 2,
                             LoaiVeApDung: 'Business',
                             ThamSo: parseFloat(param.value)
                         });
                     }
                 });
 
-                // Business Plus Services
                 const businessPlusItems = document.querySelector('#businessPlusServices .service-list')
                     ?.querySelectorAll('.service-item') || [];
                 businessPlusItems.forEach(item => {
@@ -267,14 +261,13 @@
                     if (select?.value && param?.value) {
                         services.push({
                             MaDV: parseInt(select.value),
-                            MaGoi: 4,  // Business Plus
+                            MaGoi: 4,
                             LoaiVeApDung: 'Business',
                             ThamSo: parseFloat(param.value)
                         });
                     }
                 });
 
-                // 3. Validate dịch vụ
                 if (services.length === 0) {
                     throw new Error('Phải có ít nhất một dịch vụ');
                 }
@@ -317,16 +310,13 @@
         };
 
         editBtn.addEventListener('click', function () {
-            // Clear existing services first
             document.querySelectorAll('.service-list').forEach(list => list.innerHTML = '');
 
             document.getElementById('tenHHK').value = '{{ airline.TenHHK }}';
             document.getElementById('maQG').value = '{{ airline.MaQG }}';
 
-            // Parse servicesData from string to JSON
             const services = JSON.parse(servicesData);
 
-            // Load existing services
             services.forEach(service => {
                 const loaiVe = service.dich_vu_ve.LoaiVeApDung.toLowerCase();
                 const maGoi = service.goi_dich_vu.MaGoi;
@@ -347,17 +337,14 @@
         loadServices();
         loadCountries();
 
-        // load thông tin
         try {
             const services = JSON.parse(servicesData);
 
-            // Phân loại dịch vụ theo loại vé và gói
             const economyStandard = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Economy' && s.goi_dich_vu.TenGoi === 'Economy Class');
             const economyPlus = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Economy' && s.goi_dich_vu.TenGoi === 'Economy Plus');
             const businessStandard = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Business' && s.goi_dich_vu.TenGoi === 'Business Class');
             const businessPlus = services.filter(s => s.dich_vu_ve.LoaiVeApDung === 'Business' && s.goi_dich_vu.TenGoi === 'Business Plus');
 
-            // Hàm tạo card dịch vụ
             function createServiceCard(service) {
                 return `
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -391,7 +378,6 @@
             `;
             }
 
-            // Render các dịch vụ theo từng container
             function renderServices(services, containerId) {
                 const container = document.querySelector(containerId);
                 if (services.length > 0) {
@@ -415,11 +401,9 @@
         } catch (e) {
             console.error('Error parsing services:', e);
         }
-        // Đưa ra ngoài phạm vi DOMContentLoaded để có thể gọi từ onclick HTML
         window.addService = function (loaiVe, maGoi) {
             const container = document.querySelector(`#${loaiVe.toLowerCase()}${maGoi === 1 || maGoi === 2 ? 'Standard' : 'Plus'}Services .service-list`);
 
-            // Tạo một service object rỗng với cấu trúc giống data gốc
             const emptyService = {
                 dich_vu: { MaDV: null },
                 dich_vu_ve: {
@@ -435,7 +419,6 @@
         }
 
         window.removeService = function (button) {
-            // Tìm và xóa card cha gần nhất
             const serviceCard = button.closest('.service-item');
             if (serviceCard) {
                 serviceCard.remove();

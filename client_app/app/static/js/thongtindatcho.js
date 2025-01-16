@@ -2,7 +2,6 @@ function displayBookingInfo(bookings) {
     const result = document.getElementById('bookingResult');
     const firstBooking = bookings[0];
 
-    // Hiển thị thông tin chung
     document.getElementById('bookingId').textContent = firstBooking.MaDatCho;
     document.getElementById('bookingDate').textContent = formatDate(firstBooking.DatCho.NgayMua);
     document.getElementById('bookingStatus').textContent = firstBooking.DatCho.TrangThai;
@@ -107,7 +106,6 @@ function displayBookingInfo(bookings) {
     </div>
     `;
     }).join('');
-    // Hiển thị danh sách hành khách
     const passengersList = document.getElementById('passengersList');
     passengersList.innerHTML = firstBooking.HanhKhach.map(passenger => `
             <div class="mb-3">
@@ -121,7 +119,6 @@ function displayBookingInfo(bookings) {
             </div>
         `).join('');
 
-    // Hiển thị thông tin thanh toán
     const paymentInfo = document.getElementById('paymentInfo');
     if (firstBooking.ThanhToan) {
         paymentInfo.innerHTML = `
@@ -151,7 +148,6 @@ function displayBookingInfo(bookings) {
         }
 
     } catch { }
-    // Hiển thị kết quả
     result.classList.remove('d-none');
 
 
@@ -273,7 +269,6 @@ async function submitCancelRequest() {
                 text: 'Gửi yêu cầu hủy đặt chỗ thành công'
             });
 
-            // Đóng modal
             const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelBookingModal'));
             cancelModal.hide();
 

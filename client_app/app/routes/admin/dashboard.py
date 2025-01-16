@@ -30,7 +30,6 @@ def get_market_share():
 def get_booking_stats():
     """Get booking statistics based on time period"""
     try:
-        # Lấy thời gian từ query params, mặc định 7 ngày
         time_range = request.args.get('time_range', 'last_7_days')
     
         response = requests.get(
@@ -67,21 +66,17 @@ def get_passengers():
 def get_revenue_dashboard():
     """Proxy endpoint to get revenue data from the main API (dashboard/revenue)."""
     try:
-        # Lấy tháng và năm hiện tại
         current_date = datetime.now()
         current_month = current_date.month
         current_year = current_date.year
 
-        # Lấy tham số từ request
-        report_type = request.args.get('type', 'monthly')  # Mặc định là 'monthly'
-        month = request.args.get('month', str(current_month))  # Mặc định là tháng hiện tại
-        year = request.args.get('year', str(current_year))    # Mặc định là năm hiện tại
+        report_type = request.args.get('type', 'monthly') 
+        month = request.args.get('month', str(current_month))  
+        year = request.args.get('year', str(current_year))  
         include_growth = request.args.get('include_growth', 'false')
 
-        # URL của backend API
         url = f"{current_app.config['API_URL']}/api/report/revenue"
 
-        # Chuẩn bị params để gọi API
         params = {
             'type': report_type,
             'month': month,
@@ -89,7 +84,6 @@ def get_revenue_dashboard():
             'include_growth': include_growth
         }
 
-        # Gọi API
         response = requests.get(url, params=params)
         if response.status_code == 200:
             data = response.json()

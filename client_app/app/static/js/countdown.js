@@ -1,22 +1,19 @@
 const TIMER_KEY = 'paymentTimer';
 const START_TIME_KEY = 'paymentStartTime';
-const TOTAL_TIME = 600; // 10 phút = 600 giây
+const TOTAL_TIME = 600;
 
 function getTimeLeft() {
     const startTime = parseInt(localStorage.getItem(START_TIME_KEY));
 
-    // Kiểm tra xem có phải vừa chuyển từ trang thông tin đặt chỗ không
     const isFromBookingInfo = localStorage.getItem('isFromBookingInfo');
 
     if (!startTime || isFromBookingInfo === 'true') {
-        // Xóa flag và tạo timer mới
         localStorage.removeItem('isFromBookingInfo');
         const currentTime = new Date().getTime();
         localStorage.setItem(START_TIME_KEY, currentTime);
         return TOTAL_TIME;
     }
 
-    // Tính toán thời gian còn lại
     const currentTime = new Date().getTime();
     const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
     const timeLeft = Math.max(0, TOTAL_TIME - elapsedSeconds);

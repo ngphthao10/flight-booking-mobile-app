@@ -83,19 +83,16 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Loading spinner -->
                     <div id="loading" class="text-center d-none">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
 
-                    <!-- Thông báo lỗi -->
                     <div id="error" class="alert alert-danger d-none"></div>
 
                     <!-- Kết quả -->
                     <div id="bookingResult" class="d-none">
-                        <!-- Thông tin chung -->
                         <div class="card mb-3">
                             <div
                                 class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -164,7 +161,6 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table id="cancelTable" class="table table-hover table-sm" style="font-size: 0.875rem;">
-                    <!-- Trong phần thead của bảng cancelTable -->
                     <thead class="table-light">
                         <tr>
                             <th class="text-center">Mã yêu cầu</th>
@@ -442,7 +438,6 @@
                 cancelTableBody.innerHTML = '';
 
                 if (data.data.length > 0) {
-                    // Trong hàm loadCancelRequests, sửa lại phần tạo row
                     data.data.forEach(request => {
                         const row = document.createElement('tr');
                         const contactInfo = `
@@ -452,7 +447,6 @@
 
                         const statusBadgeClass = getStatusBadgeClass(request.trang_thai);
 
-                        // Kiểm tra trạng thái để hiển thị nút
                         let actionButton = '';
                         if (request.trang_thai !== 'Từ chối' && request.trang_thai !== 'Đã duyệt') {
                             actionButton = `
@@ -499,7 +493,6 @@
                         cancelTableBody.appendChild(row);
                     });
 
-                    // Khởi tạo DataTable
                     if ($.fn.DataTable.isDataTable('#cancelTable')) {
                         $('#cancelTable').DataTable().destroy();
                     }
@@ -518,7 +511,7 @@
                             infoEmpty: "Không có dữ liệu",
                             infoFiltered: "(lọc từ _MAX_ bản ghi)"
                         },
-                        order: [[0, 'desc']], // Sắp xếp theo ngày yêu cầu mới nhất
+                        order: [[0, 'desc']],
                         pageLength: 5,
                         lengthMenu: [5, 10, 25, 50]
                     });
@@ -535,7 +528,6 @@
         }
     }
 
-    // Helper function để format datetime
     function formatDateTime(datetime) {
         return new Date(datetime).toLocaleString('vi-VN');
     }
@@ -583,13 +575,14 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Thành công!',
-                        text: 'Đã duyệt hủy đặt chỗ thành công'
+                        text: 'Duyệt hủy yêu cầu đặt chỗ thành công!',
+                        allowOutsideClick: false,
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `/xemdatcho`;
+                        }
                     });
-                    // loadCancelRequests();
-                    // loadBookingInfo(maNguoiDung);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -609,7 +602,7 @@
     }
 
     async function rejectCancel(maDatCho) {
-        const { value: lyDo } = await Swal.fire({
+        const { value: lyDoId } = await Swal.fire({
             title: 'Từ chối yêu cầu hủy',
             input: 'select',
             inputOptions: {
@@ -630,9 +623,9 @@
             },
             didOpen: () => {
                 const select = Swal.getInput();
-                select.addEventListener('change', (e) => {
+                select.addEventListener('change', async (e) => {
                     if (e.target.value === 'other') {
-                        Swal.fire({
+                        const { value: otherReason } = await Swal.fire({
                             title: 'Từ chối yêu cầu hủy',
                             input: 'textarea',
                             inputLabel: 'Lý do từ chối khác',
@@ -649,61 +642,71 @@
                                 }
                             }
                         });
+                        if (otherReason) {
+                            sendRejectRequest(maDatCho, otherReason);
+                        }
                     }
                 });
             }
         });
-        if (lyDo) {
-            Swal.fire({
-                title: 'Đang xử lý...',
-                text: 'Vui lòng đợi trong giây lát',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+
+        if (lyDoId && lyDoId !== 'other') {
+            const lyDo = Swal.getInput().options[Swal.getInput().selectedIndex].text;
+            sendRejectRequest(maDatCho, lyDo);
+        }
+    }
+
+    async function sendRejectRequest(maDatCho, lyDo) {
+        Swal.fire({
+            title: 'Đang xử lý...',
+            text: 'Vui lòng đợi trong giây lát',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            const response = await fetch(`${API_URL}/api/tu-choi-huy-dat-cho/${maDatCho}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ly_do: lyDo })
             });
 
-            try {
-                const response = await fetch(`${API_URL}/api/tu-choi-huy-dat-cho/${maDatCho}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ ly_do: lyDo })
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Đã từ chối yêu cầu hủy đặt chỗ!',
+                    allowOutsideClick: false,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/xemdatcho`;
+                    }
                 });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công!',
-                        text: 'Đã từ chối yêu cầu hủy đặt chỗ'
-                    });
-                    // loadCancelRequests();
-                    // loadBookingInfo(maNguoiDung);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Lỗi!',
-                        text: data.message
-                    });
-                }
-            } catch (error) {
-                Swal.close();
-                console.error('Error:', error);
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi!',
-                    text: 'Đã có lỗi xảy ra khi xử lý yêu cầu'
+                    text: data.message
                 });
             }
+        } catch (error) {
+            Swal.close();
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Đã có lỗi xảy ra khi xử lý yêu cầu'
+            });
         }
     }
 

@@ -49,11 +49,10 @@
             var toastList = toastElList.map(function (toastEl) {
                 return new bootstrap.Toast(toastEl, {
                     autohide: true,
-                    delay: 3000  // Tự động ẩn sau 3 giây
+                    delay: 3000
                 })
             })
 
-            // Hiển thị tất cả toasts
             toastList.forEach(toast => toast.show())
         });
     </script>

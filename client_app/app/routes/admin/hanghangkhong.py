@@ -88,7 +88,6 @@ def view_detailed(id):
         
         if response.status_code == 200:
             response_data = response.json()
-            # Lấy phần data từ response
             airline_data = response_data.get('data', {})
             return render_template(
                 'admin/hanghangkhong/dichvuve.html',
