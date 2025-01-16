@@ -5,7 +5,6 @@ def send_booking_confirmation_email(to_email, booking_info):
 
     subject = "XÁC NHẬN ĐẶT CHỖ THÀNH CÔNG"
 
-    # Nội dung email (plaintext)
     body = f"""
     Chào bạn,
 
@@ -40,7 +39,6 @@ def send_booking_cancellation_email(to_email, cancellation_info):
 
     subject = "XÁC NHẬN HỦY ĐẶT CHỖ THÀNH CÔNG"
 
-    # Tạo danh sách thông tin các vé bị hủy
     cancelled_bookings = []
     for booking in cancellation_info['ds_huy']:
         bookingId =  f"Mã đặt chỗ: {booking['ma_dat_cho'][0]}"
@@ -51,7 +49,6 @@ def send_booking_cancellation_email(to_email, cancellation_info):
         """
         cancelled_bookings.append(booking_detail)
 
-    # Nội dung email
     body = f"""
     Chào bạn,
 
@@ -86,7 +83,6 @@ def send_booking_cancellation_email(to_email, cancellation_info):
 def send_booking_cancellation_rejected_email(to_email, reject_info):
     subject = "THÔNG BÁO TỪ CHỐI YÊU CẦU HỦY ĐẶT CHỖ"
 
-    # Nội dung email
     body = f"""
     Chào anh/chị {reject_info.get('ho_ten')},
 

@@ -82,7 +82,6 @@ def add_may_bay():
             'error': str(e)
         }), 500
 
-# API: Sửa máy bay
 @maybay.route('/api/may-bay/<string:ma_mb>', methods=['PUT'])
 def update_may_bay(ma_mb):
     try:

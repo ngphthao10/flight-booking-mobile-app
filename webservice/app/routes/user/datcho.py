@@ -854,7 +854,11 @@ def tu_choi_huy_dat_cho(ma_dat_cho):
                 'message': 'Vui lòng cung cấp lý do từ chối'
             }), 400
 
-        ly_do_huy = LyDoHuy.query.filter_by(MaDatCho=ma_dat_cho).first()
+        ly_do_huy = LyDoHuy.query.filter_by(
+            MaDatCho=ma_dat_cho,
+            TrangThai='Chờ duyệt'
+        ).first()
+
         if not ly_do_huy:
             return jsonify({
                 'success': False,
@@ -881,6 +885,7 @@ def tu_choi_huy_dat_cho(ma_dat_cho):
         ly_do_huy.LyDoTuChoi = ly_do_tu_choi
         ly_do_huy.NgayXuLy = now
         dat_cho.TrangThai = 'Đã thanh toán'
+        
         db.session.add(ly_do_huy)
         
         db.session.commit()

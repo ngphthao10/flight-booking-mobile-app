@@ -9,7 +9,6 @@ report = Blueprint('report', __name__)
 
 @report.route('/api/report/market_share', methods=['GET'])
 def get_market_share():
-    """Gets market share by airlines with time filters."""
     try:
         time_filter = request.args.get('time', 'today')
         now = datetime.now()
@@ -77,14 +76,12 @@ def get_revenue_report():
     try:
         current_date = datetime.now()
 
-        # Lấy các tham số từ query string
         report_type = request.args.get('type', 'monthly')
-        month = request.args.get('month', str(current_date.month))  # 'all' hoặc chuỗi số
-        year = request.args.get('year', str(current_date.year))     # 'all' hoặc chuỗi số
+        month = request.args.get('month', str(current_date.month)) 
+        year = request.args.get('year', str(current_date.year))   
         include_growth = request.args.get('include_growth', 'false').lower() == 'true'
 
         if report_type == 'monthly':
-            # === TÍNH DOANH THU THEO NGÀY ===
             base_query = db.session.query(
                 func.date(DatCho.NgayMua).label('date'),
                 func.count(DatCho.MaDatCho).label('total_orders'),
@@ -95,11 +92,9 @@ def get_revenue_report():
                 DatCho.TrangThai == 'Đã thanh toán'
             )
 
-            # Nếu month != 'all', lọc thêm theo tháng
             if month != 'all':
                 base_query = base_query.filter(func.month(DatCho.NgayMua) == int(month))
 
-            # Nếu year != 'all', lọc thêm theo năm
             if year != 'all':
                 base_query = base_query.filter(func.year(DatCho.NgayMua) == int(year))
 
@@ -109,7 +104,6 @@ def get_revenue_report():
                 func.date(DatCho.NgayMua)
             )
 
-            # Trả kết quả
             result = [
                 {
                     "date": record.date.strftime('%Y-%m-%d'),
@@ -131,7 +125,6 @@ def get_revenue_report():
                 DatCho.TrangThai == 'Đã thanh toán'
             )
 
-            # Lọc theo tháng và năm (nếu có)
             if month != 'all':
                 base_query = base_query.filter(func.month(DatCho.NgayMua) == int(month))
             if year != 'all':
@@ -146,7 +139,6 @@ def get_revenue_report():
             )
 
             weekly_data = query.all()
-            # Chuyển kết quả raw thành danh sách dict
             result = [
                 {
                     "week_number": int(week.week_number),
@@ -157,9 +149,7 @@ def get_revenue_report():
                 for week in weekly_data
             ]
 
-            # Nếu có yêu cầu tính tăng trưởng
             if include_growth:
-                # Lấy tất cả các tuần từ database (bao gồm cả năm trước nếu cần)
                 full_query = db.session.query(
                     func.week(DatCho.NgayMua).label('week_number'),
                     func.year(DatCho.NgayMua).label('year'),
@@ -188,14 +178,12 @@ def get_revenue_report():
                     for week in full_data
                 ]
 
-                # Tạo dictionary để tra cứu tuần trước
                 full_result_sorted = sorted(full_result, key=lambda x: (x['year'], x['week_number']))
                 prev_week_map = {}
                 for i, row in enumerate(full_result_sorted):
                     if i > 0:  # Bắt đầu từ tuần thứ hai
                         prev_week_map[(row['year'], row['week_number'])] = full_result_sorted[i - 1]
 
-                # Tính tăng trưởng
                 for row in result:
                     key = (row['year'], row['week_number'])
                     if key in prev_week_map:
@@ -209,7 +197,6 @@ def get_revenue_report():
                         row["growth_rate"] = 0
 
         else:
-            # Nếu type không hợp lệ, trả về lỗi
             return jsonify({
                 "status": "error",
                 "message": "Invalid report type. Use 'monthly' or 'weekly'."
@@ -240,7 +227,6 @@ def get_passengers():
         if total_passengers > 0:
             user_passenger_ratio = round(( total_users / total_passengers) * 100, 2)
         
-        # Prepare response
         result = {
             "total_users": total_users,
             "total_passengers": total_passengers,
@@ -255,15 +241,11 @@ def get_passengers():
 
 @report.route('/api/report/booking_stats', methods=['GET'])
 def get_booking_stats():
-    """Gets booking statistics for different time periods."""
     try:
-        # Get time range from request
         time_range = request.args.get('time_range', 'last_7_days')
         
-        # Get current date at start of day
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         
-        # Define date range based on time_range
         if time_range == 'today':
             start_date = today
             end_date = datetime.now()
@@ -286,7 +268,6 @@ def get_booking_stats():
             start_date = today - timedelta(days=90)
             end_date = datetime.now()
 
-        # Query daily booking stats for the specified period
         stats = db.session.query(
             func.date(DatCho.NgayMua).label('date'),
             func.count(DatCho.MaDatCho).label('total_bookings'),
@@ -300,14 +281,12 @@ def get_booking_stats():
             func.date(DatCho.NgayMua)
         ).all()
 
-        # Format results
         result = [{
             'date': stat.date.strftime('%Y-%m-%d'),
             'total_bookings': int(stat.total_bookings or 0),
             'total_passengers': int(stat.total_passengers or 0)
         } for stat in stats]
 
-        # Calculate cumulative totals
         total_bookings = sum(item['total_bookings'] for item in result)
         total_passengers = sum(item['total_passengers'] for item in result)
 
@@ -331,14 +310,10 @@ def get_booking_stats():
 def get_baggage_service_stats():
     """Gets baggage service statistics for different time periods."""
     try:
-        
-        # Get time range from request
         time_range = request.args.get('time_range', 'last_7_days')
         
-        # Get current date at start of day
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         
-        # Define date range based on time_range
         if time_range == 'today':
             start_date = today
             end_date = datetime.now()
@@ -357,12 +332,11 @@ def get_baggage_service_stats():
         elif time_range == 'last_month':
             start_date = today - timedelta(days=31)
             end_date = datetime.now()
-        else:  # last_3_months
+        else:  
             start_date = today - timedelta(days=93)
             end_date = datetime.now()
         print(start_date, "-", end_date)
 
-        # Query statistics
         stats = db.session.query(
             DichVuHanhLy.SoKy.label('weight'),
             func.count(ChiTietDatCho.MaDatCho).label('bookings'),
@@ -379,15 +353,13 @@ def get_baggage_service_stats():
             DichVuHanhLy.SoKy
         ).all()
 
-        # Format results
         result = [{
             'weight': f'{stat.weight}kg',
             'bookings': int(stat.bookings),
             'revenue': float(stat.revenue),
-            'percentage': 0  # Will be calculated below
+            'percentage': 0  
         } for stat in stats]
 
-        # Calculate percentages
         total_bookings = sum(item['bookings'] for item in result)
         if total_bookings > 0:
             for item in result:

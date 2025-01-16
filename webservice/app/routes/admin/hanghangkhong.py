@@ -442,10 +442,8 @@ def delete_hang_hang_khong(ma_hhk):
             }), 400
 
 
-        # Xóa các dịch vụ vé trước
         DichVuVe.query.filter_by(MaHHK=ma_hhk).delete()
         
-        # Sau đó xóa hãng hàng không
         db.session.delete(airline)
         db.session.commit()
         

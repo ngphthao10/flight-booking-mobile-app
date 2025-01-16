@@ -144,7 +144,6 @@ def google_callback():
                 } 
             }
 
-            # Trả về trang HTML với script để gửi dữ liệu về client
             return f"""
                 <html>
                     <head>

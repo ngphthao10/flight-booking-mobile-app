@@ -84,14 +84,12 @@ def get_temp_booking_promotions():
 @khuyenmai.route('/api/promotions', methods=['GET','POST'])
 def get_valid_promotions():
     try:
-        # Lấy thông tin từ request body
         data = request.get_json()
         ma_hhk = data.get('ma_hhk', None)
         ma_cb = data.get('ma_cb', None)
         current_date = datetime.now().date()
         current_datetime = datetime.now()
 
-        # Query cơ bản với điều kiện ngày hiệu lực và phải có chuyến bay hoặc hãng hàng không
         query = KhuyenMai.query.filter(
             KhuyenMai.NgayBatDau <= current_date,
             KhuyenMai.NgayKetThuc >= current_date
@@ -100,15 +98,12 @@ def get_valid_promotions():
             KhuyenMai.ds_chuyen_bay.any()
         ))
 
-        # Nếu có lọc theo hãng hàng không
         if ma_hhk:
             query = query.filter(KhuyenMai.ds_hang_hang_khong.any(MaHHK=ma_hhk))
 
-        # Nếu có lọc theo chuyến bay
         if ma_cb:
             query = query.filter(KhuyenMai.ds_chuyen_bay.any(MaChuyenBay=ma_cb))
 
-        # Thực hiện query và chuyển đổi kết quả
         promotions = query.all()
         result = []
         
@@ -116,16 +111,14 @@ def get_valid_promotions():
             valid_flights = []
             if km.ds_chuyen_bay:
                 for cb in km.ds_chuyen_bay:
-                    # Kiểm tra chuyến bay còn hiệu lực
-                    if (cb.TrangThai == 0 and  # Chuyến bay không bị hủy
-                        cb.ThoiGianDi > current_datetime):  # Chuyến bay chưa khởi hành
+                    if (cb.TrangThai == 0 and 
+                        cb.ThoiGianDi > current_datetime): 
                         valid_flights.append({
                             'ma_cb': cb.MaChuyenBay,
                             'thoi_gian_di': cb.ThoiGianDi.strftime('%Y-%m-%d %H:%M:%S'),
                             'thoi_gian_den': cb.ThoiGianDen.strftime('%Y-%m-%d %H:%M:%S')
                         })
             
-            # Chỉ thêm khuyến mãi vào kết quả nếu có hãng hàng không hoặc có chuyến bay hợp lệ
             if km.ds_hang_hang_khong or valid_flights:
                 promotion_data = {
                     'ma_khuyen_mai': km.MaKhuyenMai,
