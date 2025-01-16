@@ -42,6 +42,7 @@ def create_app():
     from app.routes.user.datcho import datcho
     from app.routes.user.dichvuhanhly import dichvuhanhly
     from app.routes.admin.hanghangkhong import hanghangkhong
+    from app.routes.admin.maybay import maybay
     from app.routes.admin.report import report
     from app.routes.admin.maybay import maybay
     from app.routes.admin.sanbay import sanbay

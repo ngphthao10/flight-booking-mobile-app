@@ -1,0 +1,77 @@
+<form method="GET" action="{{ url_for('maybay.get_may_bay') }}" class="needs-validation">
+    <div class="mb-3">
+        <label for="ma_may_bay" class="form-label">Mã máy bay</label>
+        <input type="text" class="form-control" id="ma_may_bay" name="ma_may_bay" value="{{ filters.ma_may_bay }}"
+            placeholder="Nhập mã máy bay...">
+    </div>
+
+    <div class="mb-3">
+        <label for="ten_may_bay" class="form-label">Tên máy bay</label>
+        <input type="text" class="form-control" id="ten_may_bay" name="ten_may_bay" value="{{ filters.ten_may_bay }}"
+            placeholder="Nhập tên máy bay...">
+    </div>
+
+    <div class="mb-3">
+        <label for="ma_hhk_may_bay" class="form-label">Hãng hàng không</label>
+        <select class="form-select" id="ma_hhk_may_bay" name="ma_hhk_may_bay">
+            <option value="">Tất cả hãng hàng không</option>
+            <!-- Options sẽ được load bằng JavaScript -->
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="loai_mb" class="form-label">Loại máy bay</label>
+        <input type="text" class="form-control" id="loai_mb" name="loai_mb" value="{{ filters.loai_mb if filters.loai_mb not in [None, 'None'] else '' }}"
+            placeholder="Nhập loại máy bay...">
+    </div>
+
+    <div class="mb-3">
+        <label for="sort_by_may_bay" class="form-label">Sắp xếp theo</label>
+        <select class="form-select" id="sort_by_may_bay" name="sort_by_may_bay">
+            <option value="MaMayBay" {% if filters.sort_by=='MaMayBay' %}selected{% endif %}>
+                Mã máy bay
+            </option>
+            <option value="TenMayBay" {% if filters.sort_by=='TenMayBay' %}selected{% endif %}>
+                Tên máy bay
+            </option>
+            <option value="MaHHK" {% if filters.sort_by=='MaHHK' %}selected{% endif %}>
+                Hãng hàng không
+            </option>
+            <option value="LoaiMB" {% if filters.sort_by=='LoaiMB' %}selected{% endif %}>
+                Loại máy bay
+            </option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="order_may_bay" class="form-label">Thứ tự</label>
+        <select class="form-select" id="order_may_bay" name="order_may_bay">
+            <option value="asc" {% if filters.order=='asc' %}selected{% endif %}>
+                Tăng dần
+            </option>
+            <option value="desc" {% if filters.order=='desc' %}selected{% endif %}>
+                Giảm dần
+            </option>
+        </select>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-outline-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search mb-1"
+                viewBox="0 0 16 16">
+                <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+            </svg>
+            Tìm kiếm
+        </button>
+        <a href="{{url_for('maybay.get_may_bay')}}" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-arrow-counterclockwise mb-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                <path
+                    d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+            </svg>
+            Đặt lại
+        </a>
+    </div>
+</form>
