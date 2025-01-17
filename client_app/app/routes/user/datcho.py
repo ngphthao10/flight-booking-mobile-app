@@ -244,17 +244,14 @@ def create_e_ticket(booking_data, output_path):
             if idx < len(bookings) - 1:
                 elements.append(PageBreak())
 
-        if len(bookings) >= 1 and bookings[0].get('ThanhToan'):
-            thanh_toan = bookings[0]['ThanhToan']
-            he_so_gia = booking['DatCho']['GoiDichVu']['HeSoGia']
-            elements.append(PageBreak())  
-            
+        if bookings:
+            elements.append(PageBreak())
             elements.append(Paragraph("THÔNG TIN THANH TOÁN", styles['CustomTitle']))
 
             basic_info = [
                 ['Mã đặt chỗ:', str(bookings[0]['MaDatCho'])],
-                ['Ngày thanh toán:', datetime.strptime(thanh_toan['NgayThanhToan'], '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y %H:%M')],
-                ['Phương thức:', thanh_toan['PhuongThuc']],
+                ['Ngày thanh toán:', datetime.strptime(bookings[0]['ThanhToan']['NgayThanhToan'], '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y %H:%M')],
+                ['Phương thức:', bookings[0]['ThanhToan']['PhuongThuc']],
             ]
             
             basic_table = Table(basic_info, colWidths=[4*cm, 12*cm])
@@ -273,38 +270,58 @@ def create_e_ticket(booking_data, output_path):
                 ['Mô tả', 'Số lượng', 'Thành tiền'],
             ]
 
-            booking = bookings[0]
-            if booking['DatCho']['SoLuongGhe']['Business'] > 0:
-                so_luong = booking['DatCho']['SoLuongGhe']['Business']
-                gia_ve = booking['ChuyenBay']['GiaVe']['Business']
-                payment_details.append([
-                    f"Vé máy bay hạng Business\n{booking['ChuyenBay']['SanBayDi']['ThanhPho']} → {booking['ChuyenBay']['SanBayDen']['ThanhPho']}",
-                    str(so_luong),
-                    f"{(gia_ve * he_so_gia * so_luong):,.0f} VNĐ"
-                ])
+            tong_tien = 0
+            tong_thue = 0
+            tong_giam = 0
 
-            if booking['DatCho']['SoLuongGhe']['Economy'] > 0:
-                so_luong = booking['DatCho']['SoLuongGhe']['Economy']
-                gia_ve = booking['ChuyenBay']['GiaVe']['Economy']
-                payment_details.append([
-                    f"Vé máy bay hạng Economy\n{booking['ChuyenBay']['SanBayDi']['ThanhPho']} → {booking['ChuyenBay']['SanBayDen']['ThanhPho']}",
-                    str(so_luong),
-                    f"{(gia_ve * he_so_gia * so_luong):,.0f} VNĐ"
-                ])
+            for idx, booking in enumerate(bookings):
+                is_round_trip = len(bookings) > 1
+                trip_type = ""
+                if is_round_trip:
+                    trip_type = f" (chiều {'đi' if idx == 0 else 'về'})"
+                
+                he_so_gia = booking['DatCho']['GoiDichVu']['HeSoGia']
 
-            for passenger in booking['HanhKhach']:
-                if passenger.get('HanhLy'):
+                if booking['DatCho']['SoLuongGhe']['Business'] > 0:
+                    so_luong = booking['DatCho']['SoLuongGhe']['Business']
+                    gia_ve = booking['ChuyenBay']['GiaVe']['Business']
+                    thanh_tien = gia_ve * he_so_gia * so_luong
+                    tong_tien += thanh_tien
                     payment_details.append([
-                        f"Hành lý ký gửi {passenger['HanhLy']['SoKy']}kg\n{passenger['Ho']} {passenger['Ten']} - {passenger['CCCD']}",
-                        "1",
-                        f"{passenger['HanhLy']['Gia']:,.0f} VNĐ"
+                        f"Vé máy bay hạng Business{trip_type}\n{booking['ChuyenBay']['SanBayDi']['ThanhPho']} → {booking['ChuyenBay']['SanBayDen']['ThanhPho']}",
+                        str(so_luong),
+                        f"{thanh_tien:,.0f} VNĐ"
                     ])
 
+                if booking['DatCho']['SoLuongGhe']['Economy'] > 0:
+                    so_luong = booking['DatCho']['SoLuongGhe']['Economy']
+                    gia_ve = booking['ChuyenBay']['GiaVe']['Economy']
+                    thanh_tien = gia_ve * he_so_gia * so_luong
+                    tong_tien += thanh_tien
+                    payment_details.append([
+                        f"Vé máy bay hạng Economy{trip_type}\n{booking['ChuyenBay']['SanBayDi']['ThanhPho']} → {booking['ChuyenBay']['SanBayDen']['ThanhPho']}",
+                        str(so_luong),
+                        f"{thanh_tien:,.0f} VNĐ"
+                    ])
+
+                for passenger in booking['HanhKhach']:
+                    if passenger.get('HanhLy'):
+                        payment_details.append([
+                            f"Hành lý ký gửi {passenger['HanhLy']['SoKy']}kg{trip_type}\n{passenger['Ho']} {passenger['Ten']} - {passenger['CCCD']}",
+                            "1",
+                            f"{passenger['HanhLy']['Gia']:,.0f} VNĐ"
+                        ])
+                        tong_tien += passenger['HanhLy']['Gia']
+
+                if booking.get('ThanhToan'):
+                    tong_thue += booking['ThanhToan']['Thue']
+                    tong_giam += booking['ThanhToan']['TienGiam']
+
             payment_details.extend([
-                ['Tổng tiền', '', f"{(thanh_toan['SoTien'] + thanh_toan['TienGiam']):,.0f} VNĐ"],
-                ['Giảm giá', '', f"-{thanh_toan['TienGiam']:,.0f} VNĐ"],
-                ['Thuế', '', f"{thanh_toan['Thue']:,.0f} VNĐ"],
-                ['TỔNG THANH TOÁN', '', f"{(thanh_toan['SoTien'] + thanh_toan['Thue']):,.0f} VNĐ"]
+                ['Tổng tiền', '', f"{tong_tien:,.0f} VNĐ"],
+                ['Giảm giá', '', f"-{tong_giam:,.0f} VNĐ"],
+                ['Thuế', '', f"{tong_thue:,.0f} VNĐ"],
+                ['TỔNG THANH TOÁN', '', f"{(tong_tien - tong_giam + tong_thue):,.0f} VNĐ"]
             ])
 
             detail_table = Table(payment_details, colWidths=[8*cm, 3*cm, 5*cm])

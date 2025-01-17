@@ -452,6 +452,13 @@ def get_all_bookings():
 @datcho.route('/api/get_booking_detailed/<int:madatcho>', methods=['GET'])
 def get_booking_detailed(madatcho):
     try:
+        booking = DatCho.query.get(madatcho)
+        if not booking:
+            return jsonify({
+                "status": "error",
+                "message": 'Mã đặt chỗ không tồn tại! Vui lòng nhập mã đặt chỗ khác!'
+            }), 500
+        
         SanBayDi = aliased(SanBay)
         SanBayDen = aliased(SanBay)
 
@@ -708,7 +715,10 @@ def get_danh_sach_huy():
 @datcho.route('/api/duyet-huy-dat-cho/<int:ma_dat_cho>', methods=['POST']) 
 def duyet_huy_dat_cho(ma_dat_cho):
     try:
-        ly_do_huy = LyDoHuy.query.filter_by(MaDatCho=ma_dat_cho).first()
+        ly_do_huy = LyDoHuy.query.filter_by(
+            MaDatCho=ma_dat_cho,
+            TrangThai='Chờ duyệt'
+        ).first()
         if not ly_do_huy:
             return jsonify({
                 'success': False,
@@ -813,7 +823,7 @@ def duyet_huy_dat_cho(ma_dat_cho):
             try:
                 dat_cho = DatCho.query.get(ma_dat_cho)
                 nguoi_lien_he = dat_cho.nguoi_lien_he  
-                
+                print("kq:", result)
                 if nguoi_lien_he and nguoi_lien_he.Email:
                     email_sent = send_booking_cancellation_email(nguoi_lien_he.Email, {
                         'ds_huy': result,

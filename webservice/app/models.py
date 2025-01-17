@@ -146,18 +146,20 @@ class ChuyenBay(db.Model):
     
     @staticmethod
     def generate_flight_code(ma_hhk):
-        """Tạo mã chuyến bay theo format: MaHHK + số tự động tăng"""
         last_flight = ChuyenBay.query.filter(
-            ChuyenBay.MaChuyenBay.like(f'{ma_hhk}%')
+            ChuyenBay.MaChuyenBay.regexp_match(f'^{ma_hhk}[0-9]{{6}}$')
         ).order_by(ChuyenBay.MaChuyenBay.desc()).first()
-        
+
         if not last_flight:
             return f'{ma_hhk}000001'
-            
-        last_number = int(last_flight.MaChuyenBay[2:])
-        new_number = str(last_number + 1).zfill(6)
-        return f'{ma_hhk}{new_number}'
-    
+
+        try:
+            last_number = int(last_flight.MaChuyenBay[-6:])
+            new_number = str(last_number + 1).zfill(6)
+            return f'{ma_hhk}{new_number}'
+        except ValueError:
+            return f'{ma_hhk}000001'
+
     def get_available_seats(self):
         """Lấy số ghế còn trống"""
         return {

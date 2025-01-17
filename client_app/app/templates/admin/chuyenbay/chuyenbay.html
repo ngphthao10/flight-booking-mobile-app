@@ -1,0 +1,527 @@
+{% extends 'admin/base.html' %}
+{% block title %}Chuyến bay{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center" role="button"
+            data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="false"
+            aria-controls="searchCollapse">
+            <h5 class="mb-0">
+                <i class="fas fa-search me-2"></i>Tìm kiếm chuyến bay
+            </h5>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="collapse" id="searchCollapse">
+            <div class="card-body">
+                <form id="searchForm" class="card p-2 bg-light border-0 shadow-sm">
+                    <div class="row g-4">
+                        <!-- Airline Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">Hãng hàng không</label>
+                                <select class="form-select" name="airline_code" id="airlineFilter">
+                                    <option value="">Tất cả</option>
+                                    <option value="VN">Vietnam Airlines</option>
+                                    <option value="BAV">Bamboo Airways</option>
+                                    <option value="VJ">VietJet Air</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Flight Type -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">Loại chuyến bay</label>
+                                <select class="form-select" name="flight_type" id="flightType">
+                                    <option value="">Tất cả</option>
+                                    <option value="Quốc tế">Quốc tế</option>
+                                    <option value="Nội địa">Nội địa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Flight Status -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">Trạng thái</label>
+                                <select class="form-select" name="status" id="status">
+                                    <option value="">Tất cả</option>
+                                    <option value="0">Đang hoạt động</option>
+                                    <option value="1">Đã hủy</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Airport Group -->
+                        <div class="col-12">
+                            <div class="card border shadow-none p-3 bg-white">
+                                <h6 class="mb-3 text-primary">
+                                    <i class="fas fa-plane-departure me-2"></i>Thông tin chuyến bay
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">Sân bay đi</label>
+                                            <select class="form-select" name="departure_airport" id="departureAirport">
+                                                <option value="">Tất cả</option>
+                                                <option value="HAN">Nội Bài (HAN)</option>
+                                                <option value="SGN">Tân Sơn Nhất (SGN)</option>
+                                                <option value="DAD">Đà Nẵng (DAD)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">Sân bay đến</label>
+                                            <select class="form-select" name="arrival_airport" id="arrivalAirport">
+                                                <option value="">Tất cả</option>
+                                                <option value="HAN">Nội Bài (HAN)</option>
+                                                <option value="SGN">Tân Sơn Nhất (SGN)</option>
+                                                <option value="DAD">Đà Nẵng (DAD)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="card border shadow-none p-2 bg-white">
+                                <h6 class="mb-3 text-primary">
+                                    <i class="fas fa-calendar-alt me-2"></i>Thời gian
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">Từ ngày</label>
+                                            <input type="date" class="form-control" id="startDate">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label class="form-label fw-semibold">Đến ngày</label>
+                                            <input type="date" class="form-control" id="endDate">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="reset" class="btn btn-outline-secondary px-4">
+                                    <i class="fas fa-redo me-2"></i>Đặt lại
+                                </button>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-search me-2"></i>Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 text-primary">
+                        <i class="fas fa-plane me-2"></i>Danh sách chuyến bay
+                    </h5>
+                    <a href="{{ url_for('chuyenbay.add_flight') }}" class="btn btn-primary btn-sm ms-3">
+                        <i class="fas fa-plus me-1"></i>Thêm chuyến bay
+                    </a>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="input-group" style="width: auto;">
+                        <label class="input-group-text bg-light" for="perPage">
+                            <i class="fas fa-list"></i>
+                        </label>
+                        <select class="form-select form-select-sm" id="perPage">
+                            <option value="10">10 mục</option>
+                            <option value="25">25 mục</option>
+                            <option value="50">50 mục</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" style="width: auto;">
+                        <label class="input-group-text bg-light" for="sortBy">
+                            <i class="fas fa-sort"></i>
+                        </label>
+                        <select class="form-select form-select-sm" id="sortBy">
+                            <option value="ThoiGianDi">Thời gian đi</option>
+                            <option value="GiaVeEco">Giá vé Eco</option>
+                            <option value="GiaVeBus">Giá vé Business</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" style="width: auto;">
+                        <label class="input-group-text bg-light" for="sortOrder">
+                            <i class="fas fa-arrow-up-wide-short"></i>
+                        </label>
+                        <select class="form-select form-select-sm" id="sortOrder">
+                            <option value="desc">Giảm dần</option>
+                            <option value="asc">Tăng dần</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="text-nowrap text-center">
+                            <th class="ps-4">Mã chuyến bay</th>
+                            <th>Thời gian đi</th>
+                            <th>Sân bay đi</th>
+                            <th>Thời gian đến</th>
+                            <th>Sân bay đến</th>
+                            <th>Loại</th>
+                            <th>Ghế Business</th>
+                            <th>Ghế Economy</th>
+                            <th>Giá Business</th>
+                            <th>Giá Economy</th>
+                            <th>Trạng thái</th>
+                            <th class="pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flightTableBody" class="text-center">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                <div class="text-muted small"></div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0" id="pagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="position-fixed top-50 start-50 translate-middle" id="loadingSpinner" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+<div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;">
+</div>
+<style>
+    .card-header .fas {
+        transition: transform 0.3s ease;
+    }
+
+    .card-header[role="button"]:hover {
+        cursor: pointer;
+        opacity: 0.9;
+    }
+
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table td {
+        font-size: 0.875rem;
+    }
+
+    .pagination .page-link {
+        min-width: 32px;
+        text-align: center;
+    }
+
+    .input-group-text {
+        font-size: 0.875rem;
+    }
+
+    .form-select {
+        font-size: 0.875rem;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const collapseElement = document.getElementById('searchCollapse');
+        const headerElement = collapseElement.previousElementSibling;
+        const chevronIcon = headerElement.querySelector('.fa-chevron-down');
+
+        const bsCollapse = new bootstrap.Collapse(collapseElement, {
+            toggle: false
+        });
+
+        collapseElement.addEventListener('show.bs.collapse', function () {
+            chevronIcon.classList.remove('fa-chevron-down');
+            chevronIcon.classList.add('fa-chevron-up');
+        });
+
+        collapseElement.addEventListener('hide.bs.collapse', function () {
+            chevronIcon.classList.remove('fa-chevron-up');
+            chevronIcon.classList.add('fa-chevron-down');
+        });
+
+        headerElement.addEventListener('mouseenter', function () {
+            this.style.cursor = 'pointer';
+            this.style.opacity = '0.9';
+        });
+
+        headerElement.addEventListener('mouseleave', function () {
+            this.style.opacity = '1';
+        });
+    });
+    let currentPage = 1;
+    let lastPage = 1;
+
+    const searchForm = document.getElementById('searchForm');
+    const flightTableBody = document.getElementById('flightTableBody');
+    const pagination = document.getElementById('pagination');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const perPageSelect = document.getElementById('perPage');
+    const sortBySelect = document.getElementById('sortBy');
+    const sortOrderSelect = document.getElementById('sortOrder');
+
+    async function loadInitialData() {
+        try {
+            await Promise.all([
+                loadAirlines(),
+                loadAirports()
+            ]);
+        } catch (error) {
+            console.error('Error loading initial data:', error);
+        }
+    }
+
+    async function loadAirlines() {
+        try {
+            const response = await fetch(`${API_URL}/api/airlines`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const airlineSelect = document.querySelector('select[name="airline_code"]');
+                airlineSelect.innerHTML = '<option value="">Tất cả</option>' +
+                    data.data.map(airline =>
+                        `<option value="${airline.code}">${airline.name}</option>`
+                    ).join('');
+            }
+        } catch (error) {
+            console.error('Error loading airlines:', error);
+        }
+    }
+
+    async function loadAirports() {
+        try {
+            const response = await fetch(`${API_URL}/api/airports`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const airportOptions = data.data.map(airport =>
+                    `<option value="${airport.code}">${airport.name} (${airport.code})</option>`
+                ).join('');
+
+                const departureSelect = document.querySelector('select[name="departure_airport"]');
+                departureSelect.innerHTML = '<option value="">Tất cả</option>' + airportOptions;
+
+                const arrivalSelect = document.querySelector('select[name="arrival_airport"]');
+                arrivalSelect.innerHTML = '<option value="">Tất cả</option>' + airportOptions;
+            }
+        } catch (error) {
+            console.error('Error loading airports:', error);
+        }
+    }
+
+    searchForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        currentPage = 1;
+        fetchFlights();
+    });
+
+    searchForm.addEventListener('reset', function (e) {
+        setTimeout(() => {
+            currentPage = 1;
+            fetchFlights();
+        }, 0);
+    });
+
+    perPageSelect.addEventListener('change', function () {
+        currentPage = 1;
+        fetchFlights();
+    });
+
+    sortBySelect.addEventListener('change', fetchFlights);
+    sortOrderSelect.addEventListener('change', fetchFlights);
+
+    function getFormData() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        let dateRange = '';
+
+        if (startDate && endDate) {
+            dateRange = `${startDate},${endDate}`;
+        }
+
+        return {
+            airline_code: document.getElementById('airlineFilter').value,
+            departure_airport: document.getElementById('departureAirport').value,
+            arrival_airport: document.getElementById('arrivalAirport').value,
+            flight_type: document.getElementById('flightType').value,
+            departure_time: dateRange,
+            status: document.getElementById('status').value,
+            page: currentPage,
+            per_page: perPageSelect.value,
+            sort_by: sortBySelect.value,
+            sort_order: sortOrderSelect.value
+        };
+    }
+
+    function buildQueryString(params) {
+        return Object.keys(params)
+            .filter(key => params[key])
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+    }
+
+    async function fetchFlights() {
+        try {
+            loadingSpinner.style.display = 'block';
+            const queryString = buildQueryString(getFormData());
+            const response = await fetch(`${API_URL}/api/flights?${queryString}`);
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                renderFlights(data.data.flights);
+                renderPagination(data.data.pagination);
+            } else {
+                throw new Error(data.message || 'Failed to fetch flights');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error fetching flights: ' + error.message);
+        } finally {
+            loadingSpinner.style.display = 'none';
+        }
+    }
+
+    function formatDateTime(dateTimeStr) {
+        return new Date(dateTimeStr).toLocaleString('vi-VN');
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(amount);
+    }
+
+    function renderFlights(flights) {
+        const now = new Date();
+        flightTableBody.innerHTML = flights.map(flight => {
+            const departureTime = new Date(flight.departure_time);
+            const isPastFlight = departureTime <= now;
+
+            return `
+        <tr>
+            <td>${flight.flight_code}</td>
+            <td>${formatDateTime(flight.departure_time)}</td>
+            <td>${flight.departure_airport}</td>
+            <td>${formatDateTime(flight.arrival_time)}</td>
+            <td>${flight.arrival_airport}</td>
+            <td>${flight.flight_type}</td>
+            <td>${flight.available_business}/${flight.business_seats}</td>
+            <td>${flight.available_economy}/${flight.economy_seats}</td>
+            <td>${formatCurrency(flight.business_price)}</td>
+            <td>${formatCurrency(flight.economy_price)}</td>
+            <td>
+                <span class="badge ${isPastFlight ? 'bg-secondary' : (flight.status === 0 ? 'bg-success' : 'bg-danger')}">
+                    ${isPastFlight ? 'Ngừng hoạt động' : (flight.status === 0 ? 'Đang hoạt động' : 'Đã hủy')}
+                </span>
+            </td>
+            ${!isPastFlight ? `
+                <td>
+                    <a href="flights/edit/${flight.flight_code}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </td>` : '<td>None</td>'}
+        </tr>
+        `;
+        }).join('');
+    }
+
+
+    function renderPagination(paginationData) {
+        lastPage = paginationData.total_pages;
+
+        const pages = [];
+
+        pages.push(`
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage - 1}">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+    `);
+
+        for (let i = 1; i <= paginationData.total_pages; i++) {
+            if (
+                i === 1 ||
+                i === paginationData.total_pages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                pages.push(`
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `);
+            } else if (
+                i === currentPage - 2 ||
+                i === currentPage + 2
+            ) {
+                pages.push(`
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            `);
+            }
+        }
+
+        pages.push(`
+        <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage + 1}">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    `);
+
+        pagination.innerHTML = pages.join('');
+
+        pagination.querySelectorAll('.page-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = parseInt(this.dataset.page);
+                if (page && page !== currentPage && page >= 1 && page <= lastPage) {
+                    currentPage = page;
+                    fetchFlights();
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        loadInitialData();
+        fetchFlights();
+    });
+</script>
+{% endblock %}

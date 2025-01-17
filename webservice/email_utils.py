@@ -36,15 +36,18 @@ def send_booking_confirmation_email(to_email, booking_info):
     mail.send(msg)
 
 def send_booking_cancellation_email(to_email, cancellation_info):
-
     subject = "XÁC NHẬN HỦY ĐẶT CHỖ THÀNH CÔNG"
 
-    cancelled_bookings = []
+    cancelled_bookings = []  
     for booking in cancellation_info['ds_huy']:
-        bookingId =  f"Mã đặt chỗ: {booking['ma_dat_cho'][0]}"
+        if isinstance(booking['ma_dat_cho'], list):
+            bookingId = f"Mã đặt chỗ: {booking['ma_dat_cho'][0]}" 
+        else:
+            bookingId = f"Mã đặt chỗ: {booking['ma_dat_cho']}"  
+
         booking_detail = f"""
         Mã chuyến bay: {booking['ma_chuyen_bay']}
-        Tỷ lệ hoàn tiền: {round(booking['ty_le_hoan'], 0)}
+        Tỷ lệ hoàn tiền: {round(float(booking['ty_le_hoan'].replace('%', '')), 0)}%
         Số tiền hoàn: {booking['so_tien_hoan']} VND
         """
         cancelled_bookings.append(booking_detail)
@@ -55,7 +58,6 @@ def send_booking_cancellation_email(to_email, cancellation_info):
     Yêu cầu hủy đặt chỗ của bạn đã được xử lý thành công. Dưới đây là chi tiết các đặt chỗ đã hủy:
 
     {bookingId}
-
     {"".join(cancelled_bookings)}
     Thời gian duyệt hủy: {cancellation_info['ngay_duyet']}
 
@@ -67,6 +69,7 @@ def send_booking_cancellation_email(to_email, cancellation_info):
     FlightBooking team.
     """
 
+    # Tạo email
     msg = Message(
         subject=subject,
         recipients=[to_email],
@@ -74,11 +77,12 @@ def send_booking_cancellation_email(to_email, cancellation_info):
     )
 
     try:
-        mail.send(msg)
+        mail.send(msg)  # Gửi email
         return True
     except Exception as e:
-        print(f"Lỗi gửi email: {str(e)}")
+        print(f"Lỗi gửi email: {str(e)}")  # In lỗi nếu gửi thất bại
         return False
+
 
 def send_booking_cancellation_rejected_email(to_email, reject_info):
     subject = "THÔNG BÁO TỪ CHỐI YÊU CẦU HỦY ĐẶT CHỖ"

@@ -20,6 +20,7 @@ def create_app():
     from app.routes.admin.sanbay import sanbay
     from app.routes.admin.dashboard import dashboard
     from app.routes.admin.report import report
+    from app.routes.admin.chuyenbay import chuyenbay
 
     app.register_blueprint(homepage)
     app.register_blueprint(datcho, url_prefix="/datcho")
@@ -30,5 +31,6 @@ def create_app():
     app.register_blueprint(dashboard, url_prefix="/dashboard")
     app.register_blueprint(report, url_prefix="/report")
     app.register_blueprint(promotion, url_prefix="/promotion")
+    app.register_blueprint(chuyenbay, url_prefix="/chuyenbay")
         
     return app

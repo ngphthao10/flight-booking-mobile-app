@@ -1,0 +1,424 @@
+{% extends 'admin/base.html' %}
+{% block title %}Sửa chuyến bay{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <form id="flightForm" class="needs-validation" novalidate>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Thông tin chuyến bay</h5>
+            </div>
+            <div class="card-body">
+                <!-- Thông tin chung -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <div class="card border shadow-none p-3 bg-white">
+                            <h6 class="mb-3 text-primary">
+                                <i class="fas fa-plane me-2"></i>Thông tin cơ bản
+                            </h6>
+                            <div class="row g-3">
+                                <!-- Mã chuyến bay -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Mã chuyến bay</label>
+                                    <input type="text" class="form-control" id="MaChuyenBay" readonly>
+                                </div>
+                                <!-- Máy bay -->
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Máy bay <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" name="MaMB" required>
+                                        <option value="">Chọn máy bay</option>
+                                    </select>
+                                    <div class="invalid-feedback">Vui lòng chọn máy bay</div>
+                                </div>
+                                <!-- Loại chuyến bay -->
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Loại chuyến bay <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" name="LoaiChuyenBay" required>
+                                        <option value="">Chọn loại</option>
+                                        <option value="Quốc tế">Quốc tế</option>
+                                        <option value="Nội địa">Nội địa</option>
+                                    </select>
+                                    <div class="invalid-feedback">Vui lòng chọn loại chuyến bay</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Thông tin giá vé -->
+                    <div class="col-6">
+                        <div class="card border shadow-none p-3 bg-white">
+                            <h6 class="mb-3 text-primary">
+                                <i class="fas fa-ticket-alt me-2"></i>Giá vé
+                            </h6>
+                            <div class="row g-3">
+                                <!-- Giá vé Business -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Giá vé Business</label>
+                                    <div class="input-group has-validation">
+                                        <input type="hidden" name="GiaVeBus" id="realBusPrice">
+                                        <input type="text" class="form-control" id="displayBusPrice"
+                                            oninput="formatPriceInput(this, 'realBusPrice')" min="0" max="10000000000">
+                                        <span class="input-group-text">VNĐ</span>
+                                        <div class="invalid-feedback" id="GiaVeBusError"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Giá vé Economy -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Giá vé Economy <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group has-validation">
+                                        <input type="hidden" name="GiaVeEco" id="realEcoPrice" required>
+                                        <input type="text" class="form-control" id="displayEcoPrice"
+                                            oninput="formatPriceInput(this, 'realEcoPrice')" min="0" max="10000000000"
+                                            required>
+                                        <span class="input-group-text">VNĐ</span>
+                                        <div class="invalid-feedback" id="GiaVeEcoError"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border shadow-none p-3 bg-white">
+                            <h6 class="mb-3 text-primary">
+                                <i class="fas fa-flag me-2"></i>Trạng thái
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Trạng thái <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" name="TrangThai" required>
+                                        <option value="">Chọn trạng thái</option>
+                                        <option value="0">Đang hoạt động</option>
+                                        <option value="1">Đã hủy</option>
+                                    </select>
+                                    <div class="invalid-feedback">Vui lòng chọn trạng thái</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Thông tin chuyến bay -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <div class="card border shadow-none p-3 bg-white">
+                            <h6 class="mb-3 text-primary">
+                                <i class="fas fa-route me-2"></i>Lộ trình bay
+                            </h6>
+                            <div class="row g-3">
+                                <!-- Điểm đi -->
+                                <div class="col-md-6">
+                                    <div class="card border bg-light p-3">
+                                        <h6 class="card-subtitle mb-2 text-muted">Điểm đi</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Sân bay đi <span
+                                                    class="text-danger">*</span></label>
+                                            <select class="form-select" name="MaSanBayDi" required
+                                                onchange="validateAirports()">
+                                                <option value="">Chọn sân bay đi</option>
+                                            </select>
+                                            <div class="invalid-feedback">Vui lòng chọn sân bay đi</div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label fw-semibold">Thời gian đi <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="datetime-local" class="form-control" name="ThoiGianDi" required
+                                                oninput="validateFlightTimes()"
+                                                min="{{ now.strftime('%Y-%m-%dT%H:%M') }}">
+                                            <div class="invalid-feedback">Vui lòng chọn thời gian đi</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Điểm đến -->
+                                <div class="col-md-6">
+                                    <div class="card border bg-light p-3">
+                                        <h6 class="card-subtitle mb-2 text-muted">Điểm đến</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Sân bay đến <span
+                                                    class="text-danger">*</span></label>
+                                            <select class="form-select" name="MaSanBayDen" required
+                                                onchange="validateAirports()">
+                                                <option value="">Chọn sân bay đến</option>
+                                            </select>
+                                            <div class="invalid-feedback">Vui lòng chọn sân bay đến</div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label fw-semibold">Thời gian đến <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="datetime-local" class="form-control" name="ThoiGianDen"
+                                                required oninput="validateFlightTimes()">
+                                            <div class="invalid-feedback">Vui lòng chọn thời gian đến</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Baggage Services -->
+        <div class="card mb-4">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="text-primary mb-0">
+                        <i class="fas fa-suitcase me-2"></i>Dịch vụ hành lý
+                    </h5>
+                    <button type="button" class="btn btn-primary btn-sm d-flex align-items-center"
+                        id="addBaggageService">
+                        <i class="fas fa-plus me-2"></i>Thêm dịch vụ
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div id="baggageServices">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <a href="{{ url_for('chuyenbay.get_flights') }}" class="btn btn-outline-secondary px-4">
+                    <i class="fas fa-times me-2"></i>Hủy
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<template id="baggageServiceTemplate">
+    <div class="baggage-service-item border rounded p-3 mb-3">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Số ký <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="number" class="form-control" name="SoKy" required min="1">
+                    <span class="input-group-text">kg</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Giá <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="number" class="form-control" name="Gia" required min="0" step="1000">
+                    <span class="input-group-text">VNĐ</span>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">Mô tả</label>
+                <input type="text" class="form-control" name="MoTa" placeholder="Mô tả dịch vụ hành lý">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label d-block">&nbsp;</label>
+                <button type="button" class="btn btn-danger btn-sm remove-baggage-service">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<div id="pagination-config" data-api-url="{{ api_url }}" Style="display: none;">
+</div>
+<script src="{{url_for('static', filename='js/validateChuyenBay.js')}}"></script>
+<script>
+    let flightCode = '';
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        const pathParts = window.location.pathname.split('/');
+        flightCode = pathParts[pathParts.length - 1];
+        console.log(flightCode)
+        document.getElementById('MaChuyenBay').value = flightCode;
+
+        await Promise.all([loadAirports(), loadAircrafts()]);
+        loadFlightData();
+        setupFormValidation();
+    });
+
+    async function loadAirports() {
+        try {
+            const response = await fetch(`${API_URL}/api/airports`);
+            if (!response.ok) throw new Error('Failed to load airports');
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const airports = data.data;
+                const airportOptions = airports.map(airport =>
+                    `<option value="${airport.code}">${airport.name} (${airport.code})</option>`
+                ).join('');
+
+                document.querySelector('select[name="MaSanBayDi"]').innerHTML =
+                    '<option value="">Chọn sân bay đi</option>' + airportOptions;
+                document.querySelector('select[name="MaSanBayDen"]').innerHTML =
+                    '<option value="">Chọn sân bay đến</option>' + airportOptions;
+            }
+        } catch (error) {
+            console.error('Error loading airports:', error);
+        }
+    }
+
+    async function loadAircrafts() {
+        try {
+            const response = await fetch(`${API_URL}/api/aircrafts`);
+            if (!response.ok) throw new Error('Failed to load aircrafts');
+            const data = await response.json();
+            if (data.status === 'success') {
+                const aircraftSelect = document.querySelector('select[name="MaMB"]');
+                aircraftSelect.innerHTML = '<option value="">Chọn máy bay</option>' +
+                    data.data.map(aircraft =>
+                        `<option value = "${aircraft.id}" > ${aircraft.name}</option> `
+                    ).join('');
+            }
+        } catch (error) {
+            console.error('Error loading aircrafts:', error);
+        }
+    }
+
+    async function loadFlightData() {
+        try {
+            const response = await fetch(`${API_URL}/api/chuyenbay/${flightCode}`);
+            if (!response.ok) throw new Error('Failed to load flight data');
+
+            const data = await response.json();
+            console.log(data)
+            if (data.status === 'success') {
+                const flight = data.data;
+                document.querySelector('select[name="MaMB"]').value = flight.MaMB;
+                document.querySelector('select[name="LoaiChuyenBay"]').value = flight.LoaiChuyenBay;
+                document.querySelector('select[name="MaSanBayDi"]').value = flight.MaSanBayDi;
+                document.querySelector('select[name="MaSanBayDen"]').value = flight.MaSanBayDen;
+                document.querySelector('input[name="ThoiGianDi"]').value = formatDateTimeForInput(flight.ThoiGianDi);
+                document.querySelector('input[name="ThoiGianDen"]').value = formatDateTimeForInput(flight.ThoiGianDen);
+                document.querySelector('input[name="GiaVeEco"]').value = flight.GiaVeEco;
+                document.querySelector('input[name="GiaVeBus"]').value = flight.GiaVeBus;
+                document.getElementById('displayEcoPrice').value = flight.GiaVeEco;
+                document.getElementById('displayBusPrice').value = flight.GiaVeBus;
+                document.querySelector('select[name="TrangThai"]').value = flight.TrangThai;
+
+                const baggageServices = document.getElementById('baggageServices');
+                baggageServices.innerHTML = '';
+                flight.DichVuHanhLy.forEach(service => {
+                    addBaggageService(service);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading flight data:', error);
+        }
+    }
+
+    function formatDateTimeForInput(dateTimeStr) {
+        const date = new Date(dateTimeStr);
+        return date.toISOString().slice(0, 16);
+    }
+
+    function addBaggageService(data = null) {
+        const template = document.getElementById('baggageServiceTemplate');
+        const clone = template.content.cloneNode(true);
+
+        if (data) {
+            clone.querySelector('input[name="SoKy"]').value = data.SoKy;
+            clone.querySelector('input[name="Gia"]').value = data.Gia;
+            clone.querySelector('input[name="MoTa"]').value = data.MoTa;
+        }
+
+        document.getElementById('baggageServices').appendChild(clone);
+
+        const removeButtons = document.querySelectorAll('.remove-baggage-service');
+        removeButtons[removeButtons.length - 1].addEventListener('click', function () {
+            this.closest('.baggage-service-item').remove();
+        });
+    }
+
+    function setupFormValidation() {
+        const form = document.getElementById('flightForm');
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            if (!form.checkValidity()) {
+                event.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+
+            try {
+                const formData = new FormData(form);
+                const flightData = {
+                    MaMB: formData.get('MaMB'),
+                    LoaiChuyenBay: formData.get('LoaiChuyenBay'),
+                    MaSanBayDi: formData.get('MaSanBayDi'),
+                    MaSanBayDen: formData.get('MaSanBayDen'),
+                    ThoiGianDi: formData.get('ThoiGianDi'),
+                    ThoiGianDen: formData.get('ThoiGianDen'),
+                    GiaVeBus: formData.get('GiaVeBus') || 0,
+                    GiaVeEco: formData.get('GiaVeEco'),
+                    TrangThai: parseInt(formData.get('TrangThai')),
+                    DichVuHanhLy: []
+                };
+
+                document.querySelectorAll('.baggage-service-item').forEach(item => {
+                    flightData.DichVuHanhLy.push({
+                        SoKy: parseInt(item.querySelector('input[name="SoKy"]').value),
+                        Gia: parseInt(item.querySelector('input[name="Gia"]').value),
+                        MoTa: item.querySelector('input[name="MoTa"]').value
+                    });
+                });
+
+                const response = await fetch(`${API_URL}/api/flights/${flightCode}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(flightData)
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Cập nhật chuyến bay thành công!',
+                        allowOutsideClick: false,
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '{{ url_for("chuyenbay.get_flights") }}';
+                        }
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: error.message
+                });
+            }
+        });
+    }
+
+    document.getElementById('addBaggageService').addEventListener('click', function () {
+        const template = document.getElementById('baggageServiceTemplate');
+        const clone = template.content.cloneNode(true);
+        document.getElementById('baggageServices').appendChild(clone);
+
+        const removeButtons = document.querySelectorAll('.remove-baggage-service');
+        removeButtons[removeButtons.length - 1].addEventListener('click', function () {
+            this.closest('.baggage-service-item').remove();
+        });
+    });
+
+
+</script>
+{% endblock %}

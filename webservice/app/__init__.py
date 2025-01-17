@@ -37,6 +37,7 @@ def create_app():
 
     from app.routes.auth_route import auth_bp, init_oauth 
     from app.routes.user.chuyenbay import chuyenbay
+    from app.routes.admin.chuyenbay import chuyenbay_admin
     from app.routes.user.khuyenmai import khuyenmai
     from app.routes.user.dichvuve import dichvuve
     from app.routes.user.datcho import datcho
@@ -57,6 +58,7 @@ def create_app():
     app.register_blueprint(dichvuhanhly)
     app.register_blueprint(datcho)
     app.register_blueprint(report)
+    app.register_blueprint(chuyenbay_admin)
 
     with app.app_context():
         db.create_all()
