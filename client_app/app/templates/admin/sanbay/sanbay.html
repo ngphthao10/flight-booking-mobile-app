@@ -177,10 +177,6 @@
         toast.show();
     }
 
-    const config = document.getElementById('pagination-config');
-    const API_URL = config.dataset.apiUrl;
-
-
     document.addEventListener('DOMContentLoaded', function () {
         let currentPage = parseInt(config.dataset.currentPage);
         const perPage = parseInt(config.dataset.perPage);

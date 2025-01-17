@@ -135,10 +135,6 @@
         toast.show();
     }
 
-    const config = document.getElementById('pagination-config');
-    const API_URL = config.dataset.apiUrl;
-
-
     document.addEventListener('DOMContentLoaded', function () {
         let currentPage = parseInt(config.dataset.currentPage);
         const perPage = parseInt(config.dataset.perPage);
@@ -157,7 +153,7 @@
 
                 const form = document.getElementById('hanhkhach-form');
                 enableForm(form);
-            
+
                 form.querySelector('#hoHK').value = result.data.HoHK;
                 form.querySelector('#tenHK').value = result.data.TenHK;
                 form.querySelector('#danhXung').value = result.data.DanhXung;
@@ -174,7 +170,7 @@
                 updateFormToEditMode();
 
                 editingHKId = maHanhKhach;
-                
+
                 form.scrollIntoView({ behavior: 'smooth' });
             } catch (error) {
                 showMessage('danger', `Lỗi khi lấy thông tin hành khách: ${error.message}`);
@@ -402,16 +398,16 @@
                 .replace(/'/g, "&#039;");
         }
 
-        function disableForm(form){
+        function disableForm(form) {
             const elements = form.querySelectorAll("input, button");
-            elements.forEach(function(element) {
+            elements.forEach(function (element) {
                 element.disabled = true;
             });
         }
 
-        function enableForm(form){
+        function enableForm(form) {
             const elements = form.querySelectorAll("input, button");
-            elements.forEach(function(element) {
+            elements.forEach(function (element) {
                 element.disabled = false;
             });
         }
