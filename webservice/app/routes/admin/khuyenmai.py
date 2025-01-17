@@ -75,7 +75,14 @@ def create_khuyen_mai():
         # Parse dates
         ngay_bat_dau = parse_date(data.get('NgayBatDau'))
         ngay_ket_thuc = parse_date(data.get('NgayKetThuc'))
-
+        
+        # ngày bắt đầu nhỏ hơn ngày kết thúc
+        if ngay_bat_dau >= ngay_ket_thuc:
+            return jsonify({
+                'status': False,
+                'message': 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc'
+            }), 400
+        
         # check makm unique
         existing_khuyenmai = KhuyenMai.query.filter_by(MaKhuyenMai=data['MaKhuyenMai']).first()
         if existing_khuyenmai:

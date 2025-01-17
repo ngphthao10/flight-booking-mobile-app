@@ -118,7 +118,6 @@
     const config = document.getElementById('pagination-config');
     const API_URL = config.dataset.apiUrl;
 
-
     document.addEventListener('DOMContentLoaded', function () {
         let currentPage = parseInt(config.dataset.currentPage);
         const perPage = parseInt(config.dataset.perPage);
@@ -276,7 +275,6 @@
 
         // Xử lý form tìm kiếm
         const searchForm = document.getElementById('formLocNLH');
-        console.log(searchForm);
         searchForm.addEventListener('submit', function (e) {
             console.log('Form submitter');
             e.preventDefault();
@@ -297,8 +295,6 @@
             });
 
             fetchNLHs(1, searchParams);
-
-
         });
 
 
@@ -396,13 +392,13 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const initialSearchParams = {
-            ma_nlh: document.getElementById('ma_nlh').value,
-            ho_nlh: document.getElementById('ho_nlh').value,
-            ten_nlh: document.getElementById('ten_nlh').value,
-            sdt: document.getElementById('sdt').value,
-            email: document.getElementById('email').value,
-            sort_by_nlh: document.getElementById('sort_by_nlh').value,
-            order_nlh: document.getElementById('order_nlh').value
+            ma_nlh: urlParams.get('ma_nlh') || '',
+            ho_nlh: urlParams.get('ho_nlh') || '',
+            ten_nlh: urlParams.get('ten_nlh') || '',
+            sdt: urlParams.get('sdt') || '',
+            email: urlParams.get('email') || '',
+            sort_by_nlh: urlParams.get('sort_by_nlh') || 'MaNLH',
+            order_nlh: urlParams.get('order_nlh') || 'asc'
         };
         fetchNLHs(parseInt(urlParams.get('page')) || currentPage, initialSearchParams);
 
