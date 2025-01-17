@@ -1,0 +1,476 @@
+{% extends "admin/base.html" %}
+{% block title %}Quản lý hành khách{% endblock %}
+
+{% block content %}
+<div id="pagination-config" data-api-url="{{ api_url }}" data-current-page="{{ pagination.page }}"
+    data-per-page="{{ pagination.per_page }}" style="display: none;">
+</div>
+
+<div class="container py-3">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="text-center fw-bold">
+                Quản lý hành khách
+            </h1>
+            <hr class="my-2">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- List Customer Table -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        Cập nhật hành khách
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% include 'admin/hanhkhach/formThemHK.html' %}
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover border">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Mã hành khách</th>
+                            <th scope="col">Họ và tên đệm</th>
+                            <th scope="col">Tên</th>
+                            <th scope="col">Danh xưng</th>
+                            <th scope="col">CCCD</th>
+                            <th scope="col">Ngày sinh</th>
+                            <th scope="col">Quốc tịch</th>
+                            <th scope="col">Loại hành khách</th>
+                            <th scope="col" class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hanhkhach-table">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-center align-items-center p-4 border-top">
+                    {% if pagination.total > 0 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <!-- Nút Previous -->
+                            <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ pagination.page - 1 }}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- Các số trang -->
+                            {% set start = pagination.page - 2 if pagination.page - 2 > 1 else 1 %}
+                            {% set end = pagination.pages + 1 if pagination.pages + 1 < pagination.page + 3 else
+                                pagination.page + 3 %} {% for p in range(start, end) if p <=pagination.pages %} <li
+                                class="page-item {% if p == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+                                </li>
+                                {% endfor %}
+
+                                <!-- Nút Next -->
+                                <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                                    <a class="page-link" href="#" data-page="{{ pagination.page + 1 }}"
+                                        aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="content-section">
+                <h5>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-funnel me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                    </svg>
+                    Bộ lọc tìm kiếm
+                </h5>
+                <br />
+                <div>
+                    {% include 'admin/hanhkhach/formLocHK.html'%}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+<script>
+    function showMessage(type, message) {
+        const toastEl = document.getElementById('liveToast');
+        const toastHeader = toastEl.querySelector('.toast-header');
+
+        toastEl.className = 'toast border-' + (type === 'success' ? 'success' : 'danger');
+        toastHeader.className = 'toast-header text-white ' + (type === 'success' ? 'bg-success' : 'bg-danger');
+
+        const closeBtn = toastHeader.querySelector('.btn-close');
+        closeBtn.className = 'btn-close btn-close-white';
+
+        toastEl.querySelector('.toast-body').textContent = message;
+
+        const toast = new bootstrap.Toast(toastEl, {
+            delay: 5000
+        });
+        toast.show();
+    }
+
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        let currentPage = parseInt(config.dataset.currentPage);
+        const perPage = parseInt(config.dataset.perPage);
+
+        let editingHKId = null;
+        let deletingHKId = null;
+
+        async function editHK(maHanhKhach) {
+            try {
+                const response = await fetch(`${API_URL}/api/hanh-khach/${maHanhKhach}`);
+                const result = await response.json();
+
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+
+                const form = document.getElementById('hanhkhach-form');
+                enableForm(form);
+            
+                form.querySelector('#hoHK').value = result.data.HoHK;
+                form.querySelector('#tenHK').value = result.data.TenHK;
+                form.querySelector('#danhXung').value = result.data.DanhXung;
+                form.querySelector('#CCCD').value = result.data.CCCD;
+                form.querySelector('#ngaySinh').value = result.data.NgaySinh;
+                form.querySelector('#quocTich').value = result.data.QuocTich;
+                form.querySelector('#loaiHK').value = result.data.LoaiHK;
+
+                const resetButton = form.querySelector('button[type="reset"]');
+                if (resetButton) {
+                    resetButton.style.display = 'none';
+                }
+
+                updateFormToEditMode();
+
+                editingHKId = maHanhKhach;
+                
+                form.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showMessage('danger', `Lỗi khi lấy thông tin hành khách: ${error.message}`);
+            }
+        }
+
+        // Hàm cập nhật UI form sang chế độ sửa
+        function updateFormToEditMode() {
+            // Thêm nút hủy
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle mb-1" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg> Hủy
+            `;
+            cancelBtn.addEventListener('click', resetForm);
+
+            // Thêm nút hủy vào form nếu chưa có
+            const btnContainer = document.querySelector('#hanhkhach-form .d-flex');
+            if (!btnContainer.querySelector('button[type="button"]')) {
+                btnContainer.appendChild(cancelBtn);
+            }
+
+        }
+
+        function resetForm(isCancel = false) {
+            const form = document.getElementById('hanhkhach-form');
+            disableForm(form);
+            form.classList.remove('was-validated');
+
+            const resetButton = form.querySelector('button[type="reset"]');
+            if (resetButton) {
+                resetButton.style.display = '';
+            }
+
+            const cancelBtn = document.querySelector('#hanhkhach-form button[type="button"]');
+            if (cancelBtn) {
+                cancelBtn.remove();
+            }
+
+            editingHKId = null;
+        }
+
+        // Cập nhật xử lý form submit
+        document.getElementById('hanhkhach-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            // Kiểm tra validation của form
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
+            try {
+                let formData = {
+                    HoHK: document.getElementById('hoHK').value.trim(),
+                    TenHK: document.getElementById('tenHK').value.trim(),
+                    DanhXung: document.getElementById('danhXung').value.trim(),
+                    CCCD: document.getElementById('CCCD').value.trim(),
+                    NgaySinh: document.getElementById('ngaySinh').value.trim(),
+                    QuocTich: document.getElementById('quocTich').value.trim(),
+                    LoaiHK: document.getElementById('loaiHK').value.trim()
+                };
+
+                const response = await fetch(`${API_URL}/api/hanh-khach/${editingHKId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.status) {
+                    showMessage('success', result.message);
+                    resetForm();
+
+                    setTimeout(() => { location.reload(); }, 2000);
+                } else {
+                    showMessage('danger', result.message);
+                }
+
+            } catch (error) {
+                showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                console.error(error);
+            }
+        });
+
+        // Hàm fetch dữ liệu với các tham số tìm kiếm
+        async function fetchHanhKhachs(page, searchParams = {}) {
+            try {
+                const params = new URLSearchParams({
+                    page: page,
+                    per_page: perPage,
+                    ...searchParams // Thêm các tham số tìm kiếm
+                });
+
+                const response = await fetch(`${API_URL}/api/hanh-khach?${params.toString()}`);
+                const result = await response.json();
+                console.log(result);
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+
+                updateTable(result.data);
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+
+            } catch (error) {
+                showMessage('danger', `Lỗi: ${error.message}`);
+            }
+        }
+
+        // Xử lý form tìm kiếm
+        const searchForm = document.querySelector('form.needs-validation');
+        searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const searchParams = {
+                ma_hanh_khach: document.getElementById('ma_hanh_khach').value,
+                ho_hk: document.getElementById('ho_hk').value,
+                ten_hk: document.getElementById('ten_hk').value,
+                danh_xung: document.getElementById('danh_xung').value,
+                cccd: document.getElementById('cccd').value,
+                ngay_sinh: document.getElementById('ngay_sinh').value,
+                quoc_tich: document.getElementById('quoc_tich').value,
+                loai_hk: document.getElementById('loai_hk').value,
+                sort_by_hanh_khach: document.getElementById('sort_by_hanh_khach').value,
+                order_hanh_khach: document.getElementById('order_hanh_khach').value
+            };
+            console.log('searchParams ', searchParams)
+            Object.keys(searchParams).forEach(key => {
+                if (!searchParams[key]) {
+                    delete searchParams[key];
+                }
+            });
+
+            fetchHanhKhachs(1, searchParams);
+        });
+
+
+        // Hàm cập nhật bảng
+        function updateTable(data) {
+            const form = document.getElementById('hanhkhach-form');
+            if (!editingHKId) {
+                disableForm(form);
+            }
+
+            const table = document.getElementById('hanhkhach-table');
+            table.innerHTML = '';
+
+            if (data && data.length > 0) {
+                data.forEach(hk => {
+                    const row = document.createElement('tr');
+                    // Escape các giá trị để tránh XSS
+                    const escapedMaHanhKhach = escapeHtml(hk.MaHanhKhach);
+                    const escapedHoHK = escapeHtml(hk.HoHK);
+                    const escapedTenHK = escapeHtml(hk.TenHK);
+                    const escapedDanhXung = escapeHtml(hk.DanhXung);
+                    const escapedCCCD = escapeHtml(hk.CCCD);
+                    const escapedNgaySinh = escapeHtml(hk.NgaySinh);
+                    const escapedQuocTich = escapeHtml(hk.QuocTich);
+                    const escapedLoaiHK = escapeHtml(hk.LoaiHK);
+
+                    row.innerHTML = `
+                        <td>${escapedMaHanhKhach}</td>
+                        <td>${escapedHoHK}</td>
+                        <td>${escapedTenHK}</td>
+                        <td>${escapedDanhXung}</td>
+                        <td>${escapedCCCD}</td>
+                        <td>${escapedNgaySinh}</td>                                                
+                        <td>${escapedQuocTich}</td>
+                        <td>${escapedLoaiHK}</td>
+                        <td class="text-center">
+                            <button 
+                                class="btn btn-outline-success btn-sm me-2 edit-btn"
+                                type="button"
+                                data-id="${escapedMaHanhKhach}"
+                                aria-label="Sửa"
+                                data-bs-toggle="tooltip"
+                                title="Sửa">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    table.appendChild(row);
+
+                    // Thêm event listeners cho các nút
+                    const editBtn = row.querySelector('.edit-btn');
+
+                    editBtn.addEventListener('click', function () {
+                        editHK(this.dataset.id);
+                    });
+                });
+
+                // Khởi tạo tooltips
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            } else {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center">Không có dữ liệu</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Hàm escape HTML để tránh XSS
+        function escapeHtml(unsafe) {
+            unsafe = String(unsafe);
+
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function disableForm(form){
+            const elements = form.querySelectorAll("input, button");
+            elements.forEach(function(element) {
+                element.disabled = true;
+            });
+        }
+
+        function enableForm(form){
+            const elements = form.querySelectorAll("input, button");
+            elements.forEach(function(element) {
+                element.disabled = false;
+            });
+        }
+
+        // Hàm fetch dữ liệu ban đầu
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialSearchParams = {
+            ma_hanh_khach: urlParams.get('ma_hanh_khach') || '',
+            ho_hk: urlParams.get('ho_hk') || '',
+            ten_hk: urlParams.get('ten_hk') || '',
+            danh_xung: urlParams.get('danh_xung') || '',
+            cccd: urlParams.get('cccd') || '',
+            ngay_sinh: urlParams.get('ngay_sinh') || '',
+            quoc_tich: urlParams.get('quoc_tich') || '',
+            loai_hk: urlParams.get('loai_hk') || '',
+            sort_by_hanh_khach: urlParams.get('sort_by_hanh_khach') || 'MaHanhKhach',
+            order_hanh_khach: urlParams.get('order_hanh_khach') || 'asc'
+        };
+        fetchHanhKhachs(parseInt(urlParams.get('page')) || currentPage, initialSearchParams);
+
+
+        // Hàm xử lý click phân trang
+        document.querySelectorAll('.pagination .page-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = parseInt(this.dataset.page);
+
+                // Kiểm tra page hợp lệ
+                if (!page || page < 1) return;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParams = {
+                    ma_hanh_khach: urlParams.get('ma_hanh_khach') || '',
+                    ho_hk: urlParams.get('ho_hk') || '',
+                    ten_hk: urlParams.get('ten_hk') || '',
+                    danh_xung: urlParams.get('danh_xung') || '',
+                    cccd: urlParams.get('cccd') || '',
+                    ngay_sinh: urlParams.get('ngay_sinh') || '',
+                    quoc_tich: urlParams.get('quoc_tich') || '',
+                    loai_hk: urlParams.get('loai_hk') || '',
+                    sort_by_hanh_khach: urlParams.get('sort_by_hanh_khach') || 'MaHanhKhach',
+                    order_hanh_khach: urlParams.get('order_hanh_khach') || 'asc'
+                };
+                window.location.href = `?page=${page}&${new URLSearchParams(searchParams).toString()}`;
+            });
+        });
+
+        // Khởi tạo các tooltips ban đầu
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Hàm đặt lại form khi nhấn nút reset
+        // document.querySelector('#hanhkhach-form button[type="reset"]').addEventListener('click', function () {
+        //     resetForm();
+        // });
+
+    });
+</script>
+
+{% endblock %}

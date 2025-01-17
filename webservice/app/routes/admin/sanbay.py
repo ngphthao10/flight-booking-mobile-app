@@ -38,7 +38,6 @@ def get_all_san_bay():
             sort_column = getattr(SanBay, sort_by)
             print(sort_by, sort_column)
             if sort_column == SanBay.MaQG:
-                print("hehehe")
                 query = query.join(QuocGia)
                 sort_column  = QuocGia.TenQuocGia
             

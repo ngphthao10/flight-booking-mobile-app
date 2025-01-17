@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% block title %}Quản lý sân bay{% endblock %}
+{% block title %}Quản lý máy bay{% endblock %}
 
 {% block content %}
 <div id="pagination-config" data-api-url="{{ api_url }}" data-current-page="{{ pagination.page }}"
@@ -26,7 +26,7 @@
                     aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="mb-0">Bạn có chắc chắn muốn xóa sân bay này không? Hành động này không thể hoàn tác.
+                <p class="mb-0">Bạn có chắc chắn muốn xóa máy bay này không? Hành động này không thể hoàn tác.
                 </p>
             </div>
             <div class="modal-footer">
@@ -56,7 +56,7 @@
     <div class="row mb-3">
         <div class="col-12">
             <h1 class="text-center fw-bold">
-                Quản lý sân bay
+                Quản lý máy bay
             </h1>
             <hr class="my-2">
         </div>
@@ -69,26 +69,27 @@
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-light">
                     <h5 class="card-title mb-0">
-                        Thêm sân bay
+                        Thêm máy bay
                     </h5>
                 </div>
                 <div class="card-body">
-                    {% include 'admin/sanbay/formThemSB.html' %}
+                    {% include 'admin/maybay/formThemMB.html' %}
                 </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover border">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col">Mã sân bay</th>
-                            <th scope="col">Tên sân bay</th>
-                            <th scope="col">Thành phố</th>
-                            <th scope="col">Quốc gia</th>
-                            <th scope="col">Loại sân bay</th>
+                            <th scope="col">Mã máy bay</th>
+                            <th scope="col">Tên máy bay</th>
+                            <th scope="col">Hãng hàng không</th>
+                            <th scope="col">Số ghế Bus</th>
+                            <th scope="col">Số ghế Eco</th>
+                            <th scope="col">Loại máy bay</th>
                             <th scope="col" class="text-center">Hành động</th>
                         </tr>
                     </thead>
-                    <tbody id="sanbay-table">
+                    <tbody id="maybay-table">
                         <!-- Data will be populated by JavaScript -->
                     </tbody>
                 </table>
@@ -140,7 +141,7 @@
                 </h5>
                 <br />
                 <div>
-                    {% include 'admin/sanbay/formLocSB.html'%}
+                    {% include 'admin/maybay/formLocMB.html'%}
                 </div>
             </div>
 
@@ -157,7 +158,7 @@
         <div class="toast-body"></div>
     </div>
 </div>
-{% include 'admin/sanbay/modalQuocGia.html'%}
+
 <script>
     function showMessage(type, message) {
         const toastEl = document.getElementById('liveToast');
@@ -180,24 +181,23 @@
     const config = document.getElementById('pagination-config');
     const API_URL = config.dataset.apiUrl;
 
-
     document.addEventListener('DOMContentLoaded', function () {
         let currentPage = parseInt(config.dataset.currentPage);
         const perPage = parseInt(config.dataset.perPage);
 
         // Hàm load danh sách quốc gia
-        async function loadQuocGia() {
+        async function loadHHK() {
             try {
-                const response = await fetch(`${API_URL}/api/quoc-gia`);
+                const response = await fetch(`${API_URL}/api/hang-hang-khong`);
                 const result = await response.json();
                 if (!result.status) {
                     throw new Error(result.message);
                 }
 
-                // Lấy các select box quốc gia
+                // Lấy các select box hhk
                 const selects = [
-                    document.getElementById('maQGSanBay'),  // Select trong form thêm
-                    document.getElementById('ma_qg_san_bay')   // Select trong form tìm kiếm
+                    document.getElementById('maHHKMayBay'),  // Select trong form thêm
+                    document.getElementById('ma_hhk_may_bay')   // Select trong form tìm kiếm
                 ];
 
                 // Thêm options vào các select box
@@ -210,10 +210,10 @@
                         select.appendChild(firstOption);
 
                         // Thêm các options quốc gia
-                        result.data.forEach(qg => {
+                        result.data.forEach(hhk => {
                             const option = document.createElement('option');
-                            option.value = qg.MaQG;
-                            option.textContent = `${qg.MaQG} - ${qg.TenQG}`;
+                            option.value = hhk.MaHHK;
+                            option.textContent = `${hhk.MaHHK} - ${hhk.TenHHK}`;
                             select.appendChild(option);
                         });
 
@@ -221,38 +221,39 @@
                         select.appendChild(addNewOption);
 
                         // Nếu có giá trị mặc định (cho form tìm kiếm)
-                        if (select.id === 'ma_qg_san_bay' && urlParams.get('ma_qg_san_bay')) {
-                            select.value = urlParams.get('ma_qg_san_bay');
+                        if (select.id === 'ma_hhk_may_bay' && urlParams.get('ma_hhk_may_bay')) {
+                            select.value = urlParams.get('ma_hhk_may_bay');
                         }
                     }
                 });
 
             } catch (error) {
-                showMessage('danger', `Lỗi khi tải danh sách quốc gia: ${error.message}`);
+                showMessage('danger', `Lỗi khi tải danh sách hãng hàng không: ${error.message}`);
             }
         }
 
         let isEditMode = false;
-        let editingSanBayId = null;
-        let deletingSanBayId = null;
+        let editingMayBayId = null;
+        let deletingMayBayId = null;
 
-        async function editSanBay(maSanBay) {
+        async function editMayBay(maMayBay) {
             try {
-                const response = await fetch(`${API_URL}/api/san-bay/${maSanBay}`);
+                const response = await fetch(`${API_URL}/api/may-bay/${maMayBay}`);
                 const result = await response.json();
 
                 if (!result.status) {
                     throw new Error(result.message);
                 }
+            //    console.log(result.data);
+                const form = document.getElementById('maybay-form');
+                // form.querySelector('#maMayBay').value = result.data.MaMayBay;
+                form.querySelector('#tenMayBay').value = result.data.TenMayBay;
+                form.querySelector('#maHHKMayBay').value = result.data.MaHHK;
+                form.querySelector('#soChoNgoiBus').value = result.data.SoChoNgoiBus;
+                form.querySelector('#soChoNgoiEco').value = result.data.SoChoNgoiEco;
+                form.querySelector('#loaiMB').value = result.data.LoaiMB;
 
-                const form = document.getElementById('sanbay-form');
-                form.querySelector('#maSanBay').value = result.data.MaSanBay;
-                form.querySelector('#tenSanBay').value = result.data.TenSanBay;
-                form.querySelector('#thanhPho').value = result.data.ThanhPho;
-                form.querySelector('#maQGSanBay').value = result.data.MaQG;
-                form.querySelector('#loaiSB').value = result.data.LoaiSB;
-
-                form.querySelector('#maSanBay').disabled = true;
+                // form.querySelector('#maMayBay').disabled = true;
 
                 const resetButton = form.querySelector('button[type="reset"]');
                 if (resetButton) {
@@ -262,21 +263,21 @@
                 updateFormToEditMode();
 
                 isEditMode = true;
-                editingSanBayId = maSanBay;
+                editingMayBayId = maMayBay;
 
                 form.scrollIntoView({ behavior: 'smooth' });
             } catch (error) {
-                showMessage('danger', `Lỗi khi lấy thông tin sân bay: ${error.message}`);
+                showMessage('danger', `Lỗi khi lấy thông tin máy bay: ${error.message}`);
             }
         }
 
         // Hàm cập nhật UI form sang chế độ sửa
         function updateFormToEditMode() {
             // Cập nhật tiêu đề
-            document.querySelector('.card-title').textContent = 'Cập nhật sân bay';
+            document.querySelector('.card-title').textContent = 'Cập nhật máy bay';
 
             // Cập nhật nút submit
-            const submitBtn = document.querySelector('#sanbay-form button[type="submit"]');
+            const submitBtn = document.querySelector('#maybay-form button[type="submit"]');
             submitBtn.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-save mb-1" viewBox="0 0 16 16">
                     <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
@@ -296,7 +297,7 @@
             cancelBtn.addEventListener('click', resetForm);
 
             // Thêm nút hủy vào form nếu chưa có
-            const btnContainer = document.querySelector('#sanbay-form .d-flex');
+            const btnContainer = document.querySelector('#maybay-form .d-flex');
             if (!btnContainer.querySelector('button[type="button"]')) {
                 btnContainer.appendChild(cancelBtn);
             }
@@ -304,8 +305,8 @@
         }
 
         function resetForm(isCancel = false) {
-            const form = document.getElementById('sanbay-form');
-            const maSanBayInput = form.querySelector('#maSanBay');
+            const form = document.getElementById('maybay-form');
+            // const maMayBayInput = form.querySelector('#maMaybay');
 
             form.reset();
             form.classList.remove('was-validated');
@@ -315,11 +316,11 @@
                 resetButton.style.display = '';
             }
 
-            maSanBayInput.disabled = false;
+            // maMayBayInput.disabled = false;
 
-            document.querySelector('.card-title').textContent = 'Thêm sân bay';
+            document.querySelector('.card-title').textContent = 'Thêm máy bay';
 
-            const submitBtn = document.querySelector('#sanbay-form button[type="submit"]');
+            const submitBtn = document.querySelector('#maybay-form button[type="submit"]');
             submitBtn.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-floppy mb-1" viewBox="0 0 16 16">
@@ -329,32 +330,31 @@
                 Lưu
             `;
 
-            const cancelBtn = document.querySelector('#sanbay-form button[type="button"]');
+            const cancelBtn = document.querySelector('#maybay-form button[type="button"]');
             if (cancelBtn) {
                 cancelBtn.remove();
             }
 
             isEditMode = false;
-            editingSanBayId = null;
+            editingMayBayId = null;
         }
 
         // Hàm xử lý hiển thị modal xóa
-        function deleteSanBay(maSanBay) {
-            // Lưu mã sân bay cần xóa
-            deletingSanBayId = maSanBay;
+        function deleteMayBay(maMB) {
+            // Lưu mã cần xóa
+            deletingMayBayId = maMB;
 
             // Hiển thị modal
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
             deleteModal.show();
         }
 
-        // Xử lý sự kiện khi click nút xác nhận xóa
         document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
-            if (!deletingSanBayId) return;
+            if (!deletingMayBayId) return;
 
             try {
                 // Gọi API xóa
-                const response = await fetch(`${API_URL}/api/san-bay/${deletingSanBayId}`, {
+                const response = await fetch(`${API_URL}/api/may-bay/${deletingMayBayId}`, {
                     method: 'DELETE'
                 });
 
@@ -382,12 +382,12 @@
                 console.error(error);
             } finally {
                 // Reset mã sân bay
-                deletingSanBayId = null;
+                deletingMayBayId = null;
             }
         });
 
         // Cập nhật xử lý form submit
-        document.getElementById('sanbay-form').addEventListener('submit', async function (e) {
+        document.getElementById('maybay-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             // Kiểm tra validation của form
@@ -399,16 +399,17 @@
 
             try {
                 let formData = {
-                    MaSanBay: document.getElementById('maSanBay').value.trim(),
-                    TenSanBay: document.getElementById('tenSanBay').value.trim(),
-                    ThanhPho: document.getElementById('thanhPho').value.trim(),
-                    MaQG: document.getElementById('maQGSanBay').value,
-                    LoaiSB: document.getElementById('loaiSB').value
+                    // MaMayBay: document.getElementById('maMayBay').value.trim(),
+                    TenMayBay: document.getElementById('tenMayBay').value.trim(),
+                    MaHHK: document.getElementById('maHHKMayBay').value.trim(),
+                    SoChoNgoiBus: document.getElementById('soChoNgoiBus').value.trim(),
+                    SoChoNgoiEco: document.getElementById('soChoNgoiEco').value.trim(),
+                    LoaiMB: document.getElementById('loaiMB').value.trim()
                 };
 
                 const url = isEditMode
-                    ? `${API_URL}/api/san-bay/${editingSanBayId}`
-                    : `${API_URL}/api/san-bay`;
+                    ? `${API_URL}/api/may-bay/${editingMayBayId}`
+                    : `${API_URL}/api/may-bay`;
                 const method = isEditMode ? 'PUT' : 'POST';
 
                 const response = await fetch(url, {
@@ -436,8 +437,7 @@
             }
         });
 
-        // Hàm fetch dữ liệu với các tham số tìm kiếm
-        async function fetchSanBays(page, searchParams = {}) {
+        async function fetchMayBays(page, searchParams = {}) {
             try {
                 const params = new URLSearchParams({
                     page: page,
@@ -445,9 +445,9 @@
                     ...searchParams // Thêm các tham số tìm kiếm
                 });
 
-                const response = await fetch(`${API_URL}/api/san-bay?${params.toString()}`);
+                const response = await fetch(`${API_URL}/api/may-bay?${params.toString()}`);
                 const result = await response.json();
-                console.log(result);
+
                 if (!result.status) {
                     throw new Error(result.message);
                 }
@@ -461,18 +461,19 @@
             }
         }
 
-        // Xử lý form tìm kiếm
+        //form tim kiếm
         const searchForm = document.querySelector('form.needs-validation');
         searchForm.addEventListener('submit', function (e) {
             e.preventDefault();
             const searchParams = {
-                ma_san_bay: document.getElementById('ma_san_bay').value,
-                ten_san_bay: document.getElementById('ten_san_bay').value,
-                thanh_pho: document.getElementById('thanh_pho').value,
-                ma_qg: document.getElementById('ma_qg_san_bay').value,
-                loai_sb: document.getElementById('loai_sb').value,
-                sort_by: document.getElementById('sort_by_san_bay').value,
-                order: document.getElementById('order_san_bay').value
+                ma_may_bay: document.getElementById('ma_may_bay').value,
+                ten_may_bay: document.getElementById('ten_may_bay').value,
+                ma_hhk_may_bay: document.getElementById('ma_hhk_may_bay').value,
+                // so_ghe_bus: document.getElementById('so_cho_ngoi_bus').value,
+                // so_ghe_eco: document.getElementById('so_cho_ngoi_eco').value,
+                loai_mb: document.getElementById('loai_mb').value,
+                sort_by_may_bay: document.getElementById('sort_by_may_bay').value,
+                order_may_bay: document.getElementById('order_may_bay').value
             };
             console.log('searchParams ', searchParams)
             Object.keys(searchParams).forEach(key => {
@@ -481,39 +482,54 @@
                 }
             });
 
-            fetchSanBays(1, searchParams);
+            fetchMayBays(1, searchParams);
         });
 
+        // Hàm fetch dữ liệu ban đầu
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialSearchParams = {
+            ma_may_bay: urlParams.get('ma_may_bay') || '',
+            ten_may_bay: urlParams.get('ten_may_bay') || '',
+            ma_hhk_may_bay: urlParams.get('ma_hhk_may_bay') || '',
+            // so_ghe_bus: urlParams.get('so_cho_ngoi_bus') || '',
+            // so_ghe_eco: urlParams.get('so_cho_ngoi_eco') || '',
+            loai_mb: urlParams.get('loai_mb') || '',
+            sort_by_may_bay: urlParams.get('sort_by_may_bay') || 'MaMayBay',
+            order_may_bay: urlParams.get('order_may_bay') || 'asc'
+        };
+        fetchMayBays(parseInt(urlParams.get('page')) || currentPage, initialSearchParams);
 
         // Hàm cập nhật bảng
         function updateTable(data) {
-            const table = document.getElementById('sanbay-table');
+            const table = document.getElementById('maybay-table');
             table.innerHTML = '';
-
             if (data && data.length > 0) {
-                data.forEach(sanbay => {
+                data.forEach(maybay => {
                     const row = document.createElement('tr');
                     // Escape các giá trị để tránh XSS
-                    const escapedMaSanBay = escapeHtml(sanbay.MaSanBay);
-                    const escapedTenSanBay = escapeHtml(sanbay.TenSanBay);
-                    const escapedThanhPho = escapeHtml(sanbay.ThanhPho);
-                    const escapedMaQG = escapeHtml(sanbay.MaQG);
-                    const escapedLoaiSB = escapeHtml(sanbay.LoaiSB);
+                    const escapedMaMayBay = escapeHtml(maybay.MaMayBay);
+                    const escapedTenMayBay = escapeHtml(maybay.TenMayBay);
+                    const escapedMaHHK = escapeHtml(maybay.MaHHK);
+                    const escapedGheBus = escapeHtml(maybay.SoChoNgoiBus);
+                    const escapedGheEco = escapeHtml(maybay.SoChoNgoiEco);
+                    const escapedLoaiMB = escapeHtml(maybay.LoaiMB);
 
+                    // console.log(escapedMaMayBay);
                     row.innerHTML = `
-                        <td>${escapedMaSanBay}</td>
-                        <td>${escapedTenSanBay}</td>
-                        <td>${escapedThanhPho}</td>
-                        <td>${escapedMaQG}</td>
-                        <td>${escapedLoaiSB}</td>
+                        <td>${escapedMaMayBay}</td>
+                        <td>${escapedTenMayBay}</td>
+                        <td>${escapedMaHHK}</td>
+                        <td>${escapedGheBus}</td>
+                        <td>${escapedGheEco}</td>
+                        <td>${escapedLoaiMB}</td>
                         <td class="text-center">
                             <button 
                                 class="btn btn-outline-success btn-sm me-2 edit-btn"
                                 type="button"
-                                data-id="${escapedMaSanBay}"
-                                aria-label="Sửa sân bay ${escapedTenSanBay}"
+                                data-id="${escapedMaMayBay}"
+                                aria-label="Sửa sân bay ${escapedTenMayBay}"
                                 data-bs-toggle="tooltip"
-                                title="Sửa sân bay">
+                                title="Sửa máy bay">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
                                     <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                                     <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
@@ -522,10 +538,10 @@
                             <button 
                                 class="btn btn-outline-danger btn-sm delete-btn"
                                 type="button"
-                                data-id="${escapedMaSanBay}"
-                                aria-label="Xóa sân bay ${escapedTenSanBay}"
+                                data-id="${escapedMaMayBay}"
+                                aria-label="Xóa sân bay ${escapedTenMayBay}"
                                 data-bs-toggle="tooltip"
-                                title="Xóa sân bay">
+                                title="Xóa máy bay">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                                     <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
                                 </svg>
@@ -540,11 +556,11 @@
                     const deleteBtn = row.querySelector('.delete-btn');
 
                     editBtn.addEventListener('click', function () {
-                        editSanBay(this.dataset.id);
+                        editMayBay(this.dataset.id);
                     });
 
                     deleteBtn.addEventListener('click', function () {
-                        deleteSanBay(this.dataset.id);
+                        deleteMayBay(this.dataset.id);
                     });
                 });
 
@@ -562,33 +578,6 @@
             }
         }
 
-        // Hàm escape HTML để tránh XSS
-        function escapeHtml(unsafe) {
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Hàm lấy dữ liệu quốc gia cho cả form thêm và tìm kiếm
-        loadQuocGia();
-
-        // Hàm fetch dữ liệu ban đầu
-        const urlParams = new URLSearchParams(window.location.search);
-        const initialSearchParams = {
-            ma_san_bay: urlParams.get('ma_san_bay') || '',
-            ten_san_bay: urlParams.get('ten_san_bay') || '',
-            thanh_pho: urlParams.get('thanh_pho') || '',
-            ma_qg: urlParams.get('ma_qg_san_bay') || '',
-            loai_sb: urlParams.get('loai_sb') || '',
-            sort_by: urlParams.get('sort_by_san_bay') || 'MaSanBay',
-            order: urlParams.get('order_san_bay') || 'asc'
-        };
-        fetchSanBays(parseInt(urlParams.get('page')) || currentPage, initialSearchParams);
-
-
         // Hàm xử lý click phân trang
         document.querySelectorAll('.pagination .page-link').forEach(link => {
             link.addEventListener('click', function (e) {
@@ -600,13 +589,14 @@
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const searchParams = {
-                    ma_san_bay: urlParams.get('ma_san_bay') || '',
-                    ten_san_bay: urlParams.get('ten_san_bay') || '',
-                    thanh_pho: urlParams.get('thanh_pho') || '',
-                    ma_qg: urlParams.get('ma_qg_san_bay') || '',
-                    loai_sb: urlParams.get('loai_sb') || '',
-                    sort_by: urlParams.get('sort_by_san_bay') || 'MaSanBay',
-                    order: urlParams.get('order_san_bay') || 'asc'
+                    ma_may_bay: urlParams.get('ma_may_bay') || '',
+                    ten_may_bay: urlParams.get('ten_may_bay') || '',
+                    ma_hhk_may_bay: urlParams.get('ma_hhk_may_bay') || '',
+                    // so_ghe_bus: urlParams.get('so_cho_ngoi_bus') || '',
+                    // so_ghe_eco: urlParams.get('so_cho_ngoi_eco') || '',
+                    loai_mb: urlParams.get('loai_mb') || '',
+                    sort_by_may_bay: urlParams.get('sort_by_may_bay') || 'MaMayBay',
+                    order_may_bay: urlParams.get('order_may_bay') || 'asc'
                 };
                 window.location.href = `?page=${page}&${new URLSearchParams(searchParams).toString()}`;
             });
@@ -619,10 +609,28 @@
         });
 
         // Hàm đặt lại form khi nhấn nút reset
-        document.querySelector('#sanbay-form button[type="reset"]').addEventListener('click', function () {
+        document.querySelector('#maybay-form button[type="reset"]').addEventListener('click', function () {
             resetForm();
         });
 
+
+        // Hàm escape HTML để tránh XSS
+        function escapeHtml(unsafe) {
+            unsafe = String(unsafe);
+            
+            if (typeof unsafe !== 'string') {
+                throw new TypeError('Expected a string as input');
+            }
+
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        loadHHK();
     });
 </script>
 

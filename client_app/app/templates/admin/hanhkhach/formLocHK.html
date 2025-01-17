@@ -1,0 +1,93 @@
+<form method="GET" action="{{ url_for('hanhkhach.get_hanh_khach') }}" class="needs-validation">
+    <div class="mb-3">
+        <label for="ma_hanh_khach" class="form-label">Mã hành khách</label>
+        <input type="text" class="form-control" id="ma_hanh_khach" name="ma_hanh_khach" value="{{ filters.ma_hanh_khach }}"
+            placeholder="Nhập mã hành khách...">
+    </div>
+    <div class="mb-3">
+        <label for="ho_hk" class="form-label">Họ và chữ lót</label>
+        <input type="text" class="form-control" id="ho_hk" name="ho_hk" value="{{ filters.ho_hk }}"
+            placeholder="Nhập họ và chữ lót...">
+    </div>
+    <div class="mb-3">
+        <label for="ten_hk" class="form-label">Tên hành khách</label>
+        <input type="text" class="form-control" id="ten_hk" name="ten_hk" value="{{ filters.ten_hk }}"
+            placeholder="Nhập tên hành khách...">
+    </div>
+    <div class="mb-3">
+        <label for="danh_xung" class="form-label">Danh xưng</label>
+        <input type="text" class="form-control" id="danh_xung" name="danh_xung" value="{{ filters.danh_xung }}"
+            placeholder="Nhập danh xưng...">
+    </div>
+    <div class="mb-3">
+        <label for="cccd" class="form-label">Mã CCCD</label>
+        <input type="text" class="form-control" id="cccd" name="cccd" value="{{ filters.cccd }}"
+            placeholder="Nhập mã CCCD...">
+    </div>
+    <div class="mb-3">
+        <label for="ngay_sinh" class="form-label">Ngày sinh</label>
+        <input type="text" class="form-control" id="ngay_sinh" name="ngay_sinh" value="{{ filters.ngay_sinh }}"
+            placeholder="Nhập ngày sinh...">
+    </div>
+    <div class="mb-3">
+        <label for="quoc_tich" class="form-label">Quốc tịch</label>
+        <input type="text" class="form-control" id="quoc_tich" name="quoc_tich" value="{{ filters.quoc_tich }}"
+            placeholder="Nhập quốc tịch...">
+    </div>
+    <div class="mb-3">
+        <label for="loai_hk" class="form-label">Loại hành khách</label>
+        <input type="loai_hk" class="form-control" id="loai_hk" name="loai_hk" value="{{ filters.loai_hk }}"
+            placeholder="Nhập loại hành khách...">
+    </div>
+    
+
+    <div class="mb-3">
+        <label for="sort_by_hanh_khach" class="form-label">Sắp xếp theo</label>
+        <select class="form-select" id="sort_by_hanh_khach" name="sort_by_hanh_khach">
+            <option value="MaHanhKhach" {% if filters.sort_by=='MaHanhKhach' %}selected{% endif %}>
+                Mã hành khách
+            </option>
+            <option value="HoHK" {% if filters.sort_by=='HoHK' %}selected{% endif %}>
+                Họ và chữ lót
+            </option>
+            <option value="TenHK" {% if filters.sort_by=='TenHK' %}selected{% endif %}>
+                Tên hành khách
+            </option>
+            <!-- <option value="DanhXung" {% if filters.sort_by=='DanhXung' %}selected{% endif %}>
+                Danh xưng
+            </option> -->
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="order_hanh_khach" class="form-label">Thứ tự</label>
+        <select class="form-select" id="order_hanh_khach" name="order_hanh_khach">
+            <option value="asc" {% if filters.order=='asc' %}selected{% endif %}>
+                Tăng dần
+            </option>
+            <option value="desc" {% if filters.order=='desc' %}selected{% endif %}>
+                Giảm dần
+            </option>
+        </select>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-outline-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search mb-1"
+                viewBox="0 0 16 16">
+                <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+            </svg>
+            Tìm kiếm
+        </button>
+        <a href="{{url_for('hanhkhach.get_hanh_khach')}}" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-arrow-counterclockwise mb-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                <path
+                    d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+            </svg>
+            Đặt lại
+        </a>
+    </div>
+</form>
