@@ -265,7 +265,15 @@ def update_flight(ma_chuyen_bay):
                 'status': 'error',
                 'message': 'Không tìm thấy chuyến bay'
             }), 404
-            
+        print(data['TrangThai'])
+        if chuyen_bay.TrangThai == 0 and data['TrangThai'] == 1:  
+            if (chuyen_bay.SLGheBus != chuyen_bay.SLBusConLai or 
+                chuyen_bay.SLGheEco != chuyen_bay.SLEcoConLai):
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Không thể hủy chuyến bay vì đã có vé được bán ra'
+                }), 400
+
         required_fields = [
             'MaMB', 'MaSanBayDi', 'MaSanBayDen', 
             'ThoiGianDi', 'ThoiGianDen', 'LoaiChuyenBay', 

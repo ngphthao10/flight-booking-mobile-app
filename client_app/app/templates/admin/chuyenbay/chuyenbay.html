@@ -18,6 +18,14 @@
                         <!-- Airline Filter -->
                         <div class="col-lg-3 col-md-6">
                             <div class="form-group">
+                                <label class="form-label fw-semibold">Mã chuyến bay</label>
+                                <input class="form-control" type="text" name="ma_chuyen_bay" id="ma_chuyen_bay"
+                                    placeholder="VD: VN301" />
+                            </div>
+                        </div>
+                        <!-- Airline Filter -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
                                 <label class="form-label fw-semibold">Hãng hàng không</label>
                                 <select class="form-select" name="airline_code" id="airlineFilter">
                                     <option value="">Tất cả</option>
@@ -86,9 +94,9 @@
                         </div>
 
                         <div class="col-12">
-                            <div class="card border shadow-none p-2 bg-white">
+                            <div class="card border shadow-none p-3 bg-white">
                                 <h6 class="mb-3 text-primary">
-                                    <i class="fas fa-calendar-alt me-2"></i>Thời gian
+                                    <i class="fas fa-calendar-alt me-2"></i>Thời gian đi
                                 </h6>
                                 <div class="row g-3">
                                     <div class="col-lg-6">
@@ -247,6 +255,10 @@
     .form-select {
         font-size: 0.875rem;
     }
+
+    .form-control {
+        font-size: 0.875rem;
+    }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -374,6 +386,7 @@
         }
 
         return {
+            flight_code: document.getElementById('ma_chuyen_bay').value,
             airline_code: document.getElementById('airlineFilter').value,
             departure_airport: document.getElementById('departureAirport').value,
             arrival_airport: document.getElementById('arrivalAirport').value,
