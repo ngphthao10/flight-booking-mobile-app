@@ -42,16 +42,22 @@ def create_app():
     from app.routes.user.datcho import datcho
     from app.routes.user.dichvuhanhly import dichvuhanhly
     from app.routes.admin.hanghangkhong import hanghangkhong
+    from app.routes.admin.maybay import maybay
     from app.routes.admin.report import report
     from app.routes.admin.maybay import maybay
     from app.routes.admin.sanbay import sanbay
     from app.routes.admin.quocgia import quocgia
+    from app.routes.admin.nguoilienhe import nguoilienhe
+    from app.routes.admin.hanhkhach import hanhkhach
+
     app.register_blueprint(auth_bp) 
     app.register_blueprint(chuyenbay)
     app.register_blueprint(hanghangkhong)
     app.register_blueprint(maybay)
     app.register_blueprint(sanbay)
     app.register_blueprint(quocgia)
+    app.register_blueprint(nguoilienhe)
+    app.register_blueprint(hanhkhach)
     app.register_blueprint(khuyenmai)
     app.register_blueprint(dichvuve)
     app.register_blueprint(dichvuhanhly)
