@@ -1,0 +1,131 @@
+{% extends "admin/base.html" %}
+{% block title %}Quản lý khuyến mãi{% endblock %}
+
+{% block content %}
+<div id="pagination-config" data-api-url="{{ api_url }}" data-current-page="{{ pagination.page }}"
+    data-per-page="{{ pagination.per_page }}" style="display: none;">
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="bi bi-exclamation-triangle me-1"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Bạn có chắc chắn muốn xóa khuyến mãi này không? Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash3 me-1"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-3">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="text-center fw-bold">Quản lý khuyến mãi</h1>
+            <hr class="my-2">
+        </div>
+    </div>
+
+    <!-- Message Area -->
+    <div id="message-area" class="mb-3"></div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Form Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Thêm khuyến mãi</h5>
+                </div>
+                <div class="card-body">
+                    {% include 'admin/khuyenmai/formThemKM.html' %}
+                </div>
+            </div>
+            <!-- List Promotions Table -->
+            <div class="table-responsive">
+                <table class="table table-hover border">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã KM</th>
+                            <th>Tên KM</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Ngày Bắt Đầu</th>
+                            <th>Ngày Kết Thúc</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="khuyenmai-table">
+                        <!-- Data populated by JavaScript -->
+                    </tbody>    
+                </table>
+                    
+                <div class="d-flex justify-content-center align-items-center p-4 border-top">
+                    {% if pagination.total > 0 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <!-- Nút Previous -->
+                            <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ pagination.page - 1 }}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- Các số trang -->
+                        {% set start = pagination.page - 2 if pagination.page - 2 > 1 else 1 %}
+                        {% set end = pagination.pages + 1 if pagination.pages + 1 < pagination.page + 3 else
+                            pagination.page + 3 %} {% for p in range(start, end) if p <=pagination.pages %} <li
+                            class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+                            </li>
+                            {% endfor %}
+
+                            <!-- Nút Next -->
+                            <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ pagination.page + 1 }}"
+                                    aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                    </ul>
+                </nav>
+                {% endif %}    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="content-section">
+                <h5><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-funnel me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                    </svg>Bộ lọc tìm kiếm</h5>
+                <br />
+                <div>
+                    {% include 'admin/khuyenmai/formLocKM.html' %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/khuyenmai.js') }}"></script>
+{% endblock %}

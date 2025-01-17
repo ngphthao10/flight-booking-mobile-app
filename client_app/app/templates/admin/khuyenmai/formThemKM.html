@@ -1,0 +1,47 @@
+<form id="khuyenmai-form" class="needs-validation" novalidate>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <label for="maKhuyenMai" class="form-label">Mã Khuyến Mãi</label>
+            <input type="text" class="form-control" id="maKhuyenMai" name="MaKhuyenMai" required>
+            <div class="invalid-feedback">Vui lòng nhập mã khuyến mãi</div>
+        </div>
+        <div class="col-md-3">
+            <label for="tenKhuyenMai" class="form-label">Tên Khuyến Mãi</label>
+            <input type="text" class="form-control" id="tenKhuyenMai" name="TenKhuyenMai" required>
+            <div class="invalid-feedback">Vui lòng nhập tên khuyến mãi</div>
+        </div>
+        <div class="col-md-3">
+            <label for="loaiKhuyenMai" class="form-label">Loại Khuyến Mãi</label>
+            <select class="form-select" id="loaiKhuyenMai" name="LoaiKhuyenMai" required>
+                <option value="Phần trăm">Phần trăm</option>
+                <option value="Trực tiếp">Trực tiếp</option>
+            </select>
+            <div class="invalid-feedback">Vui lòng chọn loại khuyến mãi</div>
+        </div>
+        <div class="col-md-3">
+            <label for="giaTri" class="form-label">Giá trị</label>
+            <input type="number" class="form-control" id="giaTri" name="GiaTri" required>
+            <div class="invalid-feedback">Vui lòng nhập giá trị</div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <label for="ngayBatDau" class="form-label">Ngày Bắt Đầu</label>
+            <input type="date" class="form-control" id="ngayBatDau" name="NgayBatDau" required>
+            <div class="invalid-feedback">Vui lòng chọn ngày bắt đầu</div>
+        </div>
+        <div class="col-md-3">
+            <label for="ngayKetThuc" class="form-label">Ngày Kết Thúc</label>
+            <input type="date" class="form-control" id="ngayKetThuc" name="NgayKetThuc" required>
+            <div class="invalid-feedback">Vui lòng chọn ngày kết thúc</div>
+        </div>
+        <div class="col-md-6">
+            <label for="mo-ta" class="form-label">Mô Tả</label>
+            <input class="form-control" id="mo-ta" name="MoTa"></input>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary me-2">Lưu</button>
+        <button type="reset" class="btn btn-secondary">Làm mới</button>
+    </div>
+</form>
