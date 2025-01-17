@@ -52,7 +52,6 @@ def get_hang_hang_khong():
             'data': data
         }), 200
 
-        print(data)
     except Exception as e:
         return jsonify({
             'status': False,
@@ -90,7 +89,6 @@ def get_all_may_bay():
         
         if hasattr(MayBay, sort_by):
             sort_column = getattr(MayBay, sort_by)
-            print(sort_by, sort_column)
             if sort_column == MayBay.MaHHK:
                 query = query.join(HangHangKhong)
                 sort_column  = HangHangKhong.TenHHK
@@ -171,7 +169,7 @@ def get_may_bay(ma_mb):
     except Exception as e:
         return jsonify({
             'status': False,
-            'message': 'Có lỗi xảy ra khi lấy thông tin sân bay',
+            'message': 'Có lỗi xảy ra khi lấy thông tin máy bay',
             'error': str(e)
         }), 500
 
@@ -198,7 +196,6 @@ def add_may_bay():
             }), 404
         
         existing_mb_name = MayBay.query.filter_by(TenMayBay=data['TenMayBay']).first()
-        print(existing_mb_name)
         if existing_mb_name:
             return jsonify({
                 'status': False,
@@ -233,11 +230,11 @@ def add_may_bay():
             'error': str(e)
         }), 500
 
+# API: Sửa máy bay
 @maybay.route('/api/may-bay/<string:ma_mb>', methods=['PUT'])
 def update_may_bay(ma_mb):
     try:
         data = request.get_json()
-        # print(data)
         required_fields = ['TenMayBay', 'MaHHK', 'SoChoNgoiBus', 'SoChoNgoiEco', 'LoaiMB']
         if not all(field in data for field in required_fields):
             return jsonify({

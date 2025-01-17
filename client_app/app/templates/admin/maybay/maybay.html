@@ -341,7 +341,7 @@
 
         // Hàm xử lý hiển thị modal xóa
         function deleteMayBay(maMB) {
-            // Lưu mã sân bay cần xóa
+            // Lưu mã cần xóa
             deletingMayBayId = maMB;
 
             // Hiển thị modal
@@ -468,7 +468,7 @@
             const searchParams = {
                 ma_may_bay: document.getElementById('ma_may_bay').value,
                 ten_may_bay: document.getElementById('ten_may_bay').value,
-                ma_hhk: document.getElementById('ma_hhk_may_bay').value,
+                ma_hhk_may_bay: document.getElementById('ma_hhk_may_bay').value,
                 // so_ghe_bus: document.getElementById('so_cho_ngoi_bus').value,
                 // so_ghe_eco: document.getElementById('so_cho_ngoi_eco').value,
                 loai_mb: document.getElementById('loai_mb').value,
@@ -490,7 +490,7 @@
         const initialSearchParams = {
             ma_may_bay: urlParams.get('ma_may_bay') || '',
             ten_may_bay: urlParams.get('ten_may_bay') || '',
-            ma_hhk: urlParams.get('ma_hhk_may_bay') || '',
+            ma_hhk_may_bay: urlParams.get('ma_hhk_may_bay') || '',
             // so_ghe_bus: urlParams.get('so_cho_ngoi_bus') || '',
             // so_ghe_eco: urlParams.get('so_cho_ngoi_eco') || '',
             loai_mb: urlParams.get('loai_mb') || '',
@@ -591,7 +591,7 @@
                 const searchParams = {
                     ma_may_bay: urlParams.get('ma_may_bay') || '',
                     ten_may_bay: urlParams.get('ten_may_bay') || '',
-                    ma_hhk: urlParams.get('ma_hhk_may_bay') || '',
+                    ma_hhk_may_bay: urlParams.get('ma_hhk_may_bay') || '',
                     // so_ghe_bus: urlParams.get('so_cho_ngoi_bus') || '',
                     // so_ghe_eco: urlParams.get('so_cho_ngoi_eco') || '',
                     loai_mb: urlParams.get('loai_mb') || '',

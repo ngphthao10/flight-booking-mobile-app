@@ -11,10 +11,10 @@ def get_may_bay():
         per_page = request.args.get('per_page', 10, type=int)
         ma_may_bay = request.args.get('ma_may_bay', '')
         ten_may_bay = request.args.get('ten_may_bay', '')
-        ma_hhk = request.args.get('ma_hhk','')
+        ma_hhk_may_bay = request.args.get('ma_hhk_may_bay','')
         # so_cho_ngoi_bus = request.args.get('so_cho_ngoi_bus','')
         # so_cho_ngoi_eco = request.args.get('so_cho_ngoi_eco','')
-        loai_mb = request.args.get('loai_mb')
+        loai_mb = request.args.get('loai_mb','')
         if loai_mb == 'None':
             loai_mb = None
         sort_by_may_bay = request.args.get('sort_by_may_bay', 'MaMayBay')
@@ -26,7 +26,7 @@ def get_may_bay():
             'per_page': per_page,
             'ma_may_bay': ma_may_bay,
             'ten_may_bay': ten_may_bay,
-            'ma_hhk': ma_hhk,
+            'ma_hhk_may_bay': ma_hhk_may_bay,
             # 'so_cho_ngoi_bus': so_cho_ngoi_bus,
             # 'so_cho_ngoi_eco': so_cho_ngoi_eco,
             'loai_mb': loai_mb,
@@ -61,7 +61,7 @@ def get_may_bay():
             filters={
                 'ma_may_bay': ma_may_bay,
                 'ten_may_bay': ten_may_bay,
-                'ma_hhk': ma_hhk,
+                'ma_hhk_may_bay': ma_hhk_may_bay,
                 # 'so_cho_ngoi_bus': so_cho_ngoi_bus,
                 # 'so_cho_ngoi_eco': so_cho_ngoi_eco,
                 'loai_mb': loai_mb,
@@ -80,9 +80,7 @@ def get_may_bay():
             filters={  # Trả về filters rỗng trong trường hợp lỗi
                 'ma_may_bay': '',
                 'ten_may_bay': '',
-                'ma_hhk': '',
-                # 'so_cho_ngoi_bus': so_cho_ngoi_bus,
-                # 'so_cho_ngoi_eco': so_cho_ngoi_eco,
+                'ma_hhk_may_bay': '',
                 'loai_mb': '',
                 'sort_by_may_bay': sort_by_may_bay,
                 'order_may_bay': order_may_bay

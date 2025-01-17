@@ -1,0 +1,465 @@
+{% extends "admin/base.html" %}
+{% block title %}Quản lý người liên hệ{% endblock %}
+
+{% block content %}
+<div id="pagination-config" data-api-url="{{ api_url }}" data-current-page="{{ pagination.page }}"
+    data-per-page="{{ pagination.per_page }}" style="display: none;">
+</div>
+
+<div class="container py-3">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="text-center fw-bold">
+                Quản lý người liên hệ
+            </h1>
+            <hr class="my-2">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- List Airports Table -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        Cập nhật người liên hệ
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% include 'admin/nguoilienhe/formThemNLH.html' %}
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover border">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Mã người liên hệ</th>
+                            <th scope="col">Họ và tên đệm</th>
+                            <th scope="col">Tên</th>
+                            <th scope="col">Số điện thoại</th>
+                            <th scope="col">Email</th>
+                            <th scope="col" class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nguoilienhe-table">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-center align-items-center p-4 border-top">
+                    {% if pagination.total > 0 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <!-- Nút Previous -->
+                            <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ pagination.page - 1 }}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- Các số trang -->
+                            {% set start = pagination.page - 2 if pagination.page - 2 > 1 else 1 %}
+                            {% set end = pagination.pages + 1 if pagination.pages + 1 < pagination.page + 3 else
+                                pagination.page + 3 %} {% for p in range(start, end) if p <=pagination.pages %} <li
+                                class="page-item {% if p == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+                                </li>
+                                {% endfor %}
+
+                                <!-- Nút Next -->
+                                <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                                    <a class="page-link" href="#" data-page="{{ pagination.page + 1 }}"
+                                        aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="content-section">
+                <h5>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-funnel me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                    </svg>
+                    Bộ lọc tìm kiếm
+                </h5>
+                <br />
+                <div>
+                    {% include 'admin/nguoilienhe/formLocNLH.html'%}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+<script>
+    function showMessage(type, message) {
+        const toastEl = document.getElementById('liveToast');
+        const toastHeader = toastEl.querySelector('.toast-header');
+
+        toastEl.className = 'toast border-' + (type === 'success' ? 'success' : 'danger');
+        toastHeader.className = 'toast-header text-white ' + (type === 'success' ? 'bg-success' : 'bg-danger');
+
+        const closeBtn = toastHeader.querySelector('.btn-close');
+        closeBtn.className = 'btn-close btn-close-white';
+
+        toastEl.querySelector('.toast-body').textContent = message;
+
+        const toast = new bootstrap.Toast(toastEl, {
+            delay: 5000
+        });
+        toast.show();
+    }
+
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        let currentPage = parseInt(config.dataset.currentPage);
+        const perPage = parseInt(config.dataset.perPage);
+
+        let editingNLHId = null;
+        let deletingNLHId = null;
+        
+        async function editNLH(maNLH) {
+            try {
+                const response = await fetch(`${API_URL}/api/nguoi-lien-he/${maNLH}`);
+                const result = await response.json();
+
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+                const form = document.getElementById('nguoilienhe-form');
+                enableForm(form);
+                
+                form.querySelector('#hoNLH').value = result.data.HoNLH;
+                form.querySelector('#tenNLH').value = result.data.TenNLH;
+                form.querySelector('#sdt').value = result.data.SDT;
+                form.querySelector('#email').value = result.data.Email;
+
+                const resetButton = form.querySelector('button[type="reset"]');
+                if (resetButton) {
+                    resetButton.style.display = 'none';
+                }
+                
+                updateFormToEditMode();
+
+                editingNLHId = maNLH;
+
+                form.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showMessage('danger', `Lỗi khi lấy thông tin người liên hệ: ${error.message}`);
+            }
+        }
+
+        // Hàm cập nhật UI form sang chế độ sửa
+        function updateFormToEditMode() {
+            
+            // Thêm nút hủy
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle mb-1" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg> Hủy
+            `;
+            cancelBtn.addEventListener('click', resetForm);
+
+            // Thêm nút hủy vào form nếu chưa có
+            const btnContainer = document.querySelector('#nguoilienhe-form .d-flex');
+            if (!btnContainer.querySelector('button[type="button"]')) {
+                btnContainer.appendChild(cancelBtn);
+            }
+
+        }
+
+        function resetForm(isCancel = false) {
+            const form = document.getElementById('nguoilienhe-form');
+            disableForm(form);
+            form.reset();
+            form.classList.remove('was-validated');
+
+            const resetButton = form.querySelector('button[type="reset"]');
+            if (resetButton) {
+                resetButton.style.display = '';
+            }
+
+            const cancelBtn = document.querySelector('#nguoilienhe-form button[type="button"]');
+            if (cancelBtn) {
+                cancelBtn.remove();
+            }
+
+            editingNLHId = null;
+        }
+
+        // Cập nhật xử lý form submit
+        document.getElementById('nguoilienhe-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            // Kiểm tra validation của form
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
+            try {
+                let formData = {
+                    HoNLH: document.getElementById('hoNLH').value.trim(),
+                    TenNLH: document.getElementById('tenNLH').value.trim(),
+                    SDT: document.getElementById('sdt').value,
+                    Email: document.getElementById('email').value
+                };
+
+                // const url = isEditMode
+                //     ? `${API_URL}/api/nguoi-lien-he/${editingNLHId}`
+                //     : `${API_URL}/api/nguoi-lien-he`;
+                // const method = isEditMode ? 'PUT' : 'POST';
+                const response = await fetch(`${API_URL}/api/nguoi-lien-he/${editingNLHId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.status) {
+                    showMessage('success', result.message);
+                    resetForm();
+
+                    setTimeout(() => { location.reload(); }, 2000);
+                } else {
+                    showMessage('danger', result.message);
+                }
+
+            } catch (error) {
+                showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                console.error(error);
+            }
+        });
+
+        // Hàm fetch dữ liệu với các tham số tìm kiếm
+        async function fetchNLHs(page, searchParams = {}) {
+            try {
+                const params = new URLSearchParams({
+                    page: page,
+                    per_page: perPage,
+                    ...searchParams // Thêm các tham số tìm kiếm
+                });
+                console.log("param:", params);
+                const response = await fetch(`${API_URL}/api/nguoi-lien-he?${params.toString()}`);
+                const result = await response.json();
+                console.log("res:",result);
+
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+
+                updateTable(result.data);
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                console.log(newUrl);
+                window.history.pushState({}, '', newUrl);
+
+
+            } catch (error) {
+                showMessage('danger', `Lỗi: ${error.message}`);
+            }
+        }
+
+        // Xử lý form tìm kiếm
+        const searchForm = document.getElementById('formLocNLH');
+        console.log(searchForm);
+        searchForm.addEventListener('submit', function (e) {
+            console.log('Form submitter');
+            e.preventDefault();
+            const searchParams = {
+                ma_nlh: document.getElementById('ma_nlh').value,
+                ho_nlh: document.getElementById('ho_nlh').value,
+                ten_nlh: document.getElementById('ten_nlh').value,
+                sdt: document.getElementById('sdt').value,
+                email: document.getElementById('email').value,
+                sort_by_nlh: document.getElementById('sort_by_nlh').value,
+                order_nlh: document.getElementById('order_nlh').value
+            };
+            console.log('this searchParams is inside searchForm', searchParams);
+            Object.keys(searchParams).forEach(key => {
+                if (!searchParams[key]) {
+                    delete searchParams[key];
+                }
+            });
+
+            fetchNLHs(1, searchParams);
+
+
+        });
+
+
+        // Hàm cập nhật bảng
+        function updateTable(data) {
+            const form = document.getElementById('nguoilienhe-form');
+            if (!editingNLHId) {
+                disableForm(form);
+            }
+            
+            const table = document.getElementById('nguoilienhe-table');
+            table.innerHTML = '';
+
+            if (data && data.length > 0) {
+                data.forEach(nlh => {
+                    const row = document.createElement('tr');
+                    // Escape các giá trị để tránh XSS
+                    const escapedMaNLH = escapeHtml(nlh.MaNLH);
+                    const escapedHoNLH = escapeHtml(nlh.HoNLH);
+                    const escapedTenNLH = escapeHtml(nlh.TenNLH);
+                    const escapedSDT = escapeHtml(nlh.SDT);
+                    const escapedEmail = escapeHtml(nlh.Email);
+
+                    row.innerHTML = `
+                        <td>${escapedMaNLH}</td>
+                        <td>${escapedHoNLH}</td>
+                        <td>${escapedTenNLH}</td>
+                        <td>${escapedSDT}</td>
+                        <td>${escapedEmail}</td>
+                        <td class="text-center">
+                            <button 
+                                class="btn btn-outline-success btn-sm me-2 edit-btn"
+                                type="button"
+                                data-id="${escapedMaNLH}"
+                                aria-label="Sửa"
+                                data-bs-toggle="tooltip"
+                                title="Sửa">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                                </svg>
+                            </button>                            
+                        </td>
+                    `;
+                    table.appendChild(row);
+
+                    // Thêm event listeners cho các nút
+                    const editBtn = row.querySelector('.edit-btn');
+
+                    editBtn.addEventListener('click', function () {
+                        editNLH(this.dataset.id);
+                    });
+                });
+
+                // Khởi tạo tooltips
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            } else {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center">Không có dữ liệu</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Hàm escape HTML để tránh XSS
+        function escapeHtml(unsafe) {
+            unsafe = String(unsafe);
+
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function disableForm(form){
+            const elements = form.querySelectorAll("input, button");
+            elements.forEach(function(element) {
+                element.disabled = true;
+            });
+        }
+
+        function enableForm(form){
+            const elements = form.querySelectorAll("input, button");
+            elements.forEach(function(element) {
+                element.disabled = false;
+            });
+        }
+        // Hàm fetch dữ liệu ban đầu
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialSearchParams = {
+            ma_nlh: document.getElementById('ma_nlh').value,
+            ho_nlh: document.getElementById('ho_nlh').value,
+            ten_nlh: document.getElementById('ten_nlh').value,
+            sdt: document.getElementById('sdt').value,
+            email: document.getElementById('email').value,
+            sort_by_nlh: document.getElementById('sort_by_nlh').value,
+            order_nlh: document.getElementById('order_nlh').value
+        };
+        fetchNLHs(parseInt(urlParams.get('page')) || currentPage, initialSearchParams);
+
+
+        // Hàm xử lý click phân trang
+        document.querySelectorAll('.pagination .page-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = parseInt(this.dataset.page);
+
+                // Kiểm tra page hợp lệ
+                if (!page || page < 1) return;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParams = {
+                    ma_nlh: document.getElementById('ma_nlh').value,
+                    ho_nlh: document.getElementById('ho_nlh').value,
+                    ten_nlh: document.getElementById('ten_nlh').value,
+                    sdt: document.getElementById('sdt').value,
+                    email: document.getElementById('email').value,
+                    sort_by_nlh: document.getElementById('sort_by_nlh').value,
+                    order_nlh: document.getElementById('order_nlh').value
+                };
+                window.location.href = `?page=${page}&${new URLSearchParams(searchParams).toString()}`;
+            });
+        });
+
+        // Khởi tạo các tooltips ban đầu
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+
+        // Hàm đặt lại form khi nhấn nút reset
+        // document.querySelector('#nguoilienhe-form button[type="reset"]').addEventListener('click', function () {
+        //     resetForm();
+        // });
+
+    });
+</script>
+
+{% endblock %}

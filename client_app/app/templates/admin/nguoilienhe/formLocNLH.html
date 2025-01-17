@@ -1,0 +1,75 @@
+<form method="GET" id="formLocNLH" action="{{ url_for('nguoilienhe.get_nguoi_lien_he') }}" class="needs-validation">
+    <div class="mb-3">
+        <label for="ma_nlh" class="form-label">Mã người liên hệ</label>
+        <input type="text" class="form-control" id="ma_nlh" name="ma_nlh" value="{{ filters.ma_nlh }}"
+            placeholder="Nhập mã người liên hệ...">
+    </div>
+
+    <div class="mb-3">
+        <label for="ho_nlh" class="form-label">Họ và chữ lót người liên hệ</label>
+        <input type="text" class="form-control" id="ho_nlh" name="ho_nlh" value="{{ filters.ho_nlh }}"
+            placeholder="Nhập họ và chữ lót...">
+    </div>
+
+    <div class="mb-3">
+        <label for="ten_nlh" class="form-label">Tên người liên hệ</label>
+        <input type="text" class="form-control" id="ten_nlh" name="ten_nlh" value="{{ filters.ten_nlh }}"
+            placeholder="Nhập tên...">
+    </div>
+
+    <div class="mb-3">
+        <label for="sdt" class="form-label">Số điện thoại</label>
+        <input type="text" class="form-control" id="sdt" name="sdt" value="{{ filters.sdt }}"
+            placeholder="Nhập số điện thoại người liên hệ...">
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="email" name="email" value="{{ filters.email }}"
+            placeholder="Nhập email người liên hệ...">
+    </div>
+
+    <div class="mb-3">
+        <label for="sort_by_nlh" class="form-label">Sắp xếp theo</label>
+        <select class="form-select" id="sort_by_nlh" name="sort_by_nlh">
+            <option value="MaNLH" {% if filters.sort_by=='MaNLH' %}selected{% endif %}>
+                Mã người liên hệ
+            </option>
+            <option value="TenNLH" {% if filters.sort_by=='TenNLH' %}selected{% endif %}>
+                Tên người liên hệ
+            </option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="order_nlh" class="form-label">Thứ tự</label>
+        <select class="form-select" id="order_nlh" name="order_nlh">
+            <option value="asc" {% if filters.order=='asc' %}selected{% endif %}>
+                Tăng dần
+            </option>
+            <option value="desc" {% if filters.order=='desc' %}selected{% endif %}>
+                Giảm dần
+            </option>
+        </select>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-outline-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search mb-1"
+                viewBox="0 0 16 16">
+                <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+            </svg>
+            Tìm kiếm
+        </button>
+        <a href="{{url_for('nguoilienhe.get_nguoi_lien_he')}}" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-arrow-counterclockwise mb-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                <path
+                    d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466" />
+            </svg>
+            Đặt lại
+        </a>
+    </div>
+</form>

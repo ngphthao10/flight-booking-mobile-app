@@ -447,7 +447,7 @@
 
                 const response = await fetch(`${API_URL}/api/san-bay?${params.toString()}`);
                 const result = await response.json();
-
+                console.log(result);
                 if (!result.status) {
                     throw new Error(result.message);
                 }
