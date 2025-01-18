@@ -266,12 +266,12 @@ def update_flight(ma_chuyen_bay):
                 'message': 'Không tìm thấy chuyến bay'
             }), 404
         print(data['TrangThai'])
-        if chuyen_bay.TrangThai == 0 and data['TrangThai'] == 1:  
+        if data['TrangThai'] == 1:  
             if (chuyen_bay.SLGheBus != chuyen_bay.SLBusConLai or 
                 chuyen_bay.SLGheEco != chuyen_bay.SLEcoConLai):
                 return jsonify({
                     'status': 'error',
-                    'message': 'Không thể hủy chuyến bay vì đã có vé được bán ra'
+                    'message': 'Không thể sửa chuyến bay vì đã có vé được bán ra'
                 }), 400
 
         required_fields = [
@@ -314,8 +314,8 @@ def update_flight(ma_chuyen_bay):
             chuyen_bay.GiaVeEco = data['GiaVeEco']
             chuyen_bay.TrangThai = data['TrangThai'] 
 
-            if data['TrangThai'] == 1:
-                chuyen_bay.TrangThaiVe = 1
+            # if data['TrangThai'] == 1:
+            #     chuyen_bay.TrangThaiVe = 1
             
             if may_bay.MaMayBay != chuyen_bay.MaMB:
                 if (may_bay.SoChoNgoiBus < (may_bay.SoChoNgoiBus - chuyen_bay.SLBusConLai) or 

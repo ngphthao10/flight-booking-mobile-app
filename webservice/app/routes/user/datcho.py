@@ -124,6 +124,7 @@ def create_booking():
 def confirm_booking(booking_id, user_id):
     try:
         data = request.get_json()
+        print('data', data)
         phuong_thuc = data.get('phuong_thuc')
         if phuong_thuc == 'Card':
             card_info = data.get('card_info')
@@ -136,7 +137,6 @@ def confirm_booking(booking_id, user_id):
                 NganHang=card_info['ngan_hang']
             ).first()
 
-            print(the_tt)
             if not the_tt:
                 return jsonify({'error': 'Thông tin thẻ không hợp lệ'}), 400
                 

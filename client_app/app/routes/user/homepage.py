@@ -85,7 +85,7 @@ def search_flights():
                 'include_connecting': True,
                 'max_stops': 2
             }
-
+            print('search:', search_data)
             if is_round_trip and return_date:
                 search_data['ngay_ve'] = datetime.strptime(return_date, '%Y-%m-%d').strftime('%d-%m-%Y')
             else:
@@ -97,7 +97,7 @@ def search_flights():
             )
             response.raise_for_status()
             flight_results = response.json()
-
+            print('kg:', flight_results)
             if flight_results.get('direct_flights'):
                 processed_results['direct_flights'].extend(flight_results['direct_flights'])
             if flight_results.get('connecting_flights'):

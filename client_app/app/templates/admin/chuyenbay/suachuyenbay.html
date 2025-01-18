@@ -291,6 +291,7 @@
             console.log(data)
             if (data.status === 'success') {
                 const flight = data.data;
+                console.log(flight.ThoiGianDi, ' ', flight.ThoiGianDen)
                 document.querySelector('select[name="MaMB"]').value = flight.MaMB;
                 document.querySelector('select[name="LoaiChuyenBay"]').value = flight.LoaiChuyenBay;
                 document.querySelector('select[name="MaSanBayDi"]').value = flight.MaSanBayDi;
@@ -316,7 +317,9 @@
 
     function formatDateTimeForInput(dateTimeStr) {
         const date = new Date(dateTimeStr);
-        return date.toISOString().slice(0, 16);
+        const timezoneOffset = date.getTimezoneOffset();
+        const adjustedDate = new Date(date.getTime() - (timezoneOffset * 60000));
+        return adjustedDate.toISOString().slice(0, 16);
     }
 
     function addBaggageService(data = null) {
