@@ -233,3 +233,31 @@ def delete_khuyen_mai(ma_khuyen_mai):
             'message': 'Có lỗi xảy ra', 
             'error': str(e)
         }), 500
+    
+@adminKhuyenmai.route('/api/khuyen-mai/apply', methods=['POST'])
+def apply_promotion():
+    try:
+        data = request.get_json()
+        promo_id = data.get('MaKhuyenMai')
+        items = data.get('Items', [])
+        apply_type = data.get('Type')
+
+        if not promo_id or not items or not apply_type:
+            return jsonify({'status': False, 'message': 'Thiếu thông tin bắt buộc'}), 400
+
+        if apply_type == 'airlines':
+            for item in items:
+                association = HHK_KhuyenMai(MaHHK=item, MaKM=promo_id)
+                db.session.add(association)
+        elif apply_type == 'flights':
+            for item in items:
+                association = CB_KhuyenMai(MaCB=item, MaKM=promo_id)
+                db.session.add(association)
+        else:
+            return jsonify({'status': False, 'message': 'Loại áp dụng không hợp lệ'}), 400
+
+        db.session.commit()
+        return jsonify({'status': True, 'message': 'Áp dụng thành công'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': False, 'message': 'Có lỗi xảy ra', 'error': str(e)}), 500
