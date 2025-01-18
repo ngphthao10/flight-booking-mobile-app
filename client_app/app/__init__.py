@@ -21,6 +21,7 @@ def create_app():
     from app.routes.admin.maybay import maybay
     from app.routes.admin.nguoilienhe import nguoilienhe
     from app.routes.admin.hanhkhach import hanhkhach
+    from app.routes.admin.khuyenmai import khuyenmai
     from app.routes.admin.dashboard import dashboard
     from app.routes.admin.report import report
     from app.routes.admin.chuyenbay import chuyenbay
@@ -33,6 +34,7 @@ def create_app():
     app.register_blueprint(maybay, url_prefix="/maybay")
     app.register_blueprint(nguoilienhe, url_prefix="/nguoilienhe")
     app.register_blueprint(hanhkhach, url_prefix="/hanhkhach")
+    app.register_blueprint(khuyenmai, url_prefix="/khuyenmai")
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(dashboard, url_prefix="/dashboard")
     app.register_blueprint(report, url_prefix="/report")

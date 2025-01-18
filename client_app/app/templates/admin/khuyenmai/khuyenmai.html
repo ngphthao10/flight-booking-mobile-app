@@ -1,0 +1,508 @@
+{% extends "admin/base.html" %}
+{% block title %}Quản lý khuyến mãi{% endblock %}
+
+{% block content %}
+<div id="pagination-config" data-api-url="{{ api_url }}" data-current-page="{{ pagination.page }}"
+    data-per-page="{{ pagination.per_page }}" style="display: none;">
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="bi bi-exclamation-triangle me-1"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Bạn có chắc chắn muốn xóa khuyến mãi này không? Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="bi bi-trash3 me-1"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-3">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="text-center fw-bold">Quản lý khuyến mãi</h1>
+            <hr class="my-2">
+        </div>
+    </div>
+
+    <!-- Message Area -->
+    <div id="message-area" class="mb-3"></div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Form Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Thêm khuyến mãi</h5>
+                </div>
+                <div class="card-body">
+                    {% include 'admin/khuyenmai/formThemKM.html' %}
+                </div>
+            </div>
+            <!-- List Promotions Table -->
+            <div class="table-responsive">
+                <table class="table table-hover border">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã KM</th>
+                            <th>Tên KM</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Ngày Bắt Đầu</th>
+                            <th>Ngày Kết Thúc</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="khuyenmai-table">
+                        <!-- Data populated by JavaScript -->
+                    </tbody>    
+                </table>
+                    
+                <div class="d-flex justify-content-center align-items-center p-4 border-top">
+                    {% if pagination.total > 0 %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <!-- Nút Previous -->
+                            <li class="page-item {% if pagination.page <= 1 %}disabled{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ pagination.page - 1 }}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- Các số trang -->
+                        {% set start = pagination.page - 2 if pagination.page - 2 > 1 else 1 %}
+                        {% set end = pagination.pages + 1 if pagination.pages + 1 < pagination.page + 3 else
+                            pagination.page + 3 %} {% for p in range(start, end) if p <=pagination.pages %} <li
+                            class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+                            </li>
+                            {% endfor %}
+
+                            <!-- Nút Next -->
+                            <li class="page-item {% if pagination.page >= pagination.pages %}disabled{% endif %}">
+                                <a class="page-link" href="#" data-page="{{ pagination.page + 1 }}"
+                                    aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                    </ul>
+                </nav>
+                {% endif %}    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="content-section">
+                <h5><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-funnel me-1" viewBox="0 0 16 16">
+                        <path
+                            d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                    </svg>Bộ lọc tìm kiếm</h5>
+                <br />
+                <div>
+                    {% include 'admin/khuyenmai/formLocKM.html' %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+
+<script src="{{url_for('static', filename='js/showMessage.js')}}"></script>
+<!-- Include Apply Promotion Script -->
+<script src="{{ url_for('static', filename='js/applyPromotion.js') }}"></script>
+<script>
+    const config = document.getElementById('pagination-config');
+    const API_URL = config.dataset.apiUrl;
+
+    document.addEventListener('DOMContentLoaded', function () {        
+        let currentPage = parseInt(config.dataset.currentPage);
+        const perPage = parseInt(config.dataset.perPage);
+        const form = document.getElementById('khuyenmai-form');
+        
+        // const saveBtn = document.getElementById('saveBtn');
+        // const resetBtn = document.getElementById('resetBtn');
+
+        let isEditMode = false;
+        let editingId = null;
+        let deletingId = null;
+
+        async function editPromotion(id) {
+            try {
+                const response = await fetch(`${API_URL}/api/khuyen-mai/${id}`);
+                const result = await response.json();
+                if (!result.status) throw new Error(result.message);
+
+                if (!form) {
+                    throw new Error('Form not found');
+                }
+
+                form.querySelector('#maKhuyenMai').value = result.data.MaKhuyenMai;
+                form.querySelector('#tenKhuyenMai').value = result.data.TenKhuyenMai;
+                form.querySelector('#moTa').value = result.data.MoTa;
+                form.querySelector('#loaiKhuyenMai').value = result.data.LoaiKhuyenMai;
+                form.querySelector('#giaTri').value = result.data.GiaTri;
+
+                form.querySelector('#ngayBatDau').value = convertToISODate(result.data.NgayBatDau);
+                form.querySelector('#ngayKetThuc').value = convertToISODate(result.data.NgayKetThuc);
+                
+                form.querySelector('#maKhuyenMai').disabled = true;
+
+                const resetButton = form.querySelector('button[type="reset"]');
+                    if (resetButton) {
+                        resetButton.style.display = 'none';
+                }
+
+                updateFormToEditMode();
+
+                isEditMode = true;
+                editingId = id;
+            } catch (error) {
+                showMessage('danger', `Lỗi: ${error.message}`);
+            }
+        }
+
+        function updateFormToEditMode() {
+            // Cập nhật tiêu đề
+            document.querySelector('.card-title').textContent = 'Cập nhật khuyến mãi';
+
+            // Cập nhật nút submit
+            const submitBtn = document.querySelector('#khuyenmai-form button[type="submit"]');
+            submitBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-save mb-1" viewBox="0 0 16 16">
+                    <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
+                </svg> Cập nhật
+            `;
+
+            // Thêm nút hủy
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle mb-1" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg> Hủy
+            `;
+            cancelBtn.addEventListener('click', resetForm);
+
+            // Thêm nút hủy vào form nếu chưa có
+            const btnContainer = document.querySelector('#khuyenmai-form .d-flex');
+            if (!btnContainer.querySelector('button[type="button"]')) {
+                btnContainer.appendChild(cancelBtn);
+            }
+
+        }
+        
+        // Reset form to default state
+        function resetForm() {
+            form.reset();
+            form.classList.remove('was-validated');
+
+            // Re-enable the primary key field
+            const maKhuyenMaiField = form.querySelector('#maKhuyenMai');
+            maKhuyenMaiField.disabled = false;
+
+            // Update the form title
+            document.querySelector('.card-title').textContent = 'Thêm khuyến mãi';
+
+            // Restore the save button text
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-floppy mb-1" viewBox="0 0 16 16">
+                    <path d="M11 2H9v3h2z" />
+                    <path
+                        d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                </svg> Lưu
+            `;
+        }
+
+        function deleteKM(maKhuyenMai) {
+            // Lưu mã sân bay cần xóa
+            deletingId = maKhuyenMai;
+
+            // Hiển thị modal
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            deleteModal.show();
+        }
+        
+        // Xử lý sự kiện khi click nút xác nhận xóa
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
+            if (!deletingId) return;
+
+            try {
+                // Gọi API xóa
+                const response = await fetch(`${API_URL}/api/khuyen-mai/${deletingId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                // Ẩn modal
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                deleteModal.hide();
+
+                if (result.status) {
+                    // Hiển thị thông báo thành công
+                    showMessage('success', result.message);
+
+                    // Thêm thời gian trì hoãn trước khi reload trang
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000); // Tải lại sau 3 giây
+                } else {
+                    // Hiển thị thông báo lỗi
+                    showMessage('danger', result.message);
+                }
+
+            } catch (error) {
+                showMessage('danger', 'Có lỗi xảy ra khi xóa');
+                console.error(error);
+            } finally {
+                // Reset mã 
+                deletingId = null;
+            }
+        });
+
+        resetBtn.addEventListener('click', resetForm);
+        // Create or Update promotion
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
+            const method = isEditMode ? 'PUT' : 'POST';
+            const url = isEditMode
+                ? `${API_URL}/api/khuyen-mai/${editingId}`
+                : `${API_URL}/api/khuyen-mai`;
+
+            const ngayBatDau = new Date(document.getElementById('ngayBatDau').value).toLocaleDateString('vi-VN'); // Format as dd/mm/yyyy
+            const ngayKetThuc = new Date(document.getElementById('ngayKetThuc').value).toLocaleDateString('vi-VN'); // Format as dd/mm/yyyy
+
+            let data = {
+                    MaKhuyenMai: document.getElementById('maKhuyenMai').value.trim(),
+                    TenKhuyenMai: document.getElementById('tenKhuyenMai').value.trim(),
+                    MoTa: document.getElementById('moTa').value.trim(),
+                    LoaiKhuyenMai: document.getElementById('loaiKhuyenMai').value,
+                    GiaTri: parseFloat(document.getElementById('giaTri').value),
+                    NgayBatDau: ngayBatDau,
+                    NgayKetThuc: ngayKetThuc,
+                };                   
+            try {                
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                
+                if (result.status) {
+                        showMessage('success', result.message);
+                        resetForm();
+
+                        setTimeout(() => { location.reload(); }, 2000);
+                    } else {
+                        showMessage('danger', result.message);
+                    }
+                loadPromotions();
+            } catch (error) {
+                showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
+                    console.error(error);
+            }
+        });
+
+        // Load promotions
+        async function loadPromotions(page = 1, searchParams = {}) {
+            try {
+                const params = new URLSearchParams({
+                    page: page,
+                    per_page: perPage,
+                    ...searchParams
+                });
+                // console.log(`${API_URL}?${params}`);
+                const response = await fetch(`${API_URL}/api/khuyen-mai?${params.toString()}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (!result.status) {
+                    throw new Error(result.message);
+                }
+                updateTable(result.data);
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+                
+            } catch (error) {
+                console.error(error);
+                showMessage('danger', `Lỗi: ${error.message}`);
+            }
+        }
+
+        // Handle search form
+        document.querySelector('form.needs-validation').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const searchParams = {
+                ma_khuyen_mai: document.getElementById('ma_khuyen_mai').value.trim(),
+                ten_khuyen_mai: document.getElementById('ten_khuyen_mai').value.trim(),
+                loai_khuyen_mai: document.getElementById('loai_khuyen_mai').value,
+                sort_by: document.getElementById('sort_by').value,
+                order: document.getElementById('order').value,
+            };
+            Object.keys(searchParams).forEach(key => {
+                if (!searchParams[key]) {
+                    delete searchParams[key];
+                }
+            });
+            loadPromotions(1, searchParams);
+        });
+
+        function updateTable(data) {
+            const table = document.getElementById('khuyenmai-table');
+            table.innerHTML = '';
+
+            if (data && data.length > 0) {
+                data.forEach(km => {
+                    const row = document.createElement('tr');
+
+                    const escapedMaKhuyenMai = escapeHtml(km.MaKhuyenMai);
+                    const escapedTenKhuyenMai = escapeHtml(km.TenKhuyenMai);
+                    const escapedLoaiKhuyenMai = escapeHtml(km.LoaiKhuyenMai);
+                    const escapedGiaTri = escapeHtml(km.GiaTri);
+                    const escapedNgayBatDau = escapeHtml(km.NgayBatDau);
+                    const escapedNgayKetThuc = escapeHtml(km.NgayKetThuc);
+                    row.innerHTML = `
+                        <td>${escapedMaKhuyenMai}</td>
+                        <td>${escapedTenKhuyenMai}</td>
+                        <td>${escapedLoaiKhuyenMai}</td>
+                        <td>${escapedGiaTri}</td>
+                        <td>${escapedNgayBatDau}</td>
+                        <td>${escapedNgayKetThuc}</td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-success btn-sm me-2 edit-btn" data-id="${escapedMaKhuyenMai}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm delete-btn" data-id="${escapedMaKhuyenMai}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                    
+                     // Thêm event listeners cho các nút
+                    const editBtn = row.querySelector('.edit-btn');
+                    const deleteBtn = row.querySelector('.delete-btn');
+
+                    editBtn.addEventListener('click', function () {
+                        editPromotion(this.dataset.id);
+                    });
+
+                    deleteBtn.addEventListener('click', function () {
+                        deleteKM(this.dataset.id);
+                    });
+                });
+
+                // Khởi tạo tooltips
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            } else {
+                table.innerHTML = '<tr><td colspan="7" class="text-center">Không có dữ liệu</td></tr>';
+            }
+        }
+
+        // Hàm escape HTML để tránh XSS
+        function escapeHtml(unsafe) {
+            unsafe = String(unsafe);
+
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialSearchParams = {
+            ma_khuyen_mai: urlParams.get('ma_khuyen_mai') || '',
+            ten_khuyen_mai: urlParams.get('ten_khuyen_mai') || '',
+            loai_khuyen_mai: urlParams.get('loai_khuyen_mai') || '',
+            sort_by: urlParams.get('sort_by') || 'MaKhuyenMai',
+            order_nlh: urlParams.get('order_nlh') || 'asc'
+        };
+        loadPromotions(parseInt(urlParams.get('page')) || currentPage, initialSearchParams);
+
+        // Hàm xử lý click phân trang
+        document.querySelectorAll('.pagination .page-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = parseInt(this.dataset.page);
+
+                // Kiểm tra page hợp lệ
+                if (!page || page < 1) return;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParams = {
+                    ma_khuyen_mai: document.getElementById('ma_khuyen_mai').value.trim(),
+                    ten_khuyen_mai: document.getElementById('ten_khuyen_mai').value.trim(),
+                    loai_khuyen_mai: document.getElementById('loai_khuyen_mai').value,
+                    sort_by: document.getElementById('sort_by').value,
+                    order: document.getElementById('order').value,
+                };
+                window.location.href = `?page=${page}&${new URLSearchParams(searchParams).toString()}`;
+            });
+        });
+
+        // Khởi tạo các tooltips ban đầu
+        function convertToISODate(dateString) {
+            const [day, month, year] = dateString.split('/');
+            return `${year}-${month}-${day}`;
+        }
+
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+</script>
+
+{% endblock %}
