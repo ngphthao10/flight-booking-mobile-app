@@ -101,6 +101,63 @@
                 </div>
             </div>
 
+
+
+
+            <!-- Thêm sau thẻ đóng </div> của card hành lý -->
+            <div class="card bg-info-subtle mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">
+                        Món ăn trên chuyến bay
+                    </h5>
+                    <div class="d-flex bg-white rounded-3 p-3 justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-2">
+                                <i class="bi bi-cup-hot me-2"></i>
+                                Bữa ăn
+                            </h6>
+                            <p class="mb-0 text-secondary">Chọn món ăn cho chuyến bay của bạn</p>
+                            <div id="meal-summary" class="text-primary mt-2" style="display: none;">
+                                Tổng phụ: <span class="fw-bold" id="meal-total">0 VND</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#mealModal">
+                            <i class="bi bi-plus-circle"></i>
+                            Chọn món ăn
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="mealModal" tabindex="-1" aria-labelledby="mealModalLabel">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="mealModalLabel">Chọn món ăn</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="nav nav-tabs" id="passengerTabs" role="tablist">
+                                <!-- Tab cho từng hành khách sẽ được thêm vào đây -->
+                            </ul>
+                            <div class="tab-content mt-3" id="passengerTabContent">
+                                <!-- Nội dung tab cho từng hành khách sẽ được thêm vào đây -->
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <div>
+                                <small class="text-muted">Tổng phụ</small>
+                                <div class="h4 mb-0 fw-bold text-primary" id="modal-meal-total">0 VND</div>
+                            </div>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Hoàn tất</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
             {% include 'user/modalChonHanhLy.html' %}
             <div class="d-flex justify-content-between">
                 <button class="btn btn-outline-primary" onclick="history.back()">
@@ -141,6 +198,34 @@
 <script src="{{url_for('static', filename='js/validation.js')}}"></script>
 {% block scripts %}
 <script>
+
+    // Thêm event listener để cập nhật thông tin hành khách
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lưu trữ thông tin hành khách
+        window.passengerNames = {};
+
+        // Thêm event listener cho các input field của hành khách
+        document.getElementById('passengersForm').addEventListener('input', function (e) {
+            if (e.target.name && (e.target.name.includes('_firstname') || e.target.name.includes('_lastname'))) {
+                updatePassengerName(e.target);
+            }
+        });
+    });
+
+    // Hàm cập nhật tên hành khách
+    function updatePassengerName(input) {
+        const [type, index, field] = input.name.split('_');
+        const passengerKey = `${type}_${index}`;
+
+        if (!window.passengerNames[passengerKey]) {
+            window.passengerNames[passengerKey] = {};
+        }
+
+        window.passengerNames[passengerKey][field] = input.value;
+
+        // Lưu vào localStorage để có thể sử dụng trong modal
+        localStorage.setItem('passengerNames', JSON.stringify(window.passengerNames));
+    }
     const config = document.getElementById('pagination-config');
     const API_URL = config.dataset.apiUrl;
     console.log("DATCHO:", API_URL)
@@ -799,6 +884,439 @@
         return 0;
     }
 
+    // async function saveAndContinue() {
+    //     const loadingOverlay = document.getElementById('loadingOverlay');
+    //     if (loadingOverlay) {
+    //         loadingOverlay.classList.remove('d-none');
+    //     }
+
+    //     try {
+    //         if (!validateAllForms()) {
+    //             alert('Vui lòng điền đầy đủ và chính xác thông tin');
+    //             return;
+    //         }
+
+    //         const bookingData = JSON.parse(localStorage.getItem('bookingData'));
+    //         if (!bookingData) {
+    //             throw new Error('Không tìm thấy thông tin đặt chỗ');
+    //         }
+
+    //         const nguoi_lien_he = {
+    //             ho_nlh: document.getElementById('contact_lastname').value.trim(),
+    //             ten_nlh: document.getElementById('contact_firstname').value.trim(),
+    //             email: document.getElementById('contact_email').value.trim(),
+    //             sdt: document.getElementById('contact_phone').value.trim()
+    //         };
+
+    //         const hanh_khach = [];
+    //         let quantity = bookingData.passengers.adults + bookingData.passengers.children;
+
+    //         for (let i = 0; i < bookingData.passengers.adults; i++) {
+    //             const passengerIndex = i + 1;
+    //             const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
+    //             const dich_vu_hanh_ly = [];
+
+    //             if (outboundLuggage && outboundLuggage.value !== '0') {
+    //                 dich_vu_hanh_ly.push({
+    //                     ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
+    //                     ma_dich_vu_hanh_ly: outboundLuggage.value,
+    //                     so_ky: outboundLuggage.dataset.weight
+    //                 });
+    //             }
+
+    //             if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
+    //                 const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
+    //                 if (returnLuggage && returnLuggage.value !== '0') {
+    //                     dich_vu_hanh_ly.push({
+    //                         ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
+    //                         ma_dich_vu_hanh_ly: returnLuggage.value,
+    //                         so_ky: returnLuggage.dataset.weight
+    //                     });
+    //                 }
+    //             }
+
+    //             const adult = {
+    //                 ho_hk: document.getElementById(`adult_${i}_lastname`).value.trim(),
+    //                 ten_hk: document.getElementById(`adult_${i}_firstname`).value.trim(),
+    //                 danh_xung: document.getElementById(`adult_${i}_title`).value,
+    //                 cccd: document.getElementById(`adult_${i}_cccd`).value.trim(),
+    //                 ngay_sinh: formatBirthday(
+    //                     document.getElementById(`adult_${i}_year`).value,
+    //                     document.getElementById(`adult_${i}_month`).value,
+    //                     document.getElementById(`adult_${i}_day`).value
+    //                 ),
+    //                 quoc_tich: document.getElementById(`adult_${i}_nationality`).value,
+    //                 loai_hk: "Người lớn",
+    //                 dich_vu_hanh_ly: dich_vu_hanh_ly
+    //             };
+    //             hanh_khach.push(adult);
+    //         }
+
+    //         for (let i = 0; i < bookingData.passengers.children; i++) {
+    //             const passengerIndex = bookingData.passengers.adults + i + 1;
+    //             const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
+    //             const dich_vu_hanh_ly = [];
+
+    //             if (outboundLuggage && outboundLuggage.value !== '0') {
+    //                 dich_vu_hanh_ly.push({
+    //                     ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
+    //                     ma_dich_vu_hanh_ly: outboundLuggage.value,
+    //                     so_ky: outboundLuggage.dataset.weight
+
+    //                 });
+    //             }
+
+    //             if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
+    //                 const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
+    //                 if (returnLuggage && returnLuggage.value !== '0') {
+    //                     dich_vu_hanh_ly.push({
+    //                         ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
+    //                         ma_dich_vu_hanh_ly: returnLuggage.value,
+    //                         so_ky: returnLuggage.dataset.weight
+    //                     });
+    //                 }
+    //             }
+
+    //             const child = {
+    //                 ho_hk: document.getElementById(`child_${i}_lastname`).value.trim(),
+    //                 ten_hk: document.getElementById(`child_${i}_firstname`).value.trim(),
+    //                 danh_xung: "",
+    //                 cccd: document.getElementById(`child_${i}_cccd`).value.trim(),
+    //                 ngay_sinh: formatBirthday(
+    //                     document.getElementById(`child_${i}_year`).value,
+    //                     document.getElementById(`child_${i}_month`).value,
+    //                     document.getElementById(`child_${i}_day`).value
+    //                 ),
+    //                 quoc_tich: document.getElementById(`child_${i}_nationality`).value,
+    //                 loai_hk: "Trẻ em",
+    //                 dich_vu_hanh_ly: dich_vu_hanh_ly
+    //             };
+    //             hanh_khach.push(child);
+    //         }
+
+    //         for (let i = 0; i < (bookingData.passengers.infants || 0); i++) {
+    //             const infant = {
+    //                 ho_hk: document.getElementById(`infant_${i}_lastname`).value.trim(),
+    //                 ten_hk: document.getElementById(`infant_${i}_firstname`).value.trim(),
+    //                 danh_xung: "",
+    //                 cccd: document.getElementById(`infant_${i}_cccd`).value.trim(),
+    //                 ngay_sinh: formatBirthday(
+    //                     document.getElementById(`infant_${i}_year`).value,
+    //                     document.getElementById(`infant_${i}_month`).value,
+    //                     document.getElementById(`infant_${i}_day`).value
+    //                 ),
+    //                 quoc_tich: document.getElementById(`infant_${i}_nationality`).value,
+    //                 loai_hk: "Em bé",
+    //                 dich_vu_hanh_ly: []
+    //             };
+    //             hanh_khach.push(infant);
+    //         }
+    //         let chuyen_bay = [];
+    //         if (bookingData.outbound.flight.is_connecting) {
+    //             for (let segment of bookingData.outbound.flight.segments) {
+    //                 chuyen_bay.push({
+    //                     ma_chuyen_bay: segment.ma_chuyen_bay,
+    //                     so_ghe_bus: segment.loai_ghe === 'BUS' ? quantity : 0,
+    //                     so_ghe_eco: segment.loai_ghe === 'ECO' ? quantity : 0,
+    //                     ma_goi: bookingData.outbound.package.ma_goi
+    //                 });
+    //             }
+    //         } else {
+    //             chuyen_bay.push({
+    //                 ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
+    //                 so_ghe_bus: bookingData.outbound.flight.loai_ghe === 'BUS' ? quantity : 0,
+    //                 so_ghe_eco: bookingData.outbound.flight.loai_ghe === 'ECO' ? quantity : 0,
+    //                 ma_goi: bookingData.outbound.package.ma_goi
+    //             });
+    //         }
+
+    //         if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
+    //             if (bookingData.return.flight.is_connecting) {
+    //                 for (let segment of bookingData.return.flight.segments) {
+    //                     chuyen_bay.push({
+    //                         ma_chuyen_bay: segment.ma_chuyen_bay,
+    //                         so_ghe_bus: segment.loai_ghe === 'BUS' ? quantity : 0,
+    //                         so_ghe_eco: segment.loai_ghe === 'ECO' ? quantity : 0,
+    //                         ma_goi: bookingData.return.package.ma_goi
+    //                     });
+    //                 }
+    //             } else {
+    //                 chuyen_bay.push({
+    //                     ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
+    //                     so_ghe_bus: bookingData.return.flight.loai_ghe === 'BUS' ? quantity : 0,
+    //                     so_ghe_eco: bookingData.return.flight.loai_ghe === 'ECO' ? quantity : 0,
+    //                     ma_goi: bookingData.return.package.ma_goi
+    //                 });
+    //             }
+    //         }
+
+    //         const finalData = {
+    //             nguoi_lien_he,
+    //             hanh_khach,
+    //             chuyen_bay
+    //         };
+
+    //         const luggagePrice = getLuggageTotal();
+
+    //         bookingData.bookingDetails = finalData;
+    //         bookingData.luggagePrice = luggagePrice;
+    //         localStorage.setItem('bookingData', JSON.stringify(bookingData));
+
+    //         const response = await fetch(`${API_URL}/api/booking`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify(finalData)
+    //         });
+
+    //         const result = await response.json();
+    //         if (!response.ok) {
+    //             throw new Error(result.error || 'Có lỗi xảy ra khi tạo booking');
+    //         }
+    //         bookingData.temp = result
+    //         localStorage.setItem('bookingData', JSON.stringify(bookingData));
+    //         localStorage.setItem('isFromBookingInfo', 'true');
+    //         window.location.href = '/datcho/thanhtoan';
+
+    //     } catch (error) {
+    //         console.error('Error creating booking:', error);
+    //         alert(error.message || 'Có lỗi xảy ra, vui lòng thử lại');
+    //     } finally {
+    //         if (loadingOverlay) {
+    //             loadingOverlay.classList.add('d-none');
+    //         }
+    //     }
+    // }
+
+    function formatBirthday(year, month, day) {
+        return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
+    }
+
+
+    // Thêm event listener khi trang được tải
+    document.addEventListener('DOMContentLoaded', function () {
+        // Thêm event listener cho modal món ăn
+        const mealModal = document.getElementById('mealModal');
+        if (mealModal) {
+            mealModal.addEventListener('show.bs.modal', function () {
+                loadMeals();
+            });
+        }
+    });
+
+    // Hàm tải danh sách món ăn
+    async function loadMeals() {
+        try {
+            // Lấy dữ liệu booking từ localStorage
+            const bookingData = JSON.parse(localStorage.getItem('bookingData'));
+            const loaiVe = bookingData.outbound.flight.loai_ghe === 'BUS' ? 'bus' : 'eco';
+
+            // Gọi API lấy danh sách món ăn
+            const response = await fetch(`${API_URL}/api/meals?loai_ve=${loaiVe}`);
+            const result = await response.json();
+
+            console.log('API Response:', result); // Log để debug
+
+            if (!result.data) {
+                throw new Error('Không có dữ liệu món ăn');
+            }
+
+            if (!Array.isArray(result.data)) {
+                throw new Error('Dữ liệu món ăn không đúng định dạng');
+            }
+
+            // Lấy thông tin hành khách từ form
+            const passengers = [];
+            for (let i = 0; i < bookingData.passengers.adults; i++) {
+                const lastname = document.getElementById(`adult_${i}_lastname`).value || '';
+                const firstname = document.getElementById(`adult_${i}_firstname`).value || '';
+                passengers.push({
+                    id: `adult_${i}`,
+                    type: 'adult',
+                    name: `${lastname} ${firstname}`.trim() || `Người lớn ${i + 1}`,
+                    index: i
+                });
+            }
+
+            for (let i = 0; i < bookingData.passengers.children; i++) {
+                const lastname = document.getElementById(`child_${i}_lastname`).value || '';
+                const firstname = document.getElementById(`child_${i}_firstname`).value || '';
+                passengers.push({
+                    id: `child_${i}`,
+                    type: 'child',
+                    name: `${lastname} ${firstname}`.trim() || `Trẻ em ${i + 1}`,
+                    index: i
+                });
+            }
+
+            // Tạo tabs cho từng hành khách
+            const tabList = document.getElementById('passengerTabs');
+            const tabContent = document.getElementById('passengerTabContent');
+
+            tabList.innerHTML = '';
+            tabContent.innerHTML = '';
+
+            passengers.forEach((passenger, index) => {
+                // Tạo tab
+                tabList.innerHTML += `
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link ${index === 0 ? 'active' : ''}" 
+                            id="tab-${passenger.id}" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#content-${passenger.id}" 
+                            type="button" 
+                            role="tab">
+                        ${passenger.name}
+                    </button>
+                </li>
+            `;
+
+                // Tạo nội dung tab
+                const tabPane = document.createElement('div');
+                tabPane.className = `tab-pane fade ${index === 0 ? 'show active' : ''}`;
+                tabPane.id = `content-${passenger.id}`;
+                tabPane.setAttribute('role', 'tabpanel');
+
+                // Nhóm món ăn theo loại
+                const groupedMeals = result.data.reduce((acc, meal) => {
+                    if (!acc[meal.loai_mon]) {
+                        acc[meal.loai_mon] = [];
+                    }
+                    acc[meal.loai_mon].push(meal);
+                    return acc;
+                }, {});
+
+                // Tạo danh sách món ăn cho tab
+                Object.entries(groupedMeals).forEach(([category, meals]) => {
+                    tabPane.innerHTML += `
+                    <h6 class="mt-3 mb-2">${category}</h6>
+                    ${meals.map(meal => `
+                        <div class="card mb-2">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${meal.ten_mon}</h6>
+                                        <small class="text-muted">${meal.mo_ta || ''}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-primary mb-1">${formatPrice(meal.gia)}</div>
+                                        <input type="number" 
+                                            class="form-control form-control-sm meal-quantity" 
+                                            data-passenger-id="${passenger.id}"
+                                            data-meal-id="${meal.ma_mon}" 
+                                            data-meal-price="${meal.gia}"
+                                            style="width: 50px"
+                                            min="0" 
+                                            max="5" 
+                                            value="0"
+                                            onchange="updateMealTotal()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                });
+
+                tabContent.appendChild(tabPane);
+            });
+
+            // Khôi phục lựa chọn món ăn đã lưu
+            if (bookingData.selectedMeals && typeof bookingData.selectedMeals === 'object') {
+                for (const [passengerId, meals] of Object.entries(bookingData.selectedMeals)) {
+                    if (Array.isArray(meals)) {
+                        meals.forEach(meal => {
+                            const select = document.querySelector(
+                                `select[data-passenger-id="${passengerId}"][data-meal-id="${meal.ma_mon}"]`
+                            );
+                            if (select) {
+                                select.value = meal.so_luong;
+                            }
+                        });
+                    }
+                }
+                updateMealTotal();
+            }
+
+        } catch (error) {
+            console.error('Error loading meals:', error);
+            const tabContent = document.getElementById('passengerTabContent');
+            tabContent.innerHTML = `
+            <div class="alert alert-danger">
+                Có lỗi xảy ra khi tải danh sách món ăn
+            </div>
+        `;
+        }
+    }
+
+    // Hàm lấy tổng tiền món ăn
+    function getMealTotal() {
+        const modalMealTotal = document.getElementById('modal-meal-total');
+        if (modalMealTotal) {
+            const priceText = modalMealTotal.textContent;
+            return parseInt(priceText.replace(/[^\d]/g, '')) || 0;
+        }
+        return 0;
+    }
+
+    // Hàm lấy món ăn đã chọn
+    function getSelectedMeals() {
+        const selections = document.querySelectorAll('.meal-quantity');
+        const selectedMeals = {};
+
+        selections.forEach(select => {
+            const passengerId = select.dataset.passengerId;
+            const quantity = parseInt(select.value);
+
+            if (quantity > 0) {
+                if (!selectedMeals[passengerId]) {
+                    selectedMeals[passengerId] = [];
+                }
+
+                selectedMeals[passengerId].push({
+                    ma_mon: parseInt(select.dataset.mealId),
+                    so_luong: quantity,
+                    gia: parseFloat(select.dataset.mealPrice)
+                });
+            }
+        });
+
+        return selectedMeals;
+    }
+
+    // Hàm cập nhật tổng tiền món ăn
+    function updateMealTotal() {
+        let total = 0;
+        const selections = document.querySelectorAll('.meal-quantity');
+
+        selections.forEach(select => {
+            const quantity = parseInt(select.value);
+            const price = parseFloat(select.dataset.mealPrice);
+            total += quantity * price;
+        });
+
+        // Cập nhật hiển thị tổng tiền trong modal
+        document.getElementById('modal-meal-total').textContent = formatPrice(total);
+
+        // Cập nhật hiển thị tổng tiền bên ngoài modal
+        const mealSummary = document.getElementById('meal-summary');
+        const mealTotal = document.getElementById('meal-total');
+
+        if (total > 0) {
+            mealSummary.style.display = 'block';
+            mealTotal.textContent = formatPrice(total);
+        } else {
+            mealSummary.style.display = 'none';
+        }
+
+        // Lưu lựa chọn món ăn vào localStorage
+        const bookingData = JSON.parse(localStorage.getItem('bookingData') || '{}');
+        bookingData.selectedMeals = getSelectedMeals();
+        bookingData.mealPrice = total;
+        localStorage.setItem('bookingData', JSON.stringify(bookingData));
+    }
+
     async function saveAndContinue() {
         const loadingOverlay = document.getElementById('loadingOverlay');
         if (loadingOverlay) {
@@ -816,6 +1334,7 @@
                 throw new Error('Không tìm thấy thông tin đặt chỗ');
             }
 
+            // Lấy thông tin liên hệ
             const nguoi_lien_he = {
                 ho_nlh: document.getElementById('contact_lastname').value.trim(),
                 ten_nlh: document.getElementById('contact_firstname').value.trim(),
@@ -823,33 +1342,41 @@
                 sdt: document.getElementById('contact_phone').value.trim()
             };
 
-            const hanh_khach = [];
-            let quantity = bookingData.passengers.adults + bookingData.passengers.children;
+            // Lấy danh sách món ăn đã chọn từ bookingData
+            const selectedMeals = bookingData.selectedMeals || {};
 
+            // Chuẩn bị danh sách hành khách
+            const hanh_khach = [];
+            const quantity = bookingData.passengers.adults + bookingData.passengers.children;
+
+            // Xử lý hành khách người lớn
             for (let i = 0; i < bookingData.passengers.adults; i++) {
                 const passengerIndex = i + 1;
-                const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
+                // Xử lý dịch vụ hành lý
                 const dich_vu_hanh_ly = [];
 
-                if (outboundLuggage && outboundLuggage.value !== '0') {
-                    dich_vu_hanh_ly.push({
-                        ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
-                        ma_dich_vu_hanh_ly: outboundLuggage.value,
-                        so_ky: outboundLuggage.dataset.weight
-                    });
+                if (bookingData.outbound?.flight) {
+                    const outboundLuggage = getLuggageForFlight(
+                        bookingData.outbound.flight.ma_chuyen_bay,
+                        passengerIndex,
+                        'out'
+                    );
+                    if (outboundLuggage) dich_vu_hanh_ly.push(outboundLuggage);
                 }
 
                 if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
-                    const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
-                    if (returnLuggage && returnLuggage.value !== '0') {
-                        dich_vu_hanh_ly.push({
-                            ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
-                            ma_dich_vu_hanh_ly: returnLuggage.value,
-                            so_ky: returnLuggage.dataset.weight
-                        });
-                    }
+                    const returnLuggage = getLuggageForFlight(
+                        bookingData.return.flight.ma_chuyen_bay,
+                        passengerIndex,
+                        'return'
+                    );
+                    if (returnLuggage) dich_vu_hanh_ly.push(returnLuggage);
                 }
 
+                // Lấy món ăn cho hành khách này
+                const passengerMeals = selectedMeals[`adult_${i}`] || [];
+
+                // Thêm hành khách người lớn
                 const adult = {
                     ho_hk: document.getElementById(`adult_${i}_lastname`).value.trim(),
                     ten_hk: document.getElementById(`adult_${i}_firstname`).value.trim(),
@@ -862,35 +1389,37 @@
                     ),
                     quoc_tich: document.getElementById(`adult_${i}_nationality`).value,
                     loai_hk: "Người lớn",
-                    dich_vu_hanh_ly: dich_vu_hanh_ly
+                    dich_vu_hanh_ly: dich_vu_hanh_ly,
+                    dich_vu_mon_an: passengerMeals
                 };
                 hanh_khach.push(adult);
             }
 
+            // Xử lý hành khách trẻ em
             for (let i = 0; i < bookingData.passengers.children; i++) {
                 const passengerIndex = bookingData.passengers.adults + i + 1;
-                const outboundLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-out"]:checked`);
                 const dich_vu_hanh_ly = [];
 
-                if (outboundLuggage && outboundLuggage.value !== '0') {
-                    dich_vu_hanh_ly.push({
-                        ma_chuyen_bay: bookingData.outbound.flight.ma_chuyen_bay,
-                        ma_dich_vu_hanh_ly: outboundLuggage.value,
-                        so_ky: outboundLuggage.dataset.weight
-
-                    });
+                if (bookingData.outbound?.flight) {
+                    const outboundLuggage = getLuggageForFlight(
+                        bookingData.outbound.flight.ma_chuyen_bay,
+                        passengerIndex,
+                        'out'
+                    );
+                    if (outboundLuggage) dich_vu_hanh_ly.push(outboundLuggage);
                 }
 
                 if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
-                    const returnLuggage = document.querySelector(`input[name="luggage-p${passengerIndex}-return"]:checked`);
-                    if (returnLuggage && returnLuggage.value !== '0') {
-                        dich_vu_hanh_ly.push({
-                            ma_chuyen_bay: bookingData.return.flight.ma_chuyen_bay,
-                            ma_dich_vu_hanh_ly: returnLuggage.value,
-                            so_ky: returnLuggage.dataset.weight
-                        });
-                    }
+                    const returnLuggage = getLuggageForFlight(
+                        bookingData.return.flight.ma_chuyen_bay,
+                        passengerIndex,
+                        'return'
+                    );
+                    if (returnLuggage) dich_vu_hanh_ly.push(returnLuggage);
                 }
+
+                // Lấy món ăn cho hành khách này
+                const passengerMeals = selectedMeals[`child_${i}`] || [];
 
                 const child = {
                     ho_hk: document.getElementById(`child_${i}_lastname`).value.trim(),
@@ -904,11 +1433,13 @@
                     ),
                     quoc_tich: document.getElementById(`child_${i}_nationality`).value,
                     loai_hk: "Trẻ em",
-                    dich_vu_hanh_ly: dich_vu_hanh_ly
+                    dich_vu_hanh_ly: dich_vu_hanh_ly,
+                    dich_vu_mon_an: passengerMeals
                 };
                 hanh_khach.push(child);
             }
 
+            // Xử lý em bé
             for (let i = 0; i < (bookingData.passengers.infants || 0); i++) {
                 const infant = {
                     ho_hk: document.getElementById(`infant_${i}_lastname`).value.trim(),
@@ -922,13 +1453,16 @@
                     ),
                     quoc_tich: document.getElementById(`infant_${i}_nationality`).value,
                     loai_hk: "Em bé",
-                    dich_vu_hanh_ly: []
+                    dich_vu_hanh_ly: [],
+                    dich_vu_mon_an: []  // Em bé không có dịch vụ món ăn
                 };
                 hanh_khach.push(infant);
             }
+
+            // Xử lý thông tin chuyến bay
             let chuyen_bay = [];
             if (bookingData.outbound.flight.is_connecting) {
-                for (let segment of bookingData.outbound.flight.segments) {
+                for (const segment of bookingData.outbound.flight.segments) {
                     chuyen_bay.push({
                         ma_chuyen_bay: segment.ma_chuyen_bay,
                         so_ghe_bus: segment.loai_ghe === 'BUS' ? quantity : 0,
@@ -947,7 +1481,7 @@
 
             if (bookingData.bookingType === 'round-trip' && bookingData.return?.flight) {
                 if (bookingData.return.flight.is_connecting) {
-                    for (let segment of bookingData.return.flight.segments) {
+                    for (const segment of bookingData.return.flight.segments) {
                         chuyen_bay.push({
                             ma_chuyen_bay: segment.ma_chuyen_bay,
                             so_ghe_bus: segment.loai_ghe === 'BUS' ? quantity : 0,
@@ -971,12 +1505,16 @@
                 chuyen_bay
             };
 
+            // Lưu vào bookingData
+            const mealTotal = getMealTotal();
             const luggagePrice = getLuggageTotal();
-
             bookingData.bookingDetails = finalData;
+            bookingData.mealPrice = mealTotal;
             bookingData.luggagePrice = luggagePrice;
+
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
 
+            // Gọi API đặt chỗ
             const response = await fetch(`${API_URL}/api/booking`, {
                 method: 'POST',
                 headers: {
@@ -989,7 +1527,8 @@
             if (!response.ok) {
                 throw new Error(result.error || 'Có lỗi xảy ra khi tạo booking');
             }
-            bookingData.temp = result
+
+            bookingData.temp = result;
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
             localStorage.setItem('isFromBookingInfo', 'true');
             window.location.href = '/datcho/thanhtoan';
@@ -1003,13 +1542,10 @@
             }
         }
     }
-
-    function formatBirthday(year, month, day) {
-        return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
-    }
-
 </script>
 <script src="{{url_for('static', filename='js/helper.js')}}"></script>
+
+
 
 {% endblock %}
 

@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime, timedelta
-from app.models import ChuyenBay, MayBay, HangHangKhong, DichVu, DichVuVe, GoiDichVu, TheThanhToan
+from app.models import *
 from app import db
+from sqlalchemy import and_
 
 dichvuve = Blueprint('dichvuve', __name__)
 
@@ -236,3 +237,42 @@ def get_banks():
             'error': str(e)
         }), 500
 
+@dichvuve.route('/api/meals', methods=['GET'])
+def get_meals():
+    try:
+        # Lấy loại vé từ request (mặc định là economy)
+        loai_ve = request.args.get('loai_ve', 'eco').lower()
+        
+        # Query lấy tất cả món ăn đang phục vụ và còn trong thời gian hiệu lực
+        today = datetime.utcnow() + timedelta(hours=7)
+        print(today)
+        meals = MonAn.query.filter(
+            and_(
+                MonAn.TrangThai == 0,
+                MonAn.NgayBatDau <= today,
+                MonAn.NgayKetThuc >= today
+            )
+        ).order_by(MonAn.LoaiMonAn, MonAn.TenMonAn).all()
+        
+        # Chuẩn bị dữ liệu trả về
+        result = []
+        for meal in meals:
+            result.append({
+                'ma_mon': meal.MaMonAn,
+                'ten_mon': meal.TenMonAn,
+                'mo_ta': meal.MoTa,
+                'hinh_anh': meal.HinhAnh,
+                'loai_mon': meal.LoaiMonAn,
+                'gia': meal.GiaEco if loai_ve == 'eco' else meal.GiaBus
+            })
+        
+        return jsonify({
+            'status': 'success',
+            'data': result
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500

@@ -763,13 +763,14 @@
         const flightPrice = bookingData.basePrice || 0;
         const luggagePrice = bookingData.luggagePrice || 0;
         const discountAmount = bookingData.appliedPromotion?.discount || 0;
-        const totalPrice = flightPrice + luggagePrice - discountAmount;
-
+        const mealPrice = bookingData.mealPrice
+        const totalPrice = flightPrice + luggagePrice + mealPrice - discountAmount;
         if (totalPriceElement) {
             let priceHTML = `
             <div class="text-end">
                 <div class="text-muted small">Giá vé: ${formatPrice(flightPrice)}</div>
                 ${luggagePrice > 0 ? `<div class="text-muted small">Hành lý: +${formatPrice(luggagePrice)}</div>` : ''}
+                ${mealPrice > 0 ? `<div class="text-muted small">Đồ ăn kèm: +${formatPrice(mealPrice)}</div>` : ''}
                 ${discountAmount > 0 ? `<div class="text-success small">Giảm giá: -${formatPrice(discountAmount)}</div>` : ''}
                 <div class="text-primary fw-bold fs-4 mt-1">${formatPrice(totalPrice)}</div>
             </div>

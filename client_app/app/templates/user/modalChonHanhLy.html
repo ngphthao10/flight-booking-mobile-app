@@ -88,31 +88,72 @@
         }
 
         function createPassengerSection(passengerIndex, direction, services, seatClass, baseLuggage) {
+            // const container = document.createElement('div');
+            // container.className = 'mb-4';
+
+            // const isAdult = passengerIndex <= bookingData.passengers.adults;
+            // const passengerType = isAdult ? 'Người lớn' : 'Trẻ em';
+            // const totalPassengers = bookingData.passengers.adults + bookingData.passengers.children;
+
+            // const flightData = direction === 'out' ? bookingData.outbound.flight : bookingData.return?.flight;
+            // const routeDisplay = formatFlightRoute(flightData);
+
+            // container.innerHTML = `
+            // <div class="d-flex justify-content-between align-items-center mb-3">
+            //     <div>
+            //         <h6 class="fw-bold mb-1">Hành khách ${passengerIndex}/${totalPassengers}</h6>
+            //         <p class="fw-bold mb-1">Tên hành khách:</p>
+            //         <p class="text-muted mb-0">${passengerType} ${isAdult ? passengerIndex : passengerIndex - bookingData.passengers.adults}</p>
+            //     </div>
+            //     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+            //         ${seatClass}
+            //     </span>
+            // </div>
+
+            // <div class="d-flex align-items-center mb-3">
+            //     <i class="bi bi-airplane me-2"></i>
+            //     <span>${routeDisplay}</span>
+            // </div>`;
+
             const container = document.createElement('div');
             container.className = 'mb-4';
 
             const isAdult = passengerIndex <= bookingData.passengers.adults;
             const passengerType = isAdult ? 'Người lớn' : 'Trẻ em';
-            const totalPassengers = bookingData.passengers.adults + bookingData.passengers.children;
 
+            // Lấy tên hành khách từ localStorage
+            let passengerName = 'Chưa cập nhật';
+            const storedNames = JSON.parse(localStorage.getItem('passengerNames') || '{}');
+            const passengerKey = `${isAdult ? 'adult' : 'child'}_${isAdult ? passengerIndex - 1 : passengerIndex - bookingData.passengers.adults - 1}`;
+
+            if (storedNames[passengerKey]) {
+                const lastName = storedNames[passengerKey].lastname || '';
+                const firstName = storedNames[passengerKey].firstname || '';
+                if (lastName || firstName) {
+                    passengerName = `${lastName} ${firstName}`.trim();
+                }
+            }
+
+            const totalPassengers = bookingData.passengers.adults + bookingData.passengers.children;
             const flightData = direction === 'out' ? bookingData.outbound.flight : bookingData.return?.flight;
             const routeDisplay = formatFlightRoute(flightData);
 
             container.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h6 class="fw-bold mb-1">Hành khách ${passengerIndex}/${totalPassengers}</h6>
-                    <p class="text-muted mb-0">${passengerType} ${isAdult ? passengerIndex : passengerIndex - bookingData.passengers.adults}</p>
-                </div>
-                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
-                    ${seatClass}
-                </span>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h6 class="fw-bold mb-1">Hành khách ${passengerIndex}/${totalPassengers}</h6>
+                <p class="text-muted mb-0">Hành khách: ${passengerName}</p>
+                <small class="text-muted">${passengerType} ${isAdult ? passengerIndex : passengerIndex - bookingData.passengers.adults}</small>
             </div>
-            
-            <div class="d-flex align-items-center mb-3">
-                <i class="bi bi-airplane me-2"></i>
-                <span>${routeDisplay}</span>
-            </div>`;
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                ${seatClass}
+            </span>
+        </div>
+        
+        <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-airplane me-2"></i>
+            <span>${routeDisplay}</span>
+        </div>`;
 
             const baseLuggageSection = `
             <div class="bg-light p-3 rounded mb-4">

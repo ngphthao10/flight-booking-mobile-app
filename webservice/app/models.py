@@ -391,3 +391,33 @@ class TheThanhToan(db.Model):
     TenChuThe = db.Column(db.String(100), nullable=False)
     NganHang = db.Column(db.String(50), nullable=False)
     SoDu = db.Column(db.DECIMAL(15,2), default=0)
+
+class MonAn(db.Model):
+    __tablename__ = 'MONAN'
+    
+    MaMonAn = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TenMonAn = db.Column(db.String(100), nullable=False)
+    MoTa = db.Column(db.String(500))
+    HinhAnh = db.Column(db.String(255))
+    LoaiMonAn = db.Column(db.String(50), nullable=False)
+    NgayBatDau = db.Column(db.Date, nullable=False)
+    NgayKetThuc = db.Column(db.Date, nullable=False)
+    GiaEco = db.Column(db.DECIMAL(15,2), nullable=False)
+    GiaBus = db.Column(db.DECIMAL(15,2), nullable=False)
+    TrangThai = db.Column(db.Integer, default=0)
+
+    # Relationship với ChiTietDatChoMonAn
+    chi_tiet_dat_cho = db.relationship('ChiTietDatChoMonAn', backref='mon_an')
+
+
+class ChiTietDatChoMonAn(db.Model):
+    __tablename__ = 'CHITIETDATCHO_MONAN'
+    
+    MaDatCho = db.Column(db.Integer, db.ForeignKey('DATCHO.MaDatCho', ondelete='CASCADE'), primary_key=True)
+    MaHK = db.Column(db.Integer, db.ForeignKey('HANHKHACH.MaHanhKhach', ondelete='CASCADE'), primary_key=True)
+    MaMonAn = db.Column(db.Integer, db.ForeignKey('MONAN.MaMonAn', ondelete='CASCADE'), primary_key=True)
+    SoLuong = db.Column(db.Integer, nullable=False, default=1)
+
+    # Relationships
+    dat_cho = db.relationship('DatCho', backref='chitietdatcho_monan')
+    hanh_khach = db.relationship('HanhKhach', backref='chitietdatcho_monan')
