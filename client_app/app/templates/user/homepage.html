@@ -1,364 +1,710 @@
-{% extends "user/base.html" %}
-{% block content %}
-{% include 'user/navbar.html'%}
+{% extends "user/base.html" %} {% block content %} {% include
+'user/navbar.html'%}
 <div class="container mt-5 mb-5">
-    {% if error %}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ error }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endif %}
+  {% if error %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endif %}
 
-    <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="validationAlert">
-        <span id="validationMessage"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <div
+    class="alert alert-danger alert-dismissible fade show d-none"
+    role="alert"
+    id="validationAlert"
+  >
+    <span id="validationMessage"></span>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+
+  <div class="card shadow border-0">
+    <div class="card-header bg-dark text-white">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-airplane-engines me-2"></i>
+        <h5 class="mb-0">Tìm kiếm chuyến bay</h5>
+      </div>
     </div>
 
-    <div class="card shadow border-0">
-        <div class="card-header bg-dark text-white">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-airplane-engines me-2"></i>
-                <h5 class="mb-0">Tìm kiếm chuyến bay</h5>
+    <div class="card border-0 rounded-4 mx-auto my-4">
+      <div
+        class="card-header text-white d-flex align-items-center justify-content-center gap-2"
+        style="
+          background: linear-gradient(135deg, #007bff, #6610f2);
+          font-size: 1rem;
+          border-top-left-radius: inherit;
+          border-top-right-radius: inherit;
+        "
+      >
+        <!-- Icon đồng hồ -->
+        <svg
+          width="24"
+          height="24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12 7V12L14.5 10.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+        <span class="fw-semibold">Tra cứu gần đây</span>
+      </div>
+
+      <!-- Danh sách hiển thị ngang -->
+      <ul
+        class="list-group list-group-flush d-flex flex-row"
+        id="searchHistoryList"
+        style="overflow-x: auto; white-space: nowrap; gap: 15px"
+      >
+        <!-- Các item sẽ được thêm bằng JS -->
+      </ul>
+    </div>
+
+    <div class="card-body">
+      <form
+        action="{{ url_for('homepage.search_flights') }}"
+        method="POST"
+        id="searchForm"
+        class="needs-validation"
+        novalidate
+      >
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="position-relative">
+              <label class="form-label">Hành khách</label>
+              <div class="dropdown w-100">
+                <button
+                  class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
+                  type="button"
+                  id="passengerButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span>1 Người lớn, 0 Trẻ em, 0 Em bé</span>
+                  <i class="bi bi-person"></i>
+                </button>
+                <div class="dropdown-menu p-3" style="width: 300px">
+                  <div class="mb-3">
+                    <label
+                      for="nguoiLon"
+                      class="form-label d-flex justify-content-between"
+                    >
+                      <span>Người lớn</span>
+                      <small class="text-muted">(>12 tuổi)</small>
+                    </label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        id="nguoiLon"
+                        name="nguoiLon"
+                        class="form-control text-center passenger-input"
+                        value="1"
+                        min="1"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label
+                      for="treEm"
+                      class="form-label d-flex justify-content-between"
+                    >
+                      <span>Trẻ em</span>
+                      <small class="text-muted">(2-12 tuổi)</small>
+                    </label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        id="treEm"
+                        name="treEm"
+                        class="form-control text-center passenger-input"
+                        value="0"
+                        min="0"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label
+                      for="emBe"
+                      class="form-label d-flex justify-content-between"
+                    >
+                      <span>Em bé</span>
+                      <small class="text-muted">(<2 tuổi)</small>
+                    </label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        id="emBe"
+                        name="emBe"
+                        class="form-control text-center passenger-input"
+                        value="0"
+                        min="0"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <label class="form-label">Hạng ghế</label>
+            <select class="form-select" name="seat_class">
+              {% for class in default_data.seat_class %}
+              <option value="{{ class.value }}">{{ class.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
-        <div class="card-body">
-            <form action="{{ url_for('homepage.search_flights') }}" method="POST" id="searchForm"
-                class="needs-validation" novalidate>
-                <div class="row mb-4">
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="position-relative">
-                            <label class="form-label">Hành khách</label>
-                            <div class="dropdown w-100">
-                                <button
-                                    class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
-                                    type="button" id="passengerButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span>1 Người lớn, 0 Trẻ em, 0 Em bé</span>
-                                    <i class="bi bi-person"></i>
-                                </button>
-                                <div class="dropdown-menu p-3" style="width: 300px;">
-                                    <div class="mb-3">
-                                        <label for="nguoiLon" class="form-label d-flex justify-content-between">
-                                            <span>Người lớn</span>
-                                            <small class="text-muted">(>12 tuổi)</small>
-                                        </label>
-                                        <div class="input-group">
-                                            <input type="number" id="nguoiLon" name="nguoiLon"
-                                                class="form-control text-center passenger-input" value="1" min="1"
-                                                required>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="treEm" class="form-label d-flex justify-content-between">
-                                            <span>Trẻ em</span>
-                                            <small class="text-muted">(2-12 tuổi)</small>
-                                        </label>
-                                        <div class="input-group">
-                                            <input type="number" id="treEm" name="treEm"
-                                                class="form-control text-center passenger-input" value="0" min="0"
-                                                required>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="emBe" class="form-label d-flex justify-content-between">
-                                            <span>Em bé</span>
-                                            <small class="text-muted">(<2 tuổi)</small>
-                                        </label>
-                                        <div class="input-group">
-                                            <input type="number" id="emBe" name="emBe"
-                                                class="form-control text-center passenger-input" value="0" min="0"
-                                                required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <label class="form-label">Hạng ghế</label>
-                        <select class="form-select" name="seat_class">
-                            {% for class in default_data.seat_class %}
-                            <option value="{{ class.value }}">{{ class.label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3">
+            <div class="row">
+              <div class="col-md-5">
+                <label class="form-label">Điểm đi</label>
+                <input type="hidden" name="origin" id="origin" />
+                <div class="dropdown w-100">
+                  <button
+                    class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
+                    type="button"
+                    id="originDropdownButton"
+                    data-bs-toggle="dropdown"
+                  >
+                    <span>Chọn điểm đi</span>
+                    <i class="bi bi-geo-alt"></i>
+                  </button>
+                  <ul class="dropdown-menu w-100" id="origin-list">
+                    <li class="px-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="searchInputOrigin"
+                        placeholder="Tìm kiếm..."
+                      />
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    {% for sb in san_bay %}
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        href="#"
+                        onclick="selectOrigin('{{sb.thanh_pho}} ({{sb.ma_san_bay}})', '{{sb.ma_san_bay}}')"
+                      >
+                        {{sb.thanh_pho}} ({{sb.ma_san_bay}})
+                      </a>
+                    </li>
+                    {% endfor %}
+                  </ul>
                 </div>
+              </div>
 
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <label class="form-label">Điểm đi</label>
-                                <input type="hidden" name="origin" id="origin">
-                                <div class="dropdown w-100">
-                                    <button
-                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
-                                        type="button" id="originDropdownButton" data-bs-toggle="dropdown">
-                                        <span>Chọn điểm đi</span>
-                                        <i class="bi bi-geo-alt"></i>
-                                    </button>
-                                    <ul class="dropdown-menu w-100" id="origin-list">
-                                        <li class="px-3">
-                                            <input type="text" class="form-control" id="searchInputOrigin"
-                                                placeholder="Tìm kiếm...">
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        {% for sb in san_bay %}
-                                        <li>
-                                            <a class="dropdown-item" href="#"
-                                                onclick="selectOrigin('{{sb.thanh_pho}} ({{sb.ma_san_bay}})', '{{sb.ma_san_bay}}')">
-                                                {{sb.thanh_pho}} ({{sb.ma_san_bay}})
-                                            </a>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
+              <div
+                class="col-md-2 d-flex align-items-center justify-content-center my-2"
+              >
+                <button
+                  class="btn btn-outline-dark rounded-circle"
+                  type="button"
+                  id="swap-button"
+                >
+                  <i class="bi bi-arrow-left-right"></i>
+                </button>
+              </div>
 
-                            <div class="col-md-2 d-flex align-items-center justify-content-center my-2">
-                                <button class="btn btn-outline-dark rounded-circle" type="button" id="swap-button">
-                                    <i class="bi bi-arrow-left-right"></i>
-                                </button>
-                            </div>
-
-                            <div class="col-md-5">
-                                <label class="form-label">Điểm đến</label>
-                                <input type="hidden" name="destination" id="destination">
-                                <div class="dropdown w-100">
-                                    <button
-                                        class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
-                                        type="button" id="destinationDropdownButton" data-bs-toggle="dropdown">
-                                        <span>Chọn điểm đến</span>
-                                        <i class="bi bi-geo-alt"></i>
-                                    </button>
-                                    <ul class="dropdown-menu w-100" id="destination-list">
-                                        <li class="px-3">
-                                            <input type="text" class="form-control" id="searchInputDestination"
-                                                placeholder="Tìm kiếm...">
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        {% for sb in san_bay %}
-                                        <li>
-                                            <a class="dropdown-item" href="#"
-                                                onclick="selectDestination('{{sb.thanh_pho}} ({{sb.ma_san_bay}})', '{{sb.ma_san_bay}}')">
-                                                {{sb.thanh_pho}} ({{sb.ma_san_bay}})
-                                            </a>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Ngày đi</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                                    <input type="date" id="departure-date" name="departure-date" class="form-control"
-                                        value="{{ default_data.departure_date }}" min="{{ today_date }}" required>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Ngày về</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-                                    <input type="date" id="return-date" name="return-date" class="form-control"
-                                        value="{{ default_data.return_date }}" min="{{ today_date }}" disabled>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+              <div class="col-md-5">
+                <label class="form-label">Điểm đến</label>
+                <input type="hidden" name="destination" id="destination" />
+                <div class="dropdown w-100">
+                  <button
+                    class="btn btn-outline-secondary dropdown-toggle w-100 d-flex align-items-center justify-content-between"
+                    type="button"
+                    id="destinationDropdownButton"
+                    data-bs-toggle="dropdown"
+                  >
+                    <span>Chọn điểm đến</span>
+                    <i class="bi bi-geo-alt"></i>
+                  </button>
+                  <ul class="dropdown-menu w-100" id="destination-list">
+                    <li class="px-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="searchInputDestination"
+                        placeholder="Tìm kiếm..."
+                      />
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    {% for sb in san_bay %}
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        href="#"
+                        onclick="selectDestination('{{sb.thanh_pho}} ({{sb.ma_san_bay}})', '{{sb.ma_san_bay}}')"
+                      >
+                        {{sb.thanh_pho}} ({{sb.ma_san_bay}})
+                      </a>
+                    </li>
+                    {% endfor %}
+                  </ul>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="form-check float-end">
-                            <input type="checkbox" name="return-trip" class="form-check-input" id="return-trip">
-                            <label class="form-check-label" for="return-trip">Khứ hồi</label>
-                        </div>
-                    </div>
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ngày đi</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="bi bi-calendar"></i
+                  ></span>
+                  <input
+                    type="date"
+                    id="departure-date"
+                    name="departure-date"
+                    class="form-control"
+                    value="{{ default_data.departure_date }}"
+                    min="{{ today_date }}"
+                    required
+                  />
                 </div>
+              </div>
 
-                <div class="d-grid">
-                    <button class="btn btn-outline-dark btn-lg" type="submit">
-                        <i class="bi bi-search me-2"></i>Tìm kiếm chuyến bay
-                    </button>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ngày về</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="bi bi-calendar"></i
+                  ></span>
+                  <input
+                    type="date"
+                    id="return-date"
+                    name="return-date"
+                    class="form-control"
+                    value="{{ default_data.return_date }}"
+                    min="{{ today_date }}"
+                    disabled
+                  />
                 </div>
-            </form>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="form-check float-end">
+              <input
+                type="checkbox"
+                name="return-trip"
+                class="form-check-input"
+                id="return-trip"
+              />
+              <label class="form-check-label" for="return-trip">Khứ hồi</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid">
+          <button class="btn btn-outline-dark btn-lg" type="submit">
+            <i class="bi bi-search me-2"></i>Tìm kiếm chuyến bay
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
 {% include 'user/footer.html'%}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("searchForm");
+    const validationAlert = document.getElementById("validationAlert");
+    const validationMessage = document.getElementById("validationMessage");
 
-        const form = document.getElementById('searchForm');
-        const validationAlert = document.getElementById('validationAlert');
-        const validationMessage = document.getElementById('validationMessage');
+    document.querySelectorAll(".passenger-input").forEach((input) => {
+      input.addEventListener("change", function () {
+        const minValue = parseInt(this.min) || 0;
+        this.value = Math.max(minValue, parseInt(this.value) || 0);
 
-        document.querySelectorAll('.passenger-input').forEach(input => {
-            input.addEventListener('change', function () {
-                const minValue = parseInt(this.min) || 0;
-                this.value = Math.max(minValue, parseInt(this.value) || 0);
+        const adults = parseInt(document.getElementById("nguoiLon").value) || 0;
+        const children = document.getElementById("treEm").value;
+        const infants = parseInt(document.getElementById("emBe").value) || 0;
 
-                const adults = parseInt(document.getElementById('nguoiLon').value) || 0;
-                const children = document.getElementById('treEm').value;
-                const infants = parseInt(document.getElementById('emBe').value) || 0;
-
-                document.getElementById('passengerButton').querySelector('span').textContent =
-                    `${adults} Người lớn, ${children} Trẻ em, ${infants} Em bé`;
-                if (infants > adults) {
-                    validationAlert.classList.remove('d-none');
-                    validationMessage.textContent = 'Số em bé không được nhiều hơn số người lớn';
-                    return false;
-                }
-
-                validationAlert.classList.add('d-none');
-            });
-        });
-
-        // Filter dropdowns
-        function filterDropdown(inputId, dropdownId) {
-            const input = document.getElementById(inputId);
-            const filter = input.value.toLowerCase();
-            const dropdownItems = document.querySelectorAll(`#${dropdownId} .dropdown-item`);
-
-            dropdownItems.forEach(function (item) {
-                const text = item.textContent || item.innerText;
-                if (text.toLowerCase().indexOf(filter) > -1) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+        document
+          .getElementById("passengerButton")
+          .querySelector(
+            "span"
+          ).textContent = `${adults} Người lớn, ${children} Trẻ em, ${infants} Em bé`;
+        if (infants > adults) {
+          validationAlert.classList.remove("d-none");
+          validationMessage.textContent =
+            "Số em bé không được nhiều hơn số người lớn";
+          return false;
         }
 
-        window.selectOrigin = function (displayText, airportCode) {
-            document.getElementById('originDropdownButton').querySelector('span').textContent = displayText;
-            document.getElementById('origin').value = airportCode;
-        }
-
-        window.selectDestination = function (displayText, airportCode) {
-            document.getElementById('destinationDropdownButton').querySelector('span').textContent = displayText;
-            document.getElementById('destination').value = airportCode;
-        }
-
-        document.getElementById('searchInputOrigin').addEventListener('keyup', function () {
-            filterDropdown('searchInputOrigin', 'origin-list');
-        });
-
-        document.getElementById('searchInputDestination').addEventListener('keyup', function () {
-            filterDropdown('searchInputDestination', 'destination-list');
-        });
-
-        document.getElementById('swap-button').addEventListener('click', function (e) {
-            e.preventDefault();
-            let originButton = document.getElementById('originDropdownButton').querySelector('span');
-            let destinationButton = document.getElementById('destinationDropdownButton').querySelector('span');
-            let originInput = document.getElementById('origin');
-            let destinationInput = document.getElementById('destination');
-
-            let tempText = originButton.textContent;
-            let tempValue = originInput.value;
-
-            originButton.textContent = destinationButton.textContent;
-            originInput.value = destinationInput.value;
-
-            destinationButton.textContent = tempText;
-            destinationInput.value = tempValue;
-        });
-
-        document.getElementById('return-trip').addEventListener('change', function () {
-            const returnDateInput = document.getElementById('return-date');
-            returnDateInput.disabled = !this.checked;
-
-            if (this.checked) {
-                const departureDate = document.getElementById('departure-date').value;
-                returnDateInput.min = departureDate;
-                if (!returnDateInput.value) {
-                    returnDateInput.value = departureDate;
-                }
-            }
-        });
-
-        const today = new Date().toISOString().split('T')[0];
-        const departureDate = document.getElementById('departure-date');
-        const returnDate = document.getElementById('return-date');
-
-        departureDate.min = today;
-        departureDate.addEventListener('change', function () {
-            if (document.getElementById('return-trip').checked) {
-                returnDate.min = this.value;
-                if (returnDate.value && returnDate.value < this.value) {
-                    returnDate.value = this.value;
-                }
-            }
-        });
-
-        form.addEventListener('submit', function (e) {
-            if (!validatePassengers()) {
-                e.preventDefault();
-                return;
-            }
-
-            const origin = document.getElementById('origin').value;
-            const destination = document.getElementById('destination').value;
-
-            if (!origin || !destination) {
-                e.preventDefault();
-                validationAlert.classList.remove('d-none');
-                validationMessage.textContent = 'Vui lòng chọn điểm đi và điểm đến';
-                return;
-            }
-
-            if (origin === destination) {
-                e.preventDefault();
-                validationAlert.classList.remove('d-none');
-                validationMessage.textContent = 'Điểm đi và điểm đến không được trùng nhau';
-                return;
-            }
-
-            const departureDate = document.getElementById('departure-date').value;
-            if (!departureDate) {
-                e.preventDefault();
-                validationAlert.classList.remove('d-none');
-                validationMessage.textContent = 'Vui lòng chọn ngày đi';
-                return;
-            }
-
-            if (document.getElementById('return-trip').checked) {
-                const returnDate = document.getElementById('return-date').value;
-                if (!returnDate) {
-                    e.preventDefault();
-                    validationAlert.classList.remove('d-none');
-                    validationMessage.textContent = 'Vui lòng chọn ngày về';
-                    return;
-                }
-
-                if (returnDate < departureDate) {
-                    e.preventDefault();
-                    validationAlert.classList.remove('d-none');
-                    validationMessage.textContent = 'Ngày về phải sau ngày đi';
-                    return;
-                }
-            }
-        });
-
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
+        validationAlert.classList.add("d-none");
+      });
     });
+
+    // Filter dropdowns
+    function filterDropdown(inputId, dropdownId) {
+      const input = document.getElementById(inputId);
+      const filter = input.value.toLowerCase();
+      const dropdownItems = document.querySelectorAll(
+        `#${dropdownId} .dropdown-item`
+      );
+
+      dropdownItems.forEach(function (item) {
+        const text = item.textContent || item.innerText;
+        if (text.toLowerCase().indexOf(filter) > -1) {
+          item.style.display = "";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    }
+
+    window.selectOrigin = function (displayText, airportCode) {
+      document
+        .getElementById("originDropdownButton")
+        .querySelector("span").textContent = displayText;
+      document.getElementById("origin").value = airportCode;
+    };
+
+    window.selectDestination = function (displayText, airportCode) {
+      document
+        .getElementById("destinationDropdownButton")
+        .querySelector("span").textContent = displayText;
+      document.getElementById("destination").value = airportCode;
+    };
+
+    document
+      .getElementById("searchInputOrigin")
+      .addEventListener("keyup", function () {
+        filterDropdown("searchInputOrigin", "origin-list");
+      });
+
+    document
+      .getElementById("searchInputDestination")
+      .addEventListener("keyup", function () {
+        filterDropdown("searchInputDestination", "destination-list");
+      });
+
+    document
+      .getElementById("swap-button")
+      .addEventListener("click", function (e) {
+        e.preventDefault();
+        let originButton = document
+          .getElementById("originDropdownButton")
+          .querySelector("span");
+        let destinationButton = document
+          .getElementById("destinationDropdownButton")
+          .querySelector("span");
+        let originInput = document.getElementById("origin");
+        let destinationInput = document.getElementById("destination");
+
+        let tempText = originButton.textContent;
+        let tempValue = originInput.value;
+
+        originButton.textContent = destinationButton.textContent;
+        originInput.value = destinationInput.value;
+
+        destinationButton.textContent = tempText;
+        destinationInput.value = tempValue;
+      });
+
+    document
+      .getElementById("return-trip")
+      .addEventListener("change", function () {
+        const returnDateInput = document.getElementById("return-date");
+        returnDateInput.disabled = !this.checked;
+
+        if (this.checked) {
+          const departureDate = document.getElementById("departure-date").value;
+          returnDateInput.min = departureDate;
+          if (!returnDateInput.value) {
+            returnDateInput.value = departureDate;
+          }
+        }
+      });
+
+    const today = new Date().toISOString().split("T")[0];
+    const departureDate = document.getElementById("departure-date");
+    const returnDate = document.getElementById("return-date");
+
+    departureDate.min = today;
+    departureDate.addEventListener("change", function () {
+      if (document.getElementById("return-trip").checked) {
+        returnDate.min = this.value;
+        if (returnDate.value && returnDate.value < this.value) {
+          returnDate.value = this.value;
+        }
+      }
+    });
+
+    form.addEventListener("submit", function (e) {
+      const origin = document.getElementById("origin").value;
+      const destination = document.getElementById("destination").value;
+
+      if (!origin || !destination) {
+        e.preventDefault();
+        validationAlert.classList.remove("d-none");
+        validationMessage.textContent = "Vui lòng chọn điểm đi và điểm đến";
+        return;
+      }
+
+      if (origin === destination) {
+        e.preventDefault();
+        validationAlert.classList.remove("d-none");
+        validationMessage.textContent =
+          "Điểm đi và điểm đến không được trùng nhau";
+        return;
+      }
+
+      const departureDate = document.getElementById("departure-date").value;
+      if (!departureDate) {
+        e.preventDefault();
+        validationAlert.classList.remove("d-none");
+        validationMessage.textContent = "Vui lòng chọn ngày đi";
+        return;
+      }
+
+      if (document.getElementById("return-trip").checked) {
+        const returnDate = document.getElementById("return-date").value;
+        if (!returnDate) {
+          e.preventDefault();
+          validationAlert.classList.remove("d-none");
+          validationMessage.textContent = "Vui lòng chọn ngày về";
+          return;
+        }
+
+        if (returnDate < departureDate) {
+          e.preventDefault();
+          validationAlert.classList.remove("d-none");
+          validationMessage.textContent = "Ngày về phải sau ngày đi";
+          return;
+        }
+      }
+
+      // Save search history
+      saveSearchHistory();
+    });
+
+    // Save search history to cookies
+    function saveSearchHistory() {
+      const from = document
+        .getElementById("originDropdownButton")
+        .querySelector("span").textContent;
+      const fromCode = document.getElementById("origin").value;
+      const to = document
+        .getElementById("destinationDropdownButton")
+        .querySelector("span").textContent;
+      const toCode = document.getElementById("destination").value;
+      const date = document.getElementById("departure-date").value;
+
+      const searchData = { from, fromCode, to, toCode, date };
+      let searches = getCookie("flightHistory")
+        ? JSON.parse(getCookie("flightHistory"))
+        : [];
+
+      if (!Array.isArray(searches)) {
+        searches = [];
+      }
+
+      searches.unshift(searchData);
+      searches = searches.slice(0, 3);
+
+      // Truyền trực tiếp mảng searches vào setCookie (không stringify thêm)
+      setCookie("flightHistory", JSON.stringify(searches), 1);
+      displaySearchHistory();
+    }
+
+    // Set cookie
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+      }
+      // Giả sử value đã là chuỗi JSON hợp lệ
+      document.cookie =
+        name +
+        "=" +
+        encodeURIComponent(value) +
+        expires +
+        "; path=/; SameSite=Lax";
+      console.log("✅ Cookie đã lưu:", document.cookie);
+    }
+
+    // Get cookie
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        let c = cookies[i].trim(); // Loại bỏ khoảng trắng
+        if (c.indexOf(nameEQ) === 0) {
+          return decodeURIComponent(c.substring(nameEQ.length));
+        }
+      }
+      return null;
+    }
+
+    // Display search history from cookies
+    function displaySearchHistory() {
+      let cookieData = getCookie("flightHistory");
+
+      // Hiển thị dữ liệu cookies trên console để kiểm tra
+      console.log("Dữ liệu cookies lấy được:", cookieData);
+
+      if (!cookieData) {
+        console.warn("Không tìm thấy dữ liệu lịch sử tìm kiếm trong cookies.");
+        return;
+      }
+
+      let searches;
+      try {
+        searches = JSON.parse(cookieData); // Kiểm tra JSON có hợp lệ không
+        console.log("Lịch sử tìm kiếm (parsed JSON):", searches);
+        console.log(
+          "Kiểu của searches:",
+          typeof searches,
+          Array.isArray(searches)
+        );
+      } catch (error) {
+        console.error("Lỗi khi parse JSON từ cookies:", error);
+        return;
+      }
+
+      const historyContainer = document.getElementById("searchHistoryList");
+      historyContainer.innerHTML = ""; // Xóa danh sách cũ trước khi cập nhật
+
+      searches.forEach((search) => {
+        // Tạo phần tử card
+        const card = document.createElement("div");
+        card.className = "card mb-3 shadow-sm";
+        card.style.cursor = "pointer"; // Cho phép click
+
+        // Tạo phần tử card-body
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+
+        const tripType = search.returnDate ? "ROUND TRIP" : "ONE WAY";
+        const seatClass = search.seatClass || "Economy";
+
+        // Dòng trên tiêu đề (title) và ngày giờ
+        const headerRow = document.createElement("div");
+        headerRow.className =
+          "d-flex justify-content-between align-items-center mb-2";
+
+        // Tiêu đề (tripType - seatClass)
+        const cardTitle = document.createElement("h5");
+        cardTitle.className = "card-title mb-0";
+        cardTitle.textContent = `${tripType} - ${seatClass}`;
+
+        // Ngày giờ (nếu bạn có dữ liệu giờ, ví dụ search.time, thì ghép vào)
+        const dateTime = document.createElement("small");
+        dateTime.className = "text-muted";
+        dateTime.textContent = `Ngày: ${search.date || ""}`;
+
+        // Gắn vào headerRow
+        headerRow.appendChild(cardTitle);
+        headerRow.appendChild(dateTime);
+
+        // ----- Tạo phần hiển thị Điểm đi -> Điểm đến -----
+        const hr = document.createElement("hr"); // đường kẻ ngăn cách
+
+        // Tạo dòng (row) chứa thông tin đi & đến
+        const flightRow = document.createElement("div");
+        flightRow.className = "row align-items-center";
+
+        // Cột "Điểm đi"
+        const fromCol = document.createElement("div");
+        fromCol.className = "col-auto text-center";
+        fromCol.innerHTML = `
+                    <i class="bi bi-airplane"></i>
+                    <span class="ms-1 fw-bold">${search.from}</span>
+                `;
+
+        // Mũi tên
+        const arrowCol = document.createElement("div");
+        arrowCol.className = "col-auto";
+        arrowCol.innerHTML = `
+                    <i class="bi bi-arrow-right fs-4"></i>
+                `;
+
+        // Cột "Điểm đến"
+        const toCol = document.createElement("div");
+        toCol.className = "col-auto text-center";
+        toCol.innerHTML = `
+                    <i class="bi bi-airplane"></i>
+                    <span class="ms-1 fw-bold">${search.to}</span>
+                `;
+
+        // Thêm các cột vào flightRow
+        flightRow.appendChild(fromCol);
+        flightRow.appendChild(arrowCol);
+        flightRow.appendChild(toCol);
+
+        // ----- Gắn tất cả vào card-body -----
+        cardBody.appendChild(headerRow);
+        cardBody.appendChild(hr);
+        cardBody.appendChild(flightRow);
+
+        // ----- Gắn card-body vào card -----
+        card.appendChild(cardBody);
+
+        // Sự kiện click để load lại thông tin tìm kiếm
+        card.onclick = () => loadSearch(search);
+
+        // Cuối cùng, thêm card vào container
+        historyContainer.appendChild(card);
+      });
+    }
+
+    // Load search data into form
+    function loadSearch(search) {
+      document
+        .getElementById("originDropdownButton")
+        .querySelector("span").textContent = search.from;
+      document.getElementById("origin").value = search.fromCode;
+      document
+        .getElementById("destinationDropdownButton")
+        .querySelector("span").textContent = search.to;
+      document.getElementById("destination").value = search.toCode;
+      document.getElementById("departure-date").value = search.date;
+    }
+
+    // Call displaySearchHistory when the page loads
+    displaySearchHistory();
+
+    var tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
 </script>
 <script src="{{url_for('static', filename='js/signout.js')}}"></script>
 {% endblock %}

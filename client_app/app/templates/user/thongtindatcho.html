@@ -462,12 +462,14 @@
                     </select>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label">Số CCCD<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="${type}_${index}_cccd" name="${type}_${index}_cccd" required>
+           ${type === 'adult' ? `
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Số CCCD<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="${type}_${index}_cccd" name="${type}_${index}_cccd" required>
+                    </div>
                 </div>
-            </div>
+        ` : ''}
         `;
     }
 

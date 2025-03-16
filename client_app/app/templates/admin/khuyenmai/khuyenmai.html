@@ -67,6 +67,7 @@
                             <th>Giá trị</th>
                             <th>Ngày Bắt Đầu</th>
                             <th>Ngày Kết Thúc</th>
+                            <th>Áp dụng</th>
                             <th class="text-center">Hành động</th>
                         </tr>
                     </thead>
@@ -297,7 +298,7 @@
 
         resetBtn.addEventListener('click', resetForm);
         // Create or Update promotion
-        form.addEventListener('submit', async function (e) {
+        document.getElementById('khuyenmai-form').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             if (!this.checkValidity()) {
@@ -313,17 +314,35 @@
 
             const ngayBatDau = new Date(document.getElementById('ngayBatDau').value).toLocaleDateString('vi-VN'); // Format as dd/mm/yyyy
             const ngayKetThuc = new Date(document.getElementById('ngayKetThuc').value).toLocaleDateString('vi-VN'); // Format as dd/mm/yyyy
+            const applyType = document.getElementById('applyType').value;
+            let applyValue = null;
+
+            if (applyType === 'airlines') {
+                applyValue = document.getElementById('hangHangKhong').value;
+            } else if (applyType === 'flights') {
+                applyValue = document.getElementById('chuyenBay').value;
+            }
 
             let data = {
-                    MaKhuyenMai: document.getElementById('maKhuyenMai').value.trim(),
-                    TenKhuyenMai: document.getElementById('tenKhuyenMai').value.trim(),
-                    MoTa: document.getElementById('moTa').value.trim(),
-                    LoaiKhuyenMai: document.getElementById('loaiKhuyenMai').value,
-                    GiaTri: parseFloat(document.getElementById('giaTri').value),
-                    NgayBatDau: ngayBatDau,
-                    NgayKetThuc: ngayKetThuc,
-                };                   
-            try {                
+                MaKhuyenMai: document.getElementById('maKhuyenMai').value.trim(),
+                TenKhuyenMai: document.getElementById('tenKhuyenMai').value.trim(),
+                MoTa: document.getElementById('moTa').value.trim(),
+                LoaiKhuyenMai: document.getElementById('loaiKhuyenMai').value,
+                GiaTri: parseFloat(document.getElementById('giaTri').value),
+                NgayBatDau: ngayBatDau,
+                NgayKetThuc: ngayKetThuc,
+                ApplyType: applyType,
+            };
+
+            if (applyType === 'airlines') {
+                data.HangHangKhong = applyValue;
+            } else if (applyType === 'flights') {
+                data.ChuyenBay = applyValue;
+            }
+
+            console.log("Dữ liệu gửi đi:", data)
+
+            try {
                 const response = await fetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
@@ -331,19 +350,19 @@
                 });
 
                 const result = await response.json();
-                
-                if (result.status) {
-                        showMessage('success', result.message);
-                        resetForm();
 
-                        setTimeout(() => { location.reload(); }, 2000);
-                    } else {
-                        showMessage('danger', result.message);
-                    }
+                if (result.status) {
+                    showMessage('success', result.message);
+                    resetForm();
+
+                    setTimeout(() => { location.reload(); }, 2000);
+                } else {
+                    showMessage('danger', result.message);
+                }
                 loadPromotions();
             } catch (error) {
                 showMessage('danger', `Có lỗi xảy ra: ${error.message}`);
-                    console.error(error);
+                console.error(error);
             }
         });
 
@@ -368,7 +387,7 @@
                 updateTable(result.data);
                 const newUrl = `${window.location.pathname}?${params.toString()}`;
                 window.history.pushState({}, '', newUrl);
-                
+
             } catch (error) {
                 console.error(error);
                 showMessage('danger', `Lỗi: ${error.message}`);
@@ -393,6 +412,7 @@
             loadPromotions(1, searchParams);
         });
 
+        // còn chưa cập nhập data lấy ở đây
         function updateTable(data) {
             const table = document.getElementById('khuyenmai-table');
             table.innerHTML = '';
@@ -407,6 +427,7 @@
                     const escapedGiaTri = escapeHtml(km.GiaTri);
                     const escapedNgayBatDau = escapeHtml(km.NgayBatDau);
                     const escapedNgayKetThuc = escapeHtml(km.NgayKetThuc);
+                    const escapedApDungCho = km.ApDungCho ? escapeHtml(km.ApDungCho.value) : 'Chưa áp dụng';
                     row.innerHTML = `
                         <td>${escapedMaKhuyenMai}</td>
                         <td>${escapedTenKhuyenMai}</td>
@@ -414,6 +435,7 @@
                         <td>${escapedGiaTri}</td>
                         <td>${escapedNgayBatDau}</td>
                         <td>${escapedNgayKetThuc}</td>
+                        <td>${escapedApDungCho}</td>
                         <td class="text-center">
                             <button class="btn btn-outline-success btn-sm me-2 edit-btn" data-id="${escapedMaKhuyenMai}">
                                 <i class="bi bi-pencil-square"></i>
@@ -424,8 +446,8 @@
                         </td>
                     `;
                     table.appendChild(row);
-                    
-                     // Thêm event listeners cho các nút
+
+                    // Thêm event listeners cho các nút
                     const editBtn = row.querySelector('.edit-btn');
                     const deleteBtn = row.querySelector('.delete-btn');
 
