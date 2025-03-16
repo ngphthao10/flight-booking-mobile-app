@@ -1,6 +1,0 @@
-.env
-*/**/__pycache__/
-*.pyc
-.DS_Store
-client_app/app/uploads/*
-!app/uploads/.gitkeep
