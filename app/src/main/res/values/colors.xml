@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="purple">#728af7</color>
+
+
+    <color name="selected_background_color">#D1C4E9</color> <!-- Màu nền khi được chọn -->
+    <color name="unselected_background_color">#FFFFFF</color> <!-- Màu nền khi không được chọn -->
+
+
 </resources>

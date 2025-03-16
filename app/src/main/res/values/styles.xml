@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ErrorTextStyle" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:fontFamily">@font/nunito_medium</item>
+        <item name="android:textColor">@android:color/holo_red_dark</item> <!-- Màu của lỗi -->
+    </style>
+</resources>

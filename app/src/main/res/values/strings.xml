@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">DatVeMayBay</string>
+    <string name="open_nav">Open Navigation Pane</string>
+    <string name="close_nav">Close Navigation Pane</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="sort_options">
+        <item>Asc</item>
+        <item>Des</item>
+    </string-array>
 </resources>

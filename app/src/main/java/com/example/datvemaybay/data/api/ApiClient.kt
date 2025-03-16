@@ -1,6 +1,6 @@
 // src/main/java/com/example/datvemaybay/api/ApiClient.kt
 
-package com.example.datvemaybay.api
+package com.example.datvemaybay.data.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+
+        <TextView
+            android:id="@+id/titleKhuyenMai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="BAY VUI QUỐC TẾ"
+            android:textColor="@color/black"
+            android:fontFamily="@font/nunito_extrabold"
+            android:textSize="16sp"
+            android:padding="5dp"/>
+
+        <TextView
+            android:id="@+id/tvMoTa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ưu đãi cho chuyến bay quốc tế"
+            android:textColor="@color/black"
+            android:fontFamily="@font/nunito_medium"
+            android:textSize="16sp"
+            android:padding="5dp"/>
+
+        <TextView
+            android:id="@+id/tvChiTiet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Giảm 1.000.000 VND cho chuyến bay quốc tế"
+            android:textColor="#8DBC80"
+            android:textSize="15sp"
+            android:fontFamily="@font/nunito_medium"
+            android:padding="5dp"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

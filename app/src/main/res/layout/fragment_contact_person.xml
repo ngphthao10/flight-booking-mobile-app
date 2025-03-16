@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/confirm_layout_shape"
+    android:padding="16dp"
+    android:backgroundTint="#F4F3F3">
+
+    <!-- Dấu gạch ngang trên cùng -->
+    <View
+        android:id="@+id/handle_view"
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:background="@color/purple"
+        android:layout_marginBottom="12dp"
+        android:shape="oval" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <!-- Image Button on the Left -->
+        <ImageButton
+            android:id="@+id/btnCancel"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@null"
+            android:contentDescription="Thêm hành khách"
+            android:scaleType="fitCenter"
+            android:src="@drawable/cancel_svgrepo_com"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <!-- Header Title in the Center -->
+        <TextView
+            android:id="@+id/tvHeaderTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thông tin liên hệ"
+            android:fontFamily="@font/nunito_extrabold"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/btnCancel"
+            app:layout_constraintEnd_toStartOf="@id/btnReset"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- Reset Button on the Right -->
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:textColor="@color/purple"
+            android:textSize="18sp"
+            android:padding="0dp"
+            android:backgroundTint="@android:color/transparent"
+            android:fontFamily="@font/nunito_extrabold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Warning Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/card_layout"
+        android:backgroundTint="#fdf9df"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/warn_svgrepo_com"/>
+
+            <TextView
+                android:id="@+id/labelWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quan trọng"
+                android:fontFamily="@font/nunito_extrabold"
+                android:textSize="16sp"
+                android:textColor="#8E8C8C"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Người dưới đây sẽ nhận được vé điện tử và sẽ là người liên hệ liên quan đến bất kỳ yêu cầu hoàn tiền hoặc đổi lịch nào."
+            android:fontFamily="@font/nunito_medium"
+            android:textSize="15sp"
+            android:textColor="#595757"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Last Name Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Họ (VD: Nguyen)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:errorTextAppearance="@style/ErrorTextStyle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtHo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:textSize="16dp"
+                    android:fontFamily="@font/nunito_medium"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- First Name Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="Tên đệm &amp; Tên (VD: Thi Minh Thu)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:errorTextAppearance="@style/ErrorTextStyle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtTen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:textSize="16dp"
+                    android:fontFamily="@font/nunito_medium"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Country Code and Phone Number Fields -->
+            <LinearLayout
+                android:id="@+id/llPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/maDienThoai"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito_medium"
+                        android:inputType="none"
+                        android:padding="16dp"
+                        android:text="+84"
+                        android:textSize="16dp"
+                        android:textColor="@color/black"
+                        android:textColorHint="#89888b" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:hint="SDT (VD: 987654321)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtSDT"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito_medium"
+                        android:textSize="16dp"
+                        android:inputType="phone" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <!-- Email Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="Email (VD: myemail@gmail.com)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:errorTextAppearance="@style/ErrorTextStyle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito_medium"
+                    android:textSize="16dp"
+                        android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:layout_marginTop="16dp"
+        android:textSize="20dp"
+        android:fontFamily="@font/nunito_extrabold"
+        android:background="@drawable/button_ui"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

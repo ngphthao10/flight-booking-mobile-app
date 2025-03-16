@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f4f3f3"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- AppBar with Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="20dp">
+
+        <View
+            android:id="@+id/handle_view"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center"
+            android:background="@color/purple"
+            android:layout_marginBottom="12dp"
+            android:shape="oval" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- Image Button on the Left -->
+            <ImageButton
+                android:id="@+id/btnCancel"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="15dp"
+                android:background="@null"
+                android:contentDescription="Thêm hành khách"
+                android:scaleType="fitCenter"
+                android:src="@drawable/cancel_svgrepo_com"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <!-- Header Title in the Center -->
+            <TextView
+                android:id="@+id/tvHeaderTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Người lớn 1"
+                android:fontFamily="@font/nunito_extrabold"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toEndOf="@id/btnCancel"
+                app:layout_constraintEnd_toStartOf="@id/btnReset"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <!-- Reset Button on the Right -->
+            <Button
+                android:id="@+id/btnReset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reset"
+                android:textColor="@color/purple"
+                android:textSize="18sp"
+                android:padding="0dp"
+                android:backgroundTint="@android:color/transparent"
+                android:fontFamily="@font/nunito_extrabold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Scrollable content -->
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="86dp"
+        android:fillViewport="true">
+
+        <!-- Footer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card_layout"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="start">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/tick_svgrepo_com"/>
+                    <!-- Subtitle -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thông tin của bạn"
+                        android:textSize="18sp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/nunito_medium"
+                        android:textStyle="bold"
+                        android:layout_gravity="center"/>
+                </LinearLayout>
+
+                <!-- Warning Box -->
+                <!-- Warning Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/card_layout"
+                    android:backgroundTint="#fdf9df"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/warn_svgrepo_com"/>
+
+                        <TextView
+                            android:id="@+id/labelWarning"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vui lòng chú ý những điều sau đây:"
+                            android:fontFamily="@font/nunito_extrabold"
+                            android:textSize="16sp"
+                            android:textColor="#5D5B5B"
+                            android:layout_marginStart="10dp"
+                            android:layout_gravity="center_vertical"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvWarning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bạn phải nhập chính xác tên như trong CCCD của mình"
+                        android:fontFamily="@font/nunito_medium"
+                        android:textSize="15sp"
+                        android:textColor="#595757"
+                        android:layout_marginTop="10dp"/>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/transparent"
+                        android:text="Xem hướng dẫn nhập tên"
+                        android:textSize="16dp"
+                        android:textColor="@color/purple"
+                        android:padding="0dp"
+                        android:fontFamily="@font/nunito_extrabold"/>
+
+                </LinearLayout>
+
+                <!-- Form Fields -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Danh xưng"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/danhXungView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito_medium"
+                        android:inputType="none"
+                        android:padding="16dp"
+                        android:textSize="16dp"
+                        android:textColor="@color/black"
+                        android:textColorHint="#89888b" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Họ (VD: Nguyen)"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtHo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textSize="16dp"
+                        android:fontFamily="@font/nunito_medium"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Tên đệm &amp; Tên (VD: Thi Minh Thu)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtTen"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textSize="16dp"
+                        android:fontFamily="@font/nunito_medium"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Ngày sinh"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtNgaySinh"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:textSize="16dp"
+                        android:fontFamily="@font/nunito_medium" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Quốc gia"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/countryAutoCompleteTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito_medium"
+                        android:inputType="none"
+                        android:padding="16dp"
+                        android:textSize="16dp"
+                        android:textColor="@color/black"
+                        android:textColorHint="#89888b" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Số căn cước công dân"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:errorTextAppearance="@style/ErrorTextStyle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtSoCCCD"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito_medium"
+                        android:inputType="number"
+                        android:textSize="16dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Các thành phần khác -->
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:textSize="20dp"
+                android:fontFamily="@font/nunito_extrabold"
+                android:background="@drawable/button_ui"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

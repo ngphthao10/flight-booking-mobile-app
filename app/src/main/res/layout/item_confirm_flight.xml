@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Container thông tin chuyến đi -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/container_chuyen_di"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/label_chuyen_di"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Chuyến đi -->
+            <TextView
+                android:id="@+id/tvLoaiChuyen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chuyến đi"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:background="@drawable/button_ui"
+                android:backgroundTint="#AAD9B3"
+                android:fontFamily="@font/nunito_medium"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tvDepartureTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mon, 23 Jan 2025  |  1h 25m"
+                android:textSize="16sp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/nunito_medium"
+                android:textColor="@android:color/darker_gray"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fromContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_chuyen_di"
+            app:layout_constraintBottom_toTopOf="@+id/bottomContainer">
+            <!-- Thời gian khởi hành -->
+            <TextView
+                android:id="@+id/tv_chuyen_di_time_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="21:15"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FF0E0E"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/nunito_extrabold"
+                android:layout_gravity="center_horizontal"/>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <!-- Địa điểm khởi hành -->
+                <TextView
+                    android:id="@+id/tv_chuyen_di_location_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TP HCM"
+                    android:textSize="16sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/nunito_extrabold"/>
+
+                <TextView
+                    android:id="@+id/tv_chuyen_di_location_start_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SGN"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:background="@drawable/unselected_button_background"
+                    android:padding="5dp"
+                    android:fontFamily="@font/nunito_medium"
+                    android:layout_marginTop="4dp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:src="@drawable/flight_takeoff_svgrepo_com"
+            app:layout_constraintEnd_toStartOf="@id/toContainer"
+            app:layout_constraintStart_toEndOf="@id/fromContainer"
+            app:layout_constraintTop_toBottomOf="@+id/label_chuyen_di"
+            app:layout_constraintBottom_toTopOf="@+id/bottomContainer"/>
+
+        <LinearLayout
+            android:id="@+id/toContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/label_chuyen_di"
+            app:layout_constraintBottom_toTopOf="@+id/bottomContainer"
+
+            app:layout_constraintEnd_toEndOf="parent">
+            <!-- Thời gian khởi hành -->
+            <TextView
+                android:id="@+id/tv_chuyen_ve_time_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:30"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FF0E0E"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/nunito_extrabold"
+                android:layout_gravity="center_horizontal"/>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <!-- Địa điểm khởi hành -->
+                <TextView
+                    android:id="@+id/tv_chuyen_ve_location_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Huế"
+                    android:textSize="16sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="@font/nunito_extrabold"/>
+
+                <TextView
+                    android:id="@+id/tv_chuyen_ve_location_start_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HUI"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:background="@drawable/unselected_button_background"
+                    android:padding="5dp"
+                    android:fontFamily="@font/nunito_medium"
+                    android:layout_marginTop="4dp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/bottomContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <!-- Hãng bay -->
+            <TextView
+                android:id="@+id/tvThongTinVe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VietJet Air   •   Economy   •   VJ-319"
+                android:textSize="16sp"
+                android:textColor="#7C7B7B"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/nunito_medium"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

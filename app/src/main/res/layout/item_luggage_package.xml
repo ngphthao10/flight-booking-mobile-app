@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:layout_height="75dp">
+
+    <TextView
+        android:id="@+id/luggageInfo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="+20 kg\nVND 266.000"
+        android:background="@drawable/item_selector"
+        android:padding="8dp"
+        android:layout_margin="4dp"
+        android:textSize="16dp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/nunito_medium"
+        android:textAlignment="center"
+        android:lineSpacingExtra="4dp" />
+
+</LinearLayout>

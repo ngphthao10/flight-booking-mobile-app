@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <!-- Icon thanh toán thành công -->
+    <ImageView
+        android:id="@+id/ivSuccessIcon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/icons8_success" /> <!-- Thêm biểu tượng thành công, ví dụ một biểu tượng dấu tick -->
+
+    <!-- Thông báo thanh toán thành công -->
+    <TextView
+        android:id="@+id/tvSuccessMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thanh toán thành công!"
+        android:textSize="25sp"
+        android:fontFamily="@font/nunito_extrabold"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="20dp" />
+
+    <!-- Hiển thị số tiền đã thanh toán -->
+    <TextView
+        android:id="@+id/tvAmountPaid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thông tin vé đã được gửi đến email của bạn"
+        android:textSize="18sp"
+        android:textColor="#3BB85B"
+        android:fontFamily="@font/nunito_medium"
+        android:layout_marginTop="10dp" />
+
+    <!-- Nút đóng (hoặc hành động khác sau khi thanh toán thành công) -->
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trở về trang chủ"
+        android:background="@drawable/button_ui"
+        android:fontFamily="@font/nunito_extrabold"
+        android:textSize="18dp"
+        android:layout_marginTop="30dp" />
+</LinearLayout>

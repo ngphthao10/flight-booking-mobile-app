@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/black"
+        android:layout_marginTop="20dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <LinearLayout
+            android:id="@+id/titleContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp">
+            <!-- Back Button -->
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@null"
+                android:src="@drawable/back_svgrepo_com"
+                android:contentDescription="Back Button"
+                android:scaleType="fitCenter"/>
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="Thêm thông tin hành khách"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/nunito_extrabold"
+                android:gravity="center"/>
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="86dp"
+        android:fillViewport="true">
+
+        <!-- Footer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/card_layout"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:id="@+id/bookingDataContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@android:color/transparent"
+                android:layout_marginTop="20dp"
+                app:layout_constraintTop_toBottomOf="@+id/titleContainer">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/bookingData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+
+            <!-- Thông tin hành khách -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/nunito_extrabold"
+                android:text="Hành khách"
+                android:textColor="@color/black"
+                android:textSize="17sp" />
+
+            <LinearLayout
+                android:id="@+id/passengerListContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@android:color/transparent"
+                app:layout_constraintTop_toBottomOf="@+id/titleContainer">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvPassengerList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <!-- Thông tin liên hệ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/nunito_extrabold"
+                android:text="Liên hệ"
+                android:textColor="#000000"
+                android:textSize="17sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/input_ui"
+                android:backgroundTint="@color/white"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvContactPerson"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@null"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nunito_medium"
+                    android:hint="Người liên hệ"
+                    android:textSize="16dp"
+                    android:textStyle="normal" />
+
+                <ImageButton
+                    android:id="@+id/btnAddNguoiLienHe"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@null"
+                    android:contentDescription="Thêm người liên hệ"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/add_circle_svgrepo_com" />
+            </LinearLayout>
+
+            <!-- Nhu yếu phẩm chuyến bay -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/nunito_extrabold"
+                android:text="Nhu yếu phẩm chuyến bay"
+                android:textColor="#000000"
+                android:textSize="17sp" />
+
+            <!-- Hành lý -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/iconLuggage"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:contentDescription="Icon hành lý"
+                            android:src="@drawable/luggage_cart_svgrepo_com" />
+
+                        <TextView
+                            android:id="@+id/textLuggage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_toEndOf="@id/iconLuggage"
+                            android:fontFamily="@font/nunito_extrabold"
+                            android:text="Hành lý"
+                            android:textColor="#000000"
+                            android:textSize="20sp" />
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/nunito_medium"
+                        android:text="Bạn có thể mang 20 kg kiện/khách. Cần mua thêm? Chạm tại đây"
+                        android:textColor="#ABA7A7"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/selectLuggage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:fontFamily="@font/nunito_medium"
+                            android:text="Chưa chọn hành lý"
+                            android:textColor="#FF5722"
+                            android:textSize="16dp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1" />
+
+                        <Button
+                            android:id="@+id/selectHanhLy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:backgroundTint="@color/white"
+                            android:fontFamily="@font/nunito_extrabold"
+                            android:text="Chọn"
+                            android:textColor="@color/purple"
+                            android:textSize="16dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/labelTongTien"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/nunito_medium"
+                        android:text="Tổng giá tiền cho 1 người"
+                        android:textColor="#949191"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/tvTongTien"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/nunito_extrabold"
+                        android:text="VND 2.614.322"
+                        android:textColor="#FF5722"
+                        android:textSize="18dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/nunito_medium"
+                        android:text="Đã bao gồm tất cả giá vé và thuế"
+                        android:textColor="#949191"
+                        android:textSize="16dp" />
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnContinue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|end"
+                    android:background="@drawable/button_ui"
+                    android:fontFamily="@font/nunito_extrabold"
+                    android:padding="8dp"
+                    android:text="Continue"
+                    android:textColor="@color/white"
+                    android:textSize="17dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

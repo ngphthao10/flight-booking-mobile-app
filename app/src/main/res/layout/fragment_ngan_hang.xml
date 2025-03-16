@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp"
+    android:background="@drawable/confirm_layout_shape">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/handle_view"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center"
+            android:background="@color/purple"
+            android:layout_marginBottom="12dp"
+            android:shape="oval" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btnCancel"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@null"
+                android:src="@drawable/cancel_svgrepo_com"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_vertical"
+                />
+
+            <TextView
+                android:id="@+id/flight_info_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phương thức thanh toán"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:fontFamily="@font/nunito_extrabold"
+                android:padding="10dp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/tvChonNganHang"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chọn ngân hàng"
+            android:textStyle="bold"
+            android:fontFamily="@font/nunito_extrabold"
+            android:textSize="16dp"
+            android:paddingTop="8dp"/>
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+                <RadioButton
+                    android:id="@+id/radioVietcombank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vietcombank"/>
+
+                <RadioButton
+                    android:id="@+id/radioAgribank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Agribank"/>
+
+                <RadioButton
+                    android:id="@+id/radioBIDV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BIDV"/>
+
+                <RadioButton
+                    android:id="@+id/radioTechcombank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Techcombank"/>
+
+                <RadioButton
+                    android:id="@+id/radioMBBank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MB Bank"/>
+
+                <RadioButton
+                    android:id="@+id/radioVPBank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VPBank"/>
+
+                <RadioButton
+                    android:id="@+id/radioACB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ACB"/>
+
+                <RadioButton
+                    android:id="@+id/radioSacombank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sacombank"/>
+
+                <RadioButton
+                    android:id="@+id/radioVIB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VIB"/>
+
+                <RadioButton
+                    android:id="@+id/radioTPBank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TPBank"/>
+        </RadioGroup>
+
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập số thẻ (VD: 123456789)"
+            android:layout_marginTop="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:errorTextAppearance="@style/ErrorTextStyle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtSoThe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:textSize="16dp"
+                android:fontFamily="@font/nunito_medium"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập họ tên (VD: NGUYEN VAN A)"
+            android:layout_marginTop="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:errorTextAppearance="@style/ErrorTextStyle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtHoTen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textSize="16dp"
+                android:fontFamily="@font/nunito_medium"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/confirmButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xác nhận"
+            android:background="@drawable/button_ui"
+            android:backgroundTint="@color/purple"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/nunito_extrabold" />
+
+    </LinearLayout>
+</ScrollView>

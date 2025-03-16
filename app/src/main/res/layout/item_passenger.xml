@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/input_ui"
+    android:backgroundTint="@color/white"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/edtHoTen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:hint="Người lớn 1"
+        android:fontFamily="@font/nunito_medium"
+        android:textSize="16dp"
+        android:textColor="@color/black"
+        />
+
+
+    <ImageButton
+        android:id="@+id/btnAddHanhKhach"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@null"
+        android:contentDescription="Thêm hành khách"
+        android:scaleType="fitCenter"
+        android:src="@drawable/add_circle_svgrepo_com" />
+
+</LinearLayout>

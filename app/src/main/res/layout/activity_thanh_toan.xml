@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ThanhToanActivity"
+    android:background="@color/black">
+
+    <!-- Header with Title and Code -->
+    <LinearLayout
+        android:layout_marginTop="16dp"
+        android:id="@+id/headerSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/purple">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
+            android:contentDescription="Back button"
+            android:src="@drawable/back_svgrepo_com" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hoàn tất thanh toán của bạn"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:fontFamily="@font/nunito_extrabold"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/tvMaDatCho"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mã đặt chỗ: 1218046345"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:fontFamily="@font/nunito_medium"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Timer -->
+
+
+    <!-- Payment Details -->
+    <LinearLayout
+        android:id="@+id/paymentDetailsSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/card_layout"
+        android:backgroundTint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/headerSection"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Flight Details -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/flight_takeoff_svgrepo_com"
+                android:contentDescription="Flight Icon" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SGN ⇌ HUI"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/nunito_extrabold"
+                    android:layout_marginStart="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvThoiGian"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="18 tháng 1 2025 - 18 tháng 1 2025"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/nunito_medium"
+                        android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnChiTietVe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chi tiết"
+                android:background="@android:color/transparent"
+                android:textColor="@color/purple"
+                android:fontFamily="@font/nunito_extrabold"
+                android:textSize="16dp"
+                android:padding="0dp"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Confirm Button -->
+    <LinearLayout
+        android:id="@+id/cardContainer"
+        android:layout_width="411dp"
+        android:layout_height="617dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/card_layout"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/confirmButton"
+        app:layout_constraintTop_toBottomOf="@+id/paymentDetailsSection"
+        tools:layout_editor_absoluteX="0dp"
+        android:layout_margin="5dp"
+        tools:ignore="MissingConstraints">
+
+        <!-- Payment Method -->
+        <LinearLayout
+            android:id="@+id/paymentMethodSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/paymentDetailsSection">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nunito_extrabold"
+                    android:text="Phương thức thanh toán"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/btnThanhToan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/nunito_extrabold"
+                    android:padding="0dp"
+                    android:text="Edit"
+                    android:textColor="@color/purple"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/paymentMethods"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tvThanhToan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_ui"
+                    android:backgroundTint="#E7E7E7"
+                    android:fontFamily="@font/nunito_medium"
+                    android:padding="16dp"
+                    android:text="VietQR"
+                    android:textSize="18dp" />
+
+            </RadioGroup>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nunito_extrabold"
+            android:padding="16dp"
+            android:text="Khuyến mãi"
+            android:textSize="18dp"/>
+
+        <!-- Coupon Section -->
+        <LinearLayout
+            android:id="@+id/couponSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/paymentMethodSection">
+
+            <TextView
+                android:id="@+id/tvKhuyenMai"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_ui"
+                android:backgroundTint="#E7E7E7"
+                android:fontFamily="@font/nunito_medium"
+                android:padding="16dp"
+                android:text="Mã giảm giá"
+                android:textColor="#6F6F6F"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/btnKhuyenMai"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/nunito_extrabold"
+                android:padding="0dp"
+                android:text="Edit"
+                android:textColor="@color/purple"
+                android:textSize="16dp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nunito_extrabold"
+                    android:text="Tổng giá tiền:"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tvTienThanhToan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito_extrabold"
+                    android:text="VND 4,957,730"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="#BDBDBD" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nunito_medium"
+                    android:text="Tổng tiền (vé + hành lý)"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@id/tvTongTien"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/nunito_medium"
+                    android:text="VND 4,789,930"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nunito_medium"
+                    android:text="Mã giảm giá:"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvTienGiam"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito_medium"
+                    android:text="- VND 1"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Thanh toán"
+        android:background="@drawable/button_ui"
+        android:backgroundTint="@color/white"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:fontFamily="@font/nunito_extrabold"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
